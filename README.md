@@ -8,7 +8,7 @@ functionalities:
 
 ### Expendable game librairy
 
-The logic used in our server must be made in a way
+The logic used in our server will be made in a way
 that we can easily append our library with more
 games without difficulties.
 
