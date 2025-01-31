@@ -38,6 +38,7 @@ players to communicate between them.
 - Head Band
 - Poker
 - Black Jack
+- The hanged-Man
 
 ------------------------------------------------------
 
