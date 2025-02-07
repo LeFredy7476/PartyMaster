@@ -1,0 +1,1 @@
+Instead of having multiples event queue, everything can be in the ping command

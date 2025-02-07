@@ -77,3 +77,18 @@ Events are information fetch from the server.
   - retreive the last 10 message sent in the chat. To be used when joining a party.
   - `send` uuid
   - `receive` list of message (uuid, content)
+
+## Games (global)
+### action
+
+- `vote_game`
+  - used to vote for the next game to play during voting phase
+  - `send` uuid, game
+  - `receive` confirm
+
+### event
+
+- `game_event`
+  - retreive major game event like a game start, a game end, an aborted game ect...
+  - `send` uuid
+  - `receive` list of game_events (uuid, content)
