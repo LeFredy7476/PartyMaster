@@ -1,4 +1,6 @@
 package dev.FredyRedaTeam.model;
 
-public class Event {
+interface Event {
+    String pack();
+    void unpack(String cmd);
 }
