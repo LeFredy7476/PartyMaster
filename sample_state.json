@@ -1,0 +1,39 @@
+{
+    "room": "GH23487G2B",
+    "timestamp": 0,
+    "party_master": "03820a87-1c0b-44e3-a115-21ebbea90b43",
+    "players": {
+        "03820a87-1c0b-44e3-a115-21ebbea90b43": {
+            "nickname": "Bobby",
+            "icon": "classic_A"
+        },
+        "335bfc4d-b6ac-4560-9066-373089cab8e1": {
+            "nickname": "Marc",
+            "icon": "classic_C"
+        }
+    },
+    "game": {
+        "name": "lobby",
+        "ready": true,
+        "selected_game": "uno",
+        "ready_check": {
+            "03820a87-1c0b-44e3-a115-21ebbea90b43": true,
+            "335bfc4d-b6ac-4560-9066-373089cab8e1": false
+        }
+    },
+    "chat_history": [
+        {
+            "uuid": "03820a87-1c0b-44e3-a115-21ebbea90b43",
+            "timestamp": 0,
+            "content": "Hey! hello!"
+        }, {
+            "uuid": "335bfc4d-b6ac-4560-9066-373089cab8e1",
+            "timestamp": 0,
+            "content": "Hello! How u doing?"
+        }, {
+            "uuid": "03820a87-1c0b-44e3-a115-21ebbea90b43",
+            "timestamp": 0,
+            "content": "I'm doin fine"
+        }
+    ]
+}
