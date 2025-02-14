@@ -5,7 +5,8 @@ export default function Chat() {
     return (
         <div id="chat">
             <div className="chat-header">
-                <div className="chat-icon"></div>
+                <div className="chat-icon"><span className="micon">chat</span></div>
+                <h2 className="chat-title">Lobby Chat</h2>
             </div>
             <ChatLog />
             <div className="chat-input-box">
