@@ -1,0 +1,115 @@
+
+#chat {
+    width: 4rem;
+    padding: 1rem;
+    transition: 0.3s 0s ease;
+    min-width: 0px;
+    display: flex;
+    align-items: stretch;
+    justify-content: stretch;
+    box-sizing: border-box;
+    flex-direction: column;
+    flex-wrap: nowrap;
+}
+
+#chat:hover {
+    width: 40vw;
+}
+
+#chat > div {
+    width: calc(40vw - 2rem);
+}
+
+#chat .chat-header {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 2rem;
+    justify-content: stretch;
+    transition: inherit;
+}
+
+#chat .chat-header .chat-icon {
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: inherit;
+}
+
+#chat:hover .chat-header .chat-icon {
+    width: 4rem;
+    height: 2rem;
+}
+
+#chat .chat-header .chat-title {
+    transition: inherit;
+    opacity: 0;
+}
+
+#chat:hover .chat-header .chat-title {
+    opacity: 1;
+}
+
+
+#chat .chat-input-box {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    justify-content: stretch;
+    transition: inherit;
+    opacity: 0;
+}
+
+#chat:hover .chat-input-box {
+    opacity: 1;
+}
+
+#chat .chat-input-box #chat-input-message {
+    height: 3rem;
+    flex-grow: 1;
+    border: 4px solid #000;
+    border-right: none;
+    box-sizing: border-box;
+    margin: 0px;
+    padding: 0.75px 1.5rem;
+    border-radius: 2rem 0px 0px 2rem;
+    transition: inherit;
+    outline: none !important;
+    font-size: 1.5rem;
+}
+
+#chat .chat-input-box #chat-send-message {
+    height: 3rem;
+    width: 6rem;
+    border: 4px solid #000;
+    box-sizing: border-box;
+    margin: 0px;
+    padding: 0px;
+    display: block;
+    align-content: center;
+    background-color: #fff;
+    font-weight: 600;
+    font-size: 1.25rem;
+    color: #000;
+    border-radius: 0px 2rem 2rem 0px;
+    box-shadow: 0px 0px 0px 0px #000 inset;
+    transition: inherit;
+}
+
+#chat .chat-input-box #chat-send-message:hover {
+    box-shadow: 0px 0px 0px 2px #000 inset;
+}
+
+#chat .chat-input-box #chat-send-message:active {
+    box-shadow: 0px 0px 0px 2px #000 inset;
+    background-color: #000;
+    transition: 0s 0s ease;
+}
+
+#chat .chat-log {
+    flex-grow: 1;
+}
