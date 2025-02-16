@@ -1,6 +1,6 @@
 
 
-export default function ChatLog() {
+export default function ChatLog({data}) {
     return (
         <div className="chat-log">
             

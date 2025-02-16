@@ -4,8 +4,8 @@ import Player from "./Player";
 export default function PlayerList({data}) {
     return (
         <div className="playerlist">
-            {data.map((player) => 
-                <Player name={player.name} icon={player.icon}/>
+            {Object.keys(data.players).map((player) => 
+                <Player name={data.players[player].name} icon={data.players[player].icon}/>
             )}
         </div>
     )
