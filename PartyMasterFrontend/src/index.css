@@ -1,13 +1,17 @@
 body {
-    background-color: white;
     height: 100vh;
     width: 100vw;
     margin: 0px;
     box-sizing: border-box;
+    mix-blend-mode: multiply;
 }
 
 html {
     overflow: hidden;
+    background-color: white;
+    background-image: 
+        linear-gradient(#fff8, #fff8),
+        url("/white-crumpled-paper-texture-background.jpg");
 }
 
 * {
