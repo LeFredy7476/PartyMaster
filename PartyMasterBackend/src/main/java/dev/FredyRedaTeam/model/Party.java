@@ -1,18 +1,21 @@
 package dev.FredyRedaTeam.model;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.LinkedList;
 
 public class Party {
     public static final int MAX_PLAYER_BY_PARTY = 20;
+    public static final int MAX_CHAT_HISTORY = 50;
     private final HashMap<String, Player> players = new HashMap<>();
-    private final Hashtable<String, LinkedList<Event>> eventQueues = new Hashtable<>();
+    private final HashMap<String, LinkedList<Event>> eventQueues = new HashMap<>();
+    private String party_master;
+    private String room;
+    private Game game;
+    private final LinkedList<Message> chat = new LinkedList<>();
 
     public void queueEventForAllPlayer(Event event) {
-        for (Hashtable<String, LinkedList<Event>> eventQueue in eventQueues) {
-
+        for (LinkedList<Event> eventQueue : eventQueues.values()) {
+            eventQueue.add(event);
         }
     }
 
@@ -30,5 +33,9 @@ public class Party {
         this.players.remove(player.getUuid());
         this.eventQueues.remove(player.getUuid());
 
+    }
+
+    public String toJson() {
+        return "{}";
     }
 }

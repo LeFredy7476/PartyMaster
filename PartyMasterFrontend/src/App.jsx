@@ -9,7 +9,7 @@ import Chat from './Chat'
 
 function App() {
 
-    const data = {
+    const [data, setData] = useState({
         "room": "GH23487G2B",
         "timestamp": 0,
         "party_master": "4",
@@ -48,22 +48,22 @@ function App() {
                 "c": true
             }
         },
-        "chat_history": [
+        "chat": [
             {
                 "uuid": "2",
-                "timestamp": 0,
+                "timestamp": 6,
                 "content": "Hey! hello!"
             }, {
                 "uuid": "3",
-                "timestamp": 0,
+                "timestamp": 18,
                 "content": "Hello! How u doing?"
             }, {
                 "uuid": "2",
-                "timestamp": 0,
+                "timestamp": 24,
                 "content": "I'm doin fine"
             }
         ]
-    }
+    })
 
     return (
         <>

@@ -4,11 +4,11 @@
     "party_master": "03820a87-1c0b-44e3-a115-21ebbea90b43",
     "players": {
         "03820a87-1c0b-44e3-a115-21ebbea90b43": {
-            "nickname": "Bobby",
+            "name": "Bobby",
             "icon": "classic_A"
         },
         "335bfc4d-b6ac-4560-9066-373089cab8e1": {
-            "nickname": "Marc",
+            "name": "Marc",
             "icon": "classic_C"
         }
     },
@@ -21,7 +21,7 @@
             "335bfc4d-b6ac-4560-9066-373089cab8e1": false
         }
     },
-    "chat_history": [
+    "chat": [
         {
             "uuid": "03820a87-1c0b-44e3-a115-21ebbea90b43",
             "timestamp": 0,

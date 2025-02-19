@@ -11,7 +11,15 @@ export default function Chat({data}) {
             <ChatLog data={data} />
             <div className="chat-input-box">
                 <input type="text" name="" id="chat-input-message" />
-                <button id="chat-send-message">send</button>
+                <button id="chat-send-message" onClick={() => {
+                    let value = document.querySelector("#chat-input-message").value;
+                    data.chat.push({
+                        "uuid": "0",
+                        "timestamp": 24,
+                        "content": value
+                    });
+                    document.querySelector("#chat-input-message").value = "";
+                }}>send</button>
             </div>
         </div>
     )
