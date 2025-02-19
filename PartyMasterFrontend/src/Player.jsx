@@ -3,12 +3,14 @@ import "./Player.css";
 
 
 
-export default function Player({name, icon}) {
+export default function Player({uuid, data}) {
+
+    let player = data.players[uuid];
 
     return (
         <div className="player">
-            <div className="player-icon"><img src={get_player_icon(icon)} alt={"icon#" + icon} /></div>
-            <div className="player-name">{name}</div>
+            <img className="player-icon" src={get_player_icon(player.icon)} alt={"icon#" + player.icon} />
+            <div className="player-name">{player.name}</div>
         </div>
     )
 }
