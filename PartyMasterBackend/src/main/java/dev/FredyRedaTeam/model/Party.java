@@ -2,6 +2,7 @@ package dev.FredyRedaTeam.model;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import org.json.*;
 
 public class Party {
     public static final int MAX_PLAYER_BY_PARTY = 20;
@@ -19,7 +20,33 @@ public class Party {
         }
     }
 
-    public int join_party(Player player) {
+    public int receiveAction(String uuid, String target, JSONObject content) {
+        Action action = new Action(uuid, target, content);
+        switch (action.target[0]) {
+            case "player" :
+                switch (action.target[1]) {
+                    case "quit" :
+                        quit(action);
+                        break;
+                    case "join" :
+                        join(action);
+                        break;
+
+                }
+                break;
+            case "chat" :
+                System.out.println("chat");
+                break;
+        }
+        return 0;
+    }
+
+    public String assignUuid(String preferedUuid) {
+        return preferedUuid;
+    }
+
+    public int join(Action action) {
+        Player player = players.get(action.uuid);
         if (this.players.size() < MAX_PLAYER_BY_PARTY) {
             this.players.put(player.getUuid(), player);
             this.eventQueues.put(player.getUuid(), new LinkedList<>());
@@ -29,7 +56,8 @@ public class Party {
         }
     }
 
-    public void quit_party(Player player) {
+    public void quit(Action action) {
+        Player player = players.get(action.uuid);
         this.players.remove(player.getUuid());
         this.eventQueues.remove(player.getUuid());
 

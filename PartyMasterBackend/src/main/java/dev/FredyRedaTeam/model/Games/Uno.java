@@ -5,6 +5,7 @@ import dev.FredyRedaTeam.model.Game;
 public class Uno implements Game {
     private int id;
 
+
     public static final String name = "Uno";
 
     public int getId() {

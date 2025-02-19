@@ -5,6 +5,12 @@ public class Player {
     private String name;
     private String icon;
 
+    public Player(String uuid, String name, String icon) {
+        this.uuid = uuid;
+        this.name = name;
+        this.icon = icon;
+    }
+
     public String getUuid() {
         return uuid;
     }
