@@ -1,21 +1,23 @@
 package dev.FredyRedaTeam.model;
 
+import java.util.UUID;
+
 public class Player {
-    private String uuid;
+    private UUID uuid;
     private String name;
     private String icon;
 
-    public Player(String uuid, String name, String icon) {
+    public Player(UUID uuid, String name, String icon) {
         this.uuid = uuid;
         this.name = name;
         this.icon = icon;
     }
 
-    public String getUuid() {
+    public UUID getUuid() {
         return uuid;
     }
 
-    public void setUuid(String uuid) {
+    public void setUuid(UUID uuid) {
         this.uuid = uuid;
     }
 

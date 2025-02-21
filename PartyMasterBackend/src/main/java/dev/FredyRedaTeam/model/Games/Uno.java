@@ -1,6 +1,8 @@
 package dev.FredyRedaTeam.model.Games;
 
+import dev.FredyRedaTeam.model.Action;
 import dev.FredyRedaTeam.model.Game;
+import dev.FredyRedaTeam.model.Party;
 
 public class Uno implements Game {
     private int id;
@@ -12,8 +14,19 @@ public class Uno implements Game {
         return this.id;
     }
 
-    public static void main(String[] args) {
-        Game a = new Uno();
-        System.out.println(a.name);
+
+    @Override
+    public void init(Party party) {
+
+    }
+
+    @Override
+    public int receiveAction(Action action) {
+        return 0;
+    }
+
+    @Override
+    public void tick() {
+
     }
 }

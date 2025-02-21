@@ -1,16 +1,35 @@
 package dev.FredyRedaTeam.model;
 import org.json.*;
 
-public class Action {
-    public String uuid;
-    public long timestamp;
-    public String[] target;
-    public JSONObject content;
+import java.util.UUID;
 
-    public Action(String uuid, String target, JSONObject content) {
+public class Action {
+    private UUID uuid;
+    private long timestamp;
+    private String[] target;
+    private JSONObject content;
+
+    public Action(UUID uuid, String target, JSONObject content) {
         this.uuid = uuid;
         this.timestamp = System.currentTimeMillis();
         this.target = target.split(":", 5);
         this.content = content;
+        System.out.println(this.getTarget()[0]);
+    }
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public String[] getTarget() {
+        return target;
+    }
+
+    public JSONObject getContent() {
+        return content;
     }
 }

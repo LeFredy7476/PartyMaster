@@ -1,6 +1,9 @@
 package dev.FredyRedaTeam.model;
 
-interface Event {
-    String pack();
-    void unpack(String cmd);
+import org.json.JSONObject;
+
+import java.util.UUID;
+
+public interface Event {
+    JSONObject toJson(UUID uuid);
 }
