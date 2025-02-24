@@ -21,12 +21,51 @@ public class Party {
     private final LinkedList<Message> chat = new LinkedList<>();
     private long lastTick = System.currentTimeMillis();
 
+    public HashMap<UUID, Player> getPlayers() {
+        return players;
+    }
+
+    public HashMap<UUID, LinkedList<Event>> getEventQueues() {
+        return eventQueues;
+    }
+
+    public UUID getPartyMaster() {
+        return partyMaster;
+    }
+
+    public String getRoom() {
+        return room;
+    }
+
+    public Game getGame() {
+        return game;
+    }
+
+    public LinkedList<Message> getChat() {
+        return chat;
+    }
+
+    public long getLastTick() {
+        return lastTick;
+    }
+
+    public String getAssignNameRegex() {
+        return assignNameRegex;
+    }
+
+    public Pattern getAssignNamePattern() {
+        return assignNamePattern;
+    }
+
     public void queueEventForAllPlayer(Event event) {
         for (LinkedList<Event> eventQueue : eventQueues.values()) {
             eventQueue.add(event);
         }
     }
 
+    public void resetTick() {
+        this.lastTick = System.currentTimeMillis();
+    }
 
     /**
      * result code :
