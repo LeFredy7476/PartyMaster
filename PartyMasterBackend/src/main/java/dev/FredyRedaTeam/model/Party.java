@@ -3,7 +3,12 @@ package dev.FredyRedaTeam.model;
 import java.util.HashMap;
 import java.util.LinkedList;
 import org.json.*;
+
+import java.util.List;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 public class Party {
     public static final int MAX_PLAYER_BY_PARTY = 20;
@@ -36,8 +41,7 @@ public class Party {
      * @param content the data itself
      * @return result code
      */
-
-    public int receiveAction(UUID uuid, String target, JSONObject content) {
+    public Return receiveAction(UUID uuid, String target, JSONObject content) {
         Action action = new Action(uuid, target, content);
         switch (action.getTarget()[0]) {
             case "player":
@@ -45,15 +49,17 @@ public class Party {
                     case "quit":
                         return quit(action);
                     case "join":
-                        join(action);
-                        break;
+                        return join(action);
                 }
                 break;
             case "chat" :
-                System.out.println("chat");
+                switch (action.getTarget()[1]) {
+                    case "send":
+                        return sendMessage(action);
+                }
                 break;
         }
-        return 0;
+        return new Return(2, new JSONObject()); // if command is not matched
     }
 
     public LinkedList<Event> fetchEvents(UUID uuid) {
@@ -74,18 +80,49 @@ public class Party {
         return uuid;
     }
 
-    public int join(Action action) {
-        Player player = players.get(action.getUuid());
+    public List<String> getPlayerNames() {
+        return this.players.keySet().stream().map((UUID uuid) -> this.players.get(uuid).getName()).toList();
+    }
+
+    private final String assignNameRegex = "^(.*-)(\\d{2})$";
+    private final Pattern assignNamePattern = Pattern.compile(assignNameRegex);
+    public String assignName(String preferedName) {
+        List<String> names = this.getPlayerNames();
+        while (names.contains(preferedName)) {
+            Matcher m = assignNamePattern.matcher(preferedName);
+            if (m.matches()) {
+                preferedName = m.group(1) + String.format("%02d", Integer.parseInt(m.group(2)) + 1);
+            } else {
+                preferedName += "-01";
+            }
+        }
+        return preferedName;
+    }
+
+    public Return join(Action action) {
         if (this.players.size() < MAX_PLAYER_BY_PARTY) {
-            this.players.put(player.getUuid(), player);
-            this.eventQueues.put(player.getUuid(), new LinkedList<>());
-            return 0; // OK
+            try {
+                UUID uuid = this.assignUuid(action.getUuid());
+                String name = action.getContent().getString("name");
+                name = this.assignName(name);
+                int icon = action.getContent().getInt("icon");
+                Player player = new Player(uuid, name, icon);
+                this.players.put(player.getUuid(), player);
+                this.eventQueues.put(player.getUuid(), new LinkedList<>());
+                return new Return(0); // OK
+            } catch (JSONException e) {
+                Return r = new Return(3, new JSONObject());
+                r.getData().put("r", "InvalidRequest");
+                return r; // REFUSED
+            }
         } else {
-            return 3; // REFUSED
+            Return r = new Return(3, new JSONObject());
+            r.getData().put("r", "PartyFull");
+            return r; // REFUSED
         }
     }
 
-    public int quit(Action action) {
+    public Return quit(Action action) {
         if (this.players.containsKey(action.getUuid())) {
 
             // remove player
@@ -105,14 +142,50 @@ public class Party {
                     this.eventQueues.get(uuid).add(new TerminationEvent(uuid));
                 }
             }
-            return 0; // OK
+            return new Return(0); // OK
         } else {
-            return 2; // IGNORED
+            return new Return(2); // IGNORED
         }
+    }
+
+    public Return sendMessage(Action action) {
+        String content = action.getContent().getString("content");
+        // put a censor here if needed
+        Message message = new Message(action.getUuid(), content);
+        // for private message (i.e. werewolves), filter the players here
+        queueEventForAllPlayer(new ChatEvent(message.getTimestamp(), message));
+        if (this.chat.size() >= MAX_CHAT_HISTORY) {
+            this.chat.removeFirst();
+        }
+        this.chat.addLast(message);
+        return new Return(); // OK
+    }
+
+    // --- JSON utility ---
+
+    public JSONObject playersToJson() {
+        JSONObject out = new JSONObject();
+        this.players.forEach((UUID uuid, Player player) -> {
+            out.put(uuid.toString(), player.toJson());
+        });
+        return out;
+    }
+
+    public JSONArray chatToJson() {
+        JSONArray out = new JSONArray();
+        this.chat.forEach((Message msg) -> {
+            out.put(msg.toJson());
+        });
+        return out;
     }
 
     public JSONObject toJson() {
         JSONObject out = new JSONObject();
+        out.put("room", this.room);
+        out.put("party_master", this.partyMaster);
+        out.put("players", this.playersToJson());
+        out.put("game", this.game.toJson());
+        out.put("chat", this.chatToJson());
         return out;
     }
 }

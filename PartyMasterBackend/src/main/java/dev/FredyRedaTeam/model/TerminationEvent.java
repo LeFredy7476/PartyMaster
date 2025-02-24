@@ -3,6 +3,13 @@ package dev.FredyRedaTeam.model;
 import java.util.UUID;
 import org.json.*;
 
+/**
+ * Expected behavior from client :
+ * <ul>
+ * <li><strong>If client is target :</strong> redirect to the main page (log out)
+ * <li><strong>If client is not target :</strong> remove target from player list
+ * </ul>
+ */
 public class TerminationEvent implements Event {
 
     private final long timestamp;
@@ -25,12 +32,14 @@ public class TerminationEvent implements Event {
         return "TerminationEvent";
     }
 
+    // --- JSON utility ---
+
     public JSONObject toJson(UUID uuid) {
         JSONObject out = new JSONObject();
-        out.append("type", getType());
-        out.append("uuid", uuid);
-        out.append("target", this.target);
-        out.append("timestamp", this.timestamp);
+        out.put("type", getType());
+        out.put("uuid", uuid);
+        out.put("target", this.target);
+        out.put("timestamp", this.timestamp);
         return out;
     }
 }

@@ -3,6 +3,10 @@ package dev.FredyRedaTeam.model.Games;
 import dev.FredyRedaTeam.model.Action;
 import dev.FredyRedaTeam.model.Game;
 import dev.FredyRedaTeam.model.Party;
+import dev.FredyRedaTeam.model.Return;
+import org.json.JSONObject;
+
+import java.util.UUID;
 
 public class Uno implements Game {
     private int id;
@@ -21,12 +25,19 @@ public class Uno implements Game {
     }
 
     @Override
-    public int receiveAction(Action action) {
-        return 0;
+    public Return receiveAction(Action action) {
+        return new Return();
     }
 
     @Override
     public void tick() {
 
+    }
+
+    // --- JSON utility ---
+
+    @Override
+    public JSONObject toJson() {
+        return new JSONObject();
     }
 }

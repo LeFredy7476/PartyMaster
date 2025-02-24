@@ -1,13 +1,15 @@
 package dev.FredyRedaTeam.model;
 
+import org.json.JSONObject;
+
 import java.util.UUID;
 
 public class Player {
     private UUID uuid;
     private String name;
-    private String icon;
+    private int icon;
 
-    public Player(UUID uuid, String name, String icon) {
+    public Player(UUID uuid, String name, int icon) {
         this.uuid = uuid;
         this.name = name;
         this.icon = icon;
@@ -29,11 +31,21 @@ public class Player {
         this.name = name;
     }
 
-    public String getIcon() {
+    public int getIcon() {
         return icon;
     }
 
-    public void setIcon(String icon) {
+    public void setIcon(int icon) {
         this.icon = icon;
+    }
+
+    // --- JSON utility ---
+
+    public JSONObject toJson() {
+        JSONObject out = new JSONObject();
+        out.put("uuid", this.uuid);
+        out.put("name", this.name);
+        out.put("icon", this.icon);
+        return out;
     }
 }

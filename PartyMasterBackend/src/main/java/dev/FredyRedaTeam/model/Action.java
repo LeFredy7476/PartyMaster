@@ -4,10 +4,10 @@ import org.json.*;
 import java.util.UUID;
 
 public class Action {
-    private UUID uuid;
-    private long timestamp;
-    private String[] target;
-    private JSONObject content;
+    private final UUID uuid;
+    private final long timestamp;
+    private final String[] target;
+    private final JSONObject content;
 
     public Action(UUID uuid, String target, JSONObject content) {
         this.uuid = uuid;
