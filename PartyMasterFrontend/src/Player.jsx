@@ -3,9 +3,9 @@ import "./Player.css";
 
 
 
-export default function Player({uuid, data}) {
+export default function Player({uuid, app}) {
 
-    let player = data.players[uuid];
+    let player = app.data.players[uuid];
 
     return (
         <div className="player">
