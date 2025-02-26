@@ -15,10 +15,15 @@ public class Party {
     private final HashMap<UUID, Player> players = new HashMap<>();
     private final HashMap<UUID, LinkedList<Event>> eventQueues = new HashMap<>();
     private UUID partyMaster;
-    private String room;
+    private final String room;
     private Game game;
     private final LinkedList<Message> chat = new LinkedList<>();
     private long lastTick = System.currentTimeMillis();
+
+    public Party(String room) {
+        this.room = room;
+        // TODO: assign a new Lobby object to property game
+    }
 
     public HashMap<UUID, Player> getPlayers() {
         return players;
