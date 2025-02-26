@@ -88,6 +88,8 @@ public class Party {
                         return quit(action);
                     case "join":
                         return join(action);
+                    case "kick":
+                        return kick(action);
                 }
                 break;
             case "chat" :
@@ -149,13 +151,39 @@ public class Party {
                 this.eventQueues.put(player.getUuid(), new LinkedList<>());
                 return new Response(0); // OK
             } catch (JSONException e) {
-                Response r = new Response(3, new JSONObject());
+                Response r = new Response(1, new JSONObject());
                 r.getData().put("r", "InvalidRequest");
-                return r; // REFUSED
+                return r; // ERROR
             }
         } else {
             Response r = new Response(3, new JSONObject());
             r.getData().put("r", "PartyFull");
+            return r; // REFUSED
+        }
+    }
+
+    public Response kick(Action action) {
+        if (action.getUuid().equals(this.partyMaster)) {
+            try {
+                UUID kickTarget = UUID.fromString(action.getContent().getString("kickTarget"));
+                if (this.players.containsKey(kickTarget)) {
+                    this.players.remove(kickTarget);
+                    this.eventQueues.remove(kickTarget);
+                    this.queueEventForAllPlayer(new TerminationEvent(kickTarget));
+                    return new Response(); // OK
+                } else {
+                    Response r = new Response(2, new JSONObject());
+                    r.getData().put("r", "NotInParty");
+                    return r; // IGNORED
+                }
+            } catch (JSONException e) {
+                Response r = new Response(1, new JSONObject());
+                r.getData().put("r", "InvalidRequest");
+                return r; // ERROR
+            }
+        } else {
+            Response r = new Response(3, new JSONObject());
+            r.getData().put("r", "NoPermission");
             return r; // REFUSED
         }
     }
@@ -169,16 +197,14 @@ public class Party {
 
             boolean isPartyMaster = action.getUuid().equals(this.partyMaster);
 
-            for (UUID uuid : this.players.keySet()) {
-                if (isPartyMaster) {
-                    // disconnect all players if the party master logs out
-                    // force players to receive TerminationEvent upon next tick
-                    this.eventQueues.clear();
-                    this.players.clear();
-                } else {
-                    // signal player departure
-                    this.eventQueues.get(uuid).add(new TerminationEvent(uuid));
-                }
+            if (isPartyMaster) {
+                // disconnect all players if the party master logs out
+                // force players to receive TerminationEvent upon next tick
+                this.eventQueues.clear();
+                this.players.clear();
+            } else {
+                // signal player departure
+                this.queueEventForAllPlayer(new TerminationEvent(action.getUuid()));
             }
             return new Response(0); // OK
         } else {
@@ -189,7 +215,7 @@ public class Party {
     public Response sendMessage(Action action) {
         String content = action.getContent().getString("content");
         // put a censor here if needed
-        Message message = new Message(action.getUuid(), content);
+        Message message = new Message("user all", action.getUuid(), content);
         // for private message (i.e. werewolves), filter the players here
         queueEventForAllPlayer(new ChatEvent(message.getTimestamp(), message));
         if (this.chat.size() >= MAX_CHAT_HISTORY) {
