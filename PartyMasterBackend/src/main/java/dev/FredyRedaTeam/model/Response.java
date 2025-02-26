@@ -5,7 +5,7 @@ import org.json.JSONObject;
 /**
  * Return values sent by the server in response to actions
  */
-public class Return {
+public class Response {
     private final int code;
     private final JSONObject data;
 
@@ -17,17 +17,17 @@ public class Return {
         return data;
     }
 
-    public Return(int code, JSONObject data) {
+    public Response(int code, JSONObject data) {
         this.code = code;
         this.data = data;
     }
 
-    public Return(int code) {
+    public Response(int code) {
         this.code = code;
         this.data = new JSONObject();
     }
 
-    public Return() {
+    public Response() {
         this.code = 0;
         this.data = new JSONObject();
     }

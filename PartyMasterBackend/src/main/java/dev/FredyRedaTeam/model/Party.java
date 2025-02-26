@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 public class Party {
     public static final int MAX_PLAYER_BY_PARTY = 20;
@@ -80,7 +79,7 @@ public class Party {
      * @param content the data itself
      * @return result code
      */
-    public Return receiveAction(UUID uuid, String target, JSONObject content) {
+    public Response receiveAction(UUID uuid, String target, JSONObject content) {
         Action action = new Action(uuid, target, content);
         switch (action.getTarget()[0]) {
             case "player":
@@ -98,7 +97,7 @@ public class Party {
                 }
                 break;
         }
-        return new Return(2, new JSONObject()); // if command is not matched
+        return new Response(2, new JSONObject()); // if command is not matched
     }
 
     public LinkedList<Event> fetchEvents(UUID uuid) {
@@ -138,7 +137,7 @@ public class Party {
         return preferedName;
     }
 
-    public Return join(Action action) {
+    public Response join(Action action) {
         if (this.players.size() < MAX_PLAYER_BY_PARTY) {
             try {
                 UUID uuid = this.assignUuid(action.getUuid());
@@ -148,20 +147,20 @@ public class Party {
                 Player player = new Player(uuid, name, icon);
                 this.players.put(player.getUuid(), player);
                 this.eventQueues.put(player.getUuid(), new LinkedList<>());
-                return new Return(0); // OK
+                return new Response(0); // OK
             } catch (JSONException e) {
-                Return r = new Return(3, new JSONObject());
+                Response r = new Response(3, new JSONObject());
                 r.getData().put("r", "InvalidRequest");
                 return r; // REFUSED
             }
         } else {
-            Return r = new Return(3, new JSONObject());
+            Response r = new Response(3, new JSONObject());
             r.getData().put("r", "PartyFull");
             return r; // REFUSED
         }
     }
 
-    public Return quit(Action action) {
+    public Response quit(Action action) {
         if (this.players.containsKey(action.getUuid())) {
 
             // remove player
@@ -181,13 +180,13 @@ public class Party {
                     this.eventQueues.get(uuid).add(new TerminationEvent(uuid));
                 }
             }
-            return new Return(0); // OK
+            return new Response(0); // OK
         } else {
-            return new Return(2); // IGNORED
+            return new Response(2); // IGNORED
         }
     }
 
-    public Return sendMessage(Action action) {
+    public Response sendMessage(Action action) {
         String content = action.getContent().getString("content");
         // put a censor here if needed
         Message message = new Message(action.getUuid(), content);
@@ -197,7 +196,7 @@ public class Party {
             this.chat.removeFirst();
         }
         this.chat.addLast(message);
-        return new Return(); // OK
+        return new Response(); // OK
     }
 
     // --- JSON utility ---
