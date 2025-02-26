@@ -1,7 +1,4 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import Player from './Player'
+import {useImmer} from 'use-immer'
 import './App.css'
 import PlayerList from './PlayerList'
 import Game from './Game'
@@ -9,7 +6,7 @@ import Chat from './Chat'
 
 function App() {
 
-    const [data, setData] = useState({
+    const [data, updateData] = useImmer({
         "room": "GH23487G2B",
         "timestamp": 0,
         "party_master": "4",
@@ -63,13 +60,18 @@ function App() {
                 "content": "I'm doin fine"
             }
         ]
-    })
+    });
+
+    const app = {
+        data: data,
+        updateData: updateData
+    }
 
     return (
         <>
-            <PlayerList data={data} />
-            <Game data={data} />
-            <Chat data={data} />
+            <PlayerList app={app} />
+            <Game app={app} />
+            <Chat app={app} />
         </>
     )
 }
