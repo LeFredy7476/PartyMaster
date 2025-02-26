@@ -1,4 +1,4 @@
-package dev.FredyRedaTeam.model;
+package dev.FredyRedaTeam.PartyMasterBackend.model;
 
 import java.util.UUID;
 import org.json.*;

@@ -1,4 +1,4 @@
-package dev.FredyRedaTeam.model;
+package dev.FredyRedaTeam.PartyMasterBackend.model;
 
 import org.json.JSONObject;
 
