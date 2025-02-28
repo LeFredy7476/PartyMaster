@@ -1,17 +1,37 @@
 package dev.FredyRedaTeam.PartyMasterBackend.model;
 
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.*;
+
 import org.json.*;
 
-import java.util.List;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Party {
     public static final int MAX_PLAYER_BY_PARTY = 20;
     public static final int MAX_CHAT_HISTORY = 50;
+    private static final HashMap<String, Party> parties = new HashMap<>();
+    private static Random random = new Random();
+
+    private static boolean isInstance(String room) {
+        return parties.containsKey(room);
+    }
+
+    private static Party getInstance(String room) {
+        return parties.get(room);
+    }
+
+    public static void init() {
+        // nothing to do here
+    }
+
+    public static void main(String[] args) {
+        init();
+    }
+
+
+
+
     private final HashMap<UUID, Player> players = new HashMap<>();
     private final HashMap<UUID, LinkedList<Event>> eventQueues = new HashMap<>();
     private UUID partyMaster;
@@ -20,8 +40,20 @@ public class Party {
     private final LinkedList<Message> chat = new LinkedList<>();
     private long lastTick = System.currentTimeMillis();
 
-    public Party(String room) {
-        this.room = room;
+    private static String generateRoom() {
+        String characters = "0123456789abcdefghijklmnopqrstuvwxyz";
+        String out = "";
+        do {
+            for (int i = 0; i < 8; i++) {
+                out = out + characters.charAt(random.nextInt(36));
+            }
+        } while (!isInstance(out));
+        return out;
+    }
+
+
+    public Party() {
+        this.room = generateRoom();
         // TODO: assign a new Lobby object to property game
     }
 

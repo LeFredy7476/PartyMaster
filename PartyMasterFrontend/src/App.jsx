@@ -3,8 +3,13 @@ import './App.css'
 import PlayerList from './PlayerList'
 import Game from './Game'
 import Chat from './Chat'
+import axios from 'axios'
 
 function App() {
+
+    if (true) {
+        axios.get("/state", )
+    }
 
     const [data, updateData] = useImmer({
         "room": "GH23487G2B",
@@ -64,7 +69,38 @@ function App() {
 
     const app = {
         data: data,
-        updateData: updateData
+        updateData: updateData,
+        packAction(target, content) {
+            return JSON.stringify({
+                "room": app.room,
+                "target": target,
+                "uuid": app.uuid,
+                "content": content
+            })
+        },
+        sendMessage() {
+            let value = document.querySelector("#chat-input-message").value;
+            // app.updateData(data => {data.chat.push({
+            //     "uuid": "0",
+            //     "timestamp": Date.now(),
+            //     "content": value
+            // })});
+            document.querySelector("#chat-input-message").value = "";
+            let out = app.packAction(
+                "chat:send",
+                {
+                    "content": value,
+                    "flags": "ALL"
+                }
+            );
+            axios.post("", out).then((response) => {
+                let responsedata = JSON.parse(response.data)
+                if (responsedata.code != 0) {
+                    console.error("sendMessage returned error code " + responsedata.code, response.data);
+                }
+            }).catch(() => {console.error("axios post error")}); // TODO: change this to the actual mapping for the backend
+            /* debug purpose only */ console.log(value);
+        }
     }
 
     return (
