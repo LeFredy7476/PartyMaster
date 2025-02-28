@@ -17,13 +17,13 @@ function App() {
             "3": { "name": "Joe Dassin", "icon": 3 },
             "4": { "name": "Marc Robinson", "icon": 4 },
             "5": { "name": "Derick Robert", "icon": 5 },
-            "6": { "name": "Bob Ross", "icon": 2 },
+            "6": { "name": "Bob Ross", "icon": 8 },
             "7": { "name": "Jack Dalton", "icon": 3 },
             "8": { "name": "Jack Dalton", "icon": 4 },
-            "9": { "name": "Jack Dalton", "icon": 1 },
-            "a": { "name": "Jack Dalton", "icon": 0 },
-            "b": { "name": "Jack Dalton", "icon": 5 },
-            "c": { "name": "Jack Dalton", "icon": 2 }
+            "9": { "name": "Jack Dalton", "icon": 8 },
+            "a": { "name": "Jack Dalton", "icon": 7 },
+            "b": { "name": "Jack Dalton", "icon": 3 },
+            "c": { "name": "Jack Dalton", "icon": 6 }
         },
         "game": {
             "name": "lobby",
