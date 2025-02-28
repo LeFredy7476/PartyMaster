@@ -19,6 +19,11 @@ public class LoupGarouSysteme  {
                 props.getProperty("spring.datasource.password"));
         PreparedStatement prtm = null;
         ResultSet rs = null;
+        try {
+
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
 }
     
 }
