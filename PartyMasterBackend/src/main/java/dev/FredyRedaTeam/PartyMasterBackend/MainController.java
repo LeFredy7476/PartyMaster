@@ -1,17 +1,30 @@
 package dev.FredyRedaTeam.PartyMasterBackend;
 
+import dev.FredyRedaTeam.PartyMasterBackend.model.Lobby;
 import jakarta.servlet.http.HttpServletRequest;
-import org.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 public class MainController {
 
 
 
-    @GetMapping(value = "/lobby/{lobby}/state")
-    public JSONObject state(@PathVariable String lobby, @RequestAttribute(value = "uuid", required = true) String uuid, HttpServletRequest request) {
-        return new JSONObject(); // TODO: fill the actions
+    @GetMapping(value = "/lobby/{room}/state")
+    public String state(@PathVariable String room, @ModelAttribute("uuid") String uuid, HttpServletRequest request) {
+        System.out.print("got request for |");
+        System.out.print(room);
+        System.out.println("|");
+        System.out.println(Lobby.getAllRooms());
+        System.out.println(Lobby.isInstance(room));
+        if (Lobby.isInstance(room)) {
+            Lobby lobby = Lobby.getInstance(room);
+            UUID _uuid = UUID.fromString(uuid);
+            return lobby.toJson().toString();
+        } else {
+            return "{}";
+        }
     }
 
 }

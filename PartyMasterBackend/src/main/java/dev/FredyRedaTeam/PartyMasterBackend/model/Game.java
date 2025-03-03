@@ -6,7 +6,7 @@ public interface Game {
 
     Response receiveAction(Action action);
     void tick();
-    void init(Party party);
+    void init(Lobby lobby);
 
     // --- JSON utility ---
 

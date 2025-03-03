@@ -2,7 +2,7 @@ package dev.FredyRedaTeam.PartyMasterBackend.model.Games;
 
 import dev.FredyRedaTeam.PartyMasterBackend.model.Action;
 import dev.FredyRedaTeam.PartyMasterBackend.model.Game;
-import dev.FredyRedaTeam.PartyMasterBackend.model.Party;
+import dev.FredyRedaTeam.PartyMasterBackend.model.Lobby;
 import dev.FredyRedaTeam.PartyMasterBackend.model.Response;
 import org.json.JSONObject;
 
@@ -18,7 +18,7 @@ public class Uno implements Game {
 
 
     @Override
-    public void init(Party party) {
+    public void init(Lobby lobby) {
 
     }
 

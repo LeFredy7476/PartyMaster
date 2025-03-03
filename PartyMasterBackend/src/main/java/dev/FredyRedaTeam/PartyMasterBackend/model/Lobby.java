@@ -7,38 +7,27 @@ import org.json.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Party {
-    public static final int MAX_PLAYER_BY_PARTY = 20;
+public class Lobby {
+    public static final int MAX_PLAYER_BY_LOBBY = 20;
     public static final int MAX_CHAT_HISTORY = 50;
-    private static final HashMap<String, Party> parties = new HashMap<>();
+    private static final HashMap<String, Lobby> lobbies = new HashMap<>();
     private static Random random = new Random();
 
-    private static boolean isInstance(String room) {
-        return parties.containsKey(room);
+    public static boolean isInstance(String room) {
+        return lobbies.containsKey(room);
     }
 
-    private static Party getInstance(String room) {
-        return parties.get(room);
+    public static Lobby getInstance(String room) {
+        return lobbies.get(room);
+    }
+
+    public static Set<String> getAllRooms() {
+        return lobbies.keySet();
     }
 
     public static void init() {
         // nothing to do here
     }
-
-    public static void main(String[] args) {
-        init();
-    }
-
-
-
-
-    private final HashMap<UUID, Player> players = new HashMap<>();
-    private final HashMap<UUID, LinkedList<Event>> eventQueues = new HashMap<>();
-    private UUID partyMaster;
-    private final String room;
-    private Game game;
-    private final LinkedList<Message> chat = new LinkedList<>();
-    private long lastTick = System.currentTimeMillis();
 
     private static String generateRoom() {
         String characters = "0123456789abcdefghijklmnopqrstuvwxyz";
@@ -51,10 +40,38 @@ public class Party {
         return out;
     }
 
+    public static void main(String[] args) {
+        init();
+    }
 
-    public Party() {
+
+
+
+    private final HashMap<UUID, Player> players = new HashMap<>();
+    private final HashMap<UUID, LinkedList<Event>> eventQueues = new HashMap<>();
+    private UUID lobbyMaster;
+    private final String room;
+    private Game game;
+    private final LinkedList<Message> chat = new LinkedList<>();
+    private long lastTick = System.currentTimeMillis();
+
+
+    public Lobby() {
         this.room = generateRoom();
-        // TODO: assign a new Lobby object to property game
+        lobbies.put(room, this);
+        this.game = new LobbyHome();
+        this.game.init(this);
+    }
+
+    /**
+     * UNSAFE! Use only for debug purpose
+     * @param room : the code the Lobby
+     */
+    public Lobby(String room) {
+        this.room = room;
+        lobbies.put(room, this);
+        this.game = new LobbyHome();
+        this.game.init(this);
     }
 
     public HashMap<UUID, Player> getPlayers() {
@@ -65,8 +82,8 @@ public class Party {
         return eventQueues;
     }
 
-    public UUID getPartyMaster() {
-        return partyMaster;
+    public UUID getLobbyMaster() {
+        return lobbyMaster;
     }
 
     public String getRoom() {
@@ -99,7 +116,7 @@ public class Party {
         }
     }
 
-    public void resetTick() {
+    public void tick() {
         this.lastTick = System.currentTimeMillis();
     }
 
@@ -135,8 +152,14 @@ public class Party {
                         return sendMessage(action);
                 }
                 break;
+            case "game" :
+                return game.receiveAction(action);
+            case "tick" :
+                return null; // TODO: handle the event queue flushing
         }
-        return new Response(2, new JSONObject()); // if command is not matched
+        Response r = new Response(1, new JSONObject());
+        r.getData().put("r", "InvalidAction");
+        return r;
     }
 
     public LinkedList<Event> fetchEvents(UUID uuid) {
@@ -177,7 +200,7 @@ public class Party {
     }
 
     public Response join(Action action) {
-        if (this.players.size() < MAX_PLAYER_BY_PARTY) {
+        if (this.players.size() < MAX_PLAYER_BY_LOBBY) {
             try {
                 UUID uuid = this.assignUuid(action.getUuid());
                 String name = action.getContent().getString("name");
@@ -194,13 +217,13 @@ public class Party {
             }
         } else {
             Response r = new Response(3, new JSONObject());
-            r.getData().put("r", "PartyFull");
+            r.getData().put("r", "LobbyFull");
             return r; // REFUSED
         }
     }
 
     public Response kick(Action action) {
-        if (action.getUuid().equals(this.partyMaster)) {
+        if (action.getUuid().equals(this.lobbyMaster)) {
             try {
                 UUID kickTarget = UUID.fromString(action.getContent().getString("kickTarget"));
                 if (this.players.containsKey(kickTarget)) {
@@ -210,7 +233,7 @@ public class Party {
                     return new Response(); // OK
                 } else {
                     Response r = new Response(2, new JSONObject());
-                    r.getData().put("r", "NotInParty");
+                    r.getData().put("r", "NotInLobby");
                     return r; // IGNORED
                 }
             } catch (JSONException e) {
@@ -232,10 +255,10 @@ public class Party {
             this.players.remove(action.getUuid());
             this.eventQueues.remove(action.getUuid());
 
-            boolean isPartyMaster = action.getUuid().equals(this.partyMaster);
+            boolean isLobbyMaster = action.getUuid().equals(this.lobbyMaster);
 
-            if (isPartyMaster) {
-                // disconnect all players if the party master logs out
+            if (isLobbyMaster) {
+                // disconnect all players if the lobby master logs out
                 // force players to receive TerminationEvent upon next tick
                 this.eventQueues.clear();
                 this.players.clear();
@@ -283,7 +306,7 @@ public class Party {
     public JSONObject toJson() {
         JSONObject out = new JSONObject();
         out.put("room", this.room);
-        out.put("party_master", this.partyMaster);
+        out.put("lobby_master", this.lobbyMaster);
         out.put("players", this.playersToJson());
         out.put("game", this.game.toJson());
         out.put("chat", this.chatToJson());
