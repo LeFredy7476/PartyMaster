@@ -12,7 +12,7 @@ public class MainController {
 
 
 
-    @GetMapping(value = "/lobby/{room}/state", produces = MediaType.APPLICATION_JSON_VALUE,)
+    @GetMapping(value = "/lobby/{room}/state", produces = MediaType.APPLICATION_JSON_VALUE)
     public String state(@PathVariable String room, @ModelAttribute("uuid") String uuid, HttpServletRequest request) {
         System.out.print("got request for |");
         System.out.print(room);
