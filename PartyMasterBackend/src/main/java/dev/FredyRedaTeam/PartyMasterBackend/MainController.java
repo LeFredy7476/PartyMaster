@@ -10,18 +10,32 @@ import java.util.UUID;
 @RestController
 public class MainController {
 
+    public static UUID parseUUID(String uuid) {
+        try {
+            return UUID.fromString(uuid);
+        } catch (java.lang.IllegalArgumentException error) {
+            return null;
+        }
+    }
+
 
 
     @GetMapping(value = "/lobby/{room}/state", produces = MediaType.APPLICATION_JSON_VALUE)
     public String state(@PathVariable String room, @ModelAttribute("uuid") String uuid, HttpServletRequest request) {
-        System.out.print("got request for |");
-        System.out.print(room);
-        System.out.println("|");
-        System.out.println(Lobby.getAllRooms());
-        System.out.println(Lobby.isInstance(room));
         if (Lobby.isInstance(room)) {
             Lobby lobby = Lobby.getInstance(room);
-            UUID _uuid = UUID.fromString(uuid);
+            UUID _uuid = parseUUID(uuid);
+            return lobby.toJson().toString();
+        } else {
+            return "{}";
+        }
+    }
+
+    @GetMapping(value = "/lobby/{room}/tick", produces = MediaType.APPLICATION_JSON_VALUE)
+    public String tick(@PathVariable String room, @ModelAttribute("uuid") String uuid, HttpServletRequest request) {
+        if (Lobby.isInstance(room)) {
+            Lobby lobby = Lobby.getInstance(room);
+            UUID _uuid = parseUUID(uuid);
             return lobby.toJson().toString();
         } else {
             return "{}";

@@ -306,7 +306,11 @@ public class Lobby {
     public JSONObject toJson() {
         JSONObject out = new JSONObject();
         out.put("room", this.room);
-        out.put("lobby_master", this.lobbyMaster);
+        if (this.lobbyMaster == null) {
+            out.put("lobby_master", JSONObject.NULL);
+        } else {
+            out.put("lobby_master", this.lobbyMaster);
+        }
         out.put("players", this.playersToJson());
         out.put("game", this.game.toJson());
         out.put("chat", this.chatToJson());
