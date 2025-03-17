@@ -212,6 +212,9 @@ public class Lobby {
                     Player player = new Player(uuid, name, icon);
                     this.players.put(player.getUuid(), player);
                     this.eventQueues.put(player.getUuid(), new LinkedList<>());
+                    if (this.lobbyMaster == null) {
+                        this.lobbyMaster = uuid;
+                    }
                     return new Response(0); // OK
                 } catch (JSONException e) {
                     Response r = new Response(1, new JSONObject());

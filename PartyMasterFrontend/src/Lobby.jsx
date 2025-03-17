@@ -1,18 +1,21 @@
 import {useImmer} from 'use-immer'
-import './App.css'
+import './Lobby.css'
 import PlayerList from './PlayerList'
 import Game from './Game'
 import Chat from './Chat'
 import axios from 'axios'
+import {useParams} from "react-router-dom";
 
-function App() {
+function Lobby() {
 
-    if (true) {
+    if (false) {
         axios.get("/state", )
     }
 
+    let { room } = useParams();
+
     const [data, updateData] = useImmer({
-        "room": "GH23487G2B",
+        "room": room,
         "timestamp": 0,
         "party_master": "4",
         "players": {
@@ -112,4 +115,4 @@ function App() {
     )
 }
 
-export default App
+export default Lobby
