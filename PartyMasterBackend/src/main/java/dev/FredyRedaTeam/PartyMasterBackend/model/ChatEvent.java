@@ -9,8 +9,8 @@ public class ChatEvent implements Event {
     private final long timestamp;
     private final Message message;
 
-    public ChatEvent(long timestamp, Message message) {
-        this.timestamp = timestamp;
+    public ChatEvent(Message message) {
+        this.timestamp = System.currentTimeMillis();
         this.message = message;
     }
 
@@ -25,7 +25,14 @@ public class ChatEvent implements Event {
     // --- JSON utility ---
 
     @Override
+    public String getType() {
+        return "ChatEvent";
+    }
+
+    @Override
     public JSONObject toJson(UUID uuid) {
-        return null;
+        JSONObject obj = new JSONObject();
+        obj.put("type", getType());
+        return obj;
     }
 }

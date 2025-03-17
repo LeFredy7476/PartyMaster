@@ -8,5 +8,7 @@ public interface Event {
 
     // --- JSON utility ---
 
+    String getType();
+
     JSONObject toJson(UUID uuid);
 }

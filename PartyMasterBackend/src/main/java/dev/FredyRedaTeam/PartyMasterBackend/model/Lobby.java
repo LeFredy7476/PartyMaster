@@ -120,6 +120,8 @@ public class Lobby {
         this.lastTick = System.currentTimeMillis();
     }
 
+
+
     /**
      * result code :
      * - 0 : OK
@@ -200,24 +202,30 @@ public class Lobby {
     }
 
     public Response join(Action action) {
-        if (this.players.size() < MAX_PLAYER_BY_LOBBY) {
-            try {
-                UUID uuid = this.assignUuid(action.getUuid());
-                String name = action.getContent().getString("name");
-                name = this.assignName(name);
-                int icon = action.getContent().getInt("icon");
-                Player player = new Player(uuid, name, icon);
-                this.players.put(player.getUuid(), player);
-                this.eventQueues.put(player.getUuid(), new LinkedList<>());
-                return new Response(0); // OK
-            } catch (JSONException e) {
-                Response r = new Response(1, new JSONObject());
-                r.getData().put("r", "InvalidRequest");
-                return r; // ERROR
+        if (this.game.getType() == "LobbyHome") {
+            if (this.players.size() < MAX_PLAYER_BY_LOBBY) {
+                try {
+                    UUID uuid = this.assignUuid(action.getUuid());
+                    String name = action.getContent().getString("name");
+                    name = this.assignName(name);
+                    int icon = action.getContent().getInt("icon");
+                    Player player = new Player(uuid, name, icon);
+                    this.players.put(player.getUuid(), player);
+                    this.eventQueues.put(player.getUuid(), new LinkedList<>());
+                    return new Response(0); // OK
+                } catch (JSONException e) {
+                    Response r = new Response(1, new JSONObject());
+                    r.getData().put("r", "InvalidRequest");
+                    return r; // ERROR
+                }
+            } else {
+                Response r = new Response(3, new JSONObject());
+                r.getData().put("r", "LobbyFull");
+                return r; // REFUSED
             }
         } else {
             Response r = new Response(3, new JSONObject());
-            r.getData().put("r", "LobbyFull");
+            r.getData().put("r", "LobbyClosed");
             return r; // REFUSED
         }
     }
@@ -277,7 +285,7 @@ public class Lobby {
         // put a censor here if needed
         Message message = new Message("user all", action.getUuid(), content);
         // for private message (i.e. werewolves), filter the players here
-        queueEventForAllPlayer(new ChatEvent(message.getTimestamp(), message));
+        queueEventForAllPlayer(new ChatEvent(message));
         if (this.chat.size() >= MAX_CHAT_HISTORY) {
             this.chat.removeFirst();
         }

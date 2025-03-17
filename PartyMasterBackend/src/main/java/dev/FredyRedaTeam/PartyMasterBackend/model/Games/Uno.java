@@ -35,6 +35,11 @@ public class Uno implements Game {
     // --- JSON utility ---
 
     @Override
+    public String getType() {
+        return "Uno";
+    }
+
+    @Override
     public JSONObject toJson() {
         return new JSONObject();
     }

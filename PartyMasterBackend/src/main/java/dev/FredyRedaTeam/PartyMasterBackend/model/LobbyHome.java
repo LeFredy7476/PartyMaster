@@ -7,10 +7,83 @@ import java.util.UUID;
 
 public class LobbyHome implements Game {
 
+    public static class HighlightEvent implements Event {
+
+        private final int game;
+        private final long timestamp;
+
+        public long getTimestamp() {
+            return timestamp;
+        }
+
+        public int getGame() {
+            return game;
+        }
+
+        public HighlightEvent(int game) {
+            this.timestamp = System.currentTimeMillis();
+            this.game = game;
+        }
+
+        @Override
+        public String getType() {
+            return "LobbyHome.HighlightEvent";
+        }
+
+        @Override
+        public JSONObject toJson(UUID uuid) {
+            JSONObject obj = new JSONObject();
+            obj.put("type", getType());
+            obj.put("type", this.timestamp);
+            obj.put("game", this.game);
+            return obj;
+        }
+    }
+
+    public static class SuggestEvent implements Event {
+
+        private final int game;
+        private final UUID uuid;
+        private final long timestamp;
+
+        public long getTimestamp() {
+            return timestamp;
+        }
+
+        public UUID getUuid() {
+            return uuid;
+        }
+
+        public int getGame() {
+            return game;
+        }
+
+        public SuggestEvent(int game, UUID uuid) {
+            this.timestamp = System.currentTimeMillis();
+            this.game = game;
+            this.uuid = uuid;
+        }
+
+        @Override
+        public String getType() {
+            return "LobbyHome.SuggestEvent";
+        }
+
+        @Override
+        public JSONObject toJson(UUID uuid) {
+            JSONObject obj = new JSONObject();
+            obj.put("type", getType());
+            obj.put("type", this.timestamp);
+            obj.put("game", this.game);
+            obj.put("type", this.uuid);
+            return obj;
+        }
+    }
+
     private Lobby lobby;
 
     private int selectedGame;
-    private final HashMap<UUID, Integer> playerSuggestion = new HashMap<>();
+    private final HashMap<UUID, Integer> suggestion = new HashMap<>();
 
     public Lobby getLobby() {
         return lobby;
@@ -32,14 +105,21 @@ public class LobbyHome implements Game {
     public Response select(Action action) {
         int targetGame = action.getContent().getInt("game");
         if (lobby.getLobbyMaster().equals(action.getUuid())) {
+            this.selectedGame = targetGame;
+            this.lobby.queueEventForAllPlayer(new HighlightEvent(targetGame));
             return new Response();
         } else {
+            this.suggestion.put(action.getUuid(), targetGame);
+            this.lobby.queueEventForAllPlayer(new SuggestEvent(targetGame, action.getUuid()));
             return new Response();
         }
     }
 
     public Response apply(Action action) {
         if (lobby.getLobbyMaster().equals(action.getUuid())) {
+
+            // TODO: signal lobby that a game change is needed
+
             return new Response();
         } else {
             Response r = new Response(3, new JSONObject());
@@ -58,8 +138,18 @@ public class LobbyHome implements Game {
         this.lobby = lobby;
     }
 
+
+    @Override
+    public String getType() {
+        return "LobbyHome";
+    }
+
     @Override
     public JSONObject toJson() {
-        return null;
+        JSONObject obj = new JSONObject();
+        obj.put("type", getType());
+        obj.put("selected_game", this.selectedGame);
+        obj.put("suggestion", this.suggestion);
+        return obj;
     }
 }

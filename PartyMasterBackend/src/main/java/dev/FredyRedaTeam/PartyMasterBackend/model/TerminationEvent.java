@@ -12,8 +12,8 @@ import org.json.*;
  */
 public class TerminationEvent implements Event {
 
-    private final long timestamp;
     private final UUID target;
+    private final long timestamp;
 
     public long getTimestamp() {
         return timestamp;
@@ -28,12 +28,14 @@ public class TerminationEvent implements Event {
         return target;
     }
 
-    public static String getType() {
+    // --- JSON utility ---
+
+    @Override
+    public String getType() {
         return "TerminationEvent";
     }
 
-    // --- JSON utility ---
-
+    @Override
     public JSONObject toJson(UUID uuid) {
         JSONObject out = new JSONObject();
         out.put("type", getType());

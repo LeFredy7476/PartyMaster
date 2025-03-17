@@ -10,5 +10,6 @@ public interface Game {
 
     // --- JSON utility ---
 
+    String getType();
     JSONObject toJson();
 }
