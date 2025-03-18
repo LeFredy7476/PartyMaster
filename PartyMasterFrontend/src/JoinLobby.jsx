@@ -8,9 +8,11 @@ function JoinLobby() {
     const { room } = useParams();
 
     return (
-        <p>
-            join room {room}
-        </p>
+        <div>
+            <input type="number" name="icon" id="icon" />
+            <input type="text" name="name" id="name" />
+            <button id="join">join</button>
+        </div>
     )
 }
 
