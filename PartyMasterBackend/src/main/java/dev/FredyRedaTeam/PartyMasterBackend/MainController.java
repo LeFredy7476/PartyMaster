@@ -20,7 +20,7 @@ public class MainController {
 
 
 
-    @GetMapping(value = "/lobby/{room}/state", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{room}/lobby/state", produces = MediaType.APPLICATION_JSON_VALUE)
     public String state(@PathVariable String room, @ModelAttribute("uuid") String uuid, HttpServletRequest request) {
         if (Lobby.isInstance(room)) {
             Lobby lobby = Lobby.getInstance(room);
@@ -31,7 +31,7 @@ public class MainController {
         }
     }
 
-    @GetMapping(value = "/lobby/{room}/tick", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "{room}/lobby/tick", produces = MediaType.APPLICATION_JSON_VALUE)
     public String tick(@PathVariable String room, @ModelAttribute("uuid") String uuid, HttpServletRequest request) {
         if (Lobby.isInstance(room)) {
             Lobby lobby = Lobby.getInstance(room);
@@ -40,6 +40,11 @@ public class MainController {
         } else {
             return "{}";
         }
+    }
+
+    @PostMapping(value = "/createlobby")
+    public String createLobby() {
+
     }
 
 }
