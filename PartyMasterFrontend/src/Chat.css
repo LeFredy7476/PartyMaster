@@ -87,6 +87,7 @@
     outline: none !important;
     font-size: 1.5rem;
     min-width: 0px;
+    text-align: left;
 }
 
 #chat .chat-input-box #chat-send-message {
