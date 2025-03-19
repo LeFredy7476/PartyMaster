@@ -10,17 +10,22 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Properties;
 public class LoupGarouSysteme  {
+
+    private static Random random = new Random();
+
     public static void GererSysteme() throws Exception{
         try {
-            Random random =new Random();
-        Connection con = null;
-        Properties props = new Properties();
-        props= Connexion.getProps("./src/main/resources/application.properties");
-        con = DriverManager.getConnection(props.getProperty("spring.datasource.url"),
+
+            Connection con = null;
+            Properties props = new Properties();
+            props= Connexion.getProps("./src/main/resources/application.properties");
+            con = DriverManager.getConnection(
+                props.getProperty("spring.datasource.url"),
                 props.getProperty("spring.datasource.username"),
-                props.getProperty("spring.datasource.password"));
-        PreparedStatement prtm = null;
-        ResultSet rs = null;
+                props.getProperty("spring.datasource.password")
+            );
+            PreparedStatement prtm = null;
+            ResultSet rs = null;
             List<LoupGarou> Personnage=new ArrayList<>();
             List<String> joueurs = new ArrayList<>();
             List<String> specialRoles = new ArrayList<>();
@@ -132,7 +137,7 @@ public static void LancerPartie(List<LoupGarou>Personnage)throws Exception{
             }
             if (loupGarou.getRole().equals("sorciere")&& loupGarou.isVivant()){
                 for (LoupGarou loupGarou2:Personnage) {
-                    if (loupGarou2.isVivant()==false){
+                    if (!loupGarou2.isVivant()){
                         System.out.println("voulez vous ressuciter"+" "+loupGarou2.getNom()+" "+"oui/ne rien ecrire");
                         String reponse2= scanner.nextLine();
                         if (reponse2=="oui"){
