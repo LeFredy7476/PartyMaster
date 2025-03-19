@@ -45,8 +45,6 @@ public class Lobby {
     }
 
 
-
-
     private final HashMap<UUID, Player> players = new HashMap<>();
     private final HashMap<UUID, LinkedList<Event>> eventQueues = new HashMap<>();
     private UUID lobbyMaster;

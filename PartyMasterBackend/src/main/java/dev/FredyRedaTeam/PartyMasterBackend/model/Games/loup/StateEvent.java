@@ -1,40 +1,39 @@
-package dev.FredyRedaTeam.PartyMasterBackend.model;
+package dev.FredyRedaTeam.PartyMasterBackend.model.Games.loup;
 
+import dev.FredyRedaTeam.PartyMasterBackend.model.Event;
 import org.json.JSONObject;
 
 import java.util.UUID;
 
-public class ChatEvent implements Event {
+public class StateEvent implements Event {
 
     private final long timestamp;
-    private final Message message;
+    private final GameState gameState;
 
-    public ChatEvent(Message message) {
+    public StateEvent(GameState gameState) {
         this.timestamp = System.currentTimeMillis();
-        this.message = message;
+        this.gameState = gameState;
     }
 
     public long getTimestamp() {
         return timestamp;
     }
 
-    public Message getMessage() {
-        return message;
+    public GameState getGameState() {
+        return gameState;
     }
 
     // --- JSON utility ---
 
     @Override
     public String getType() {
-        return "ChatEvent";
+        return "Games.loup.StateEvent";
     }
 
     @Override
     public JSONObject toJson(UUID uuid) {
         JSONObject obj = new JSONObject();
         obj.put("type", getType());
-        obj.put("timestamp", this.timestamp);
-        obj.put("message", this.message.toJson());
         return obj;
     }
 }

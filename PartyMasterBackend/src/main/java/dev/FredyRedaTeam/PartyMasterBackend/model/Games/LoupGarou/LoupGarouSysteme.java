@@ -26,7 +26,7 @@ public class LoupGarouSysteme  {
             );
             PreparedStatement prtm = null;
             ResultSet rs = null;
-            List<LoupGarou> Personnage=new ArrayList<>();
+            List<LoupGarou> Personnage = new ArrayList<>();
             List<String> joueurs = new ArrayList<>();
             List<String> specialRoles = new ArrayList<>();
 
@@ -82,8 +82,8 @@ public class LoupGarouSysteme  {
             System.out.println(e.getMessage());
         }
 
-}
-public static void LancerPartie(List<LoupGarou>Personnage)throws Exception{
+    }
+    public static void LancerPartie(List<LoupGarou>Personnage)throws Exception{
         List<String> Amoureux=new ArrayList<>();
         Scanner scanner=new Scanner(System.in);
 
@@ -151,7 +151,7 @@ public static void LancerPartie(List<LoupGarou>Personnage)throws Exception{
             }
 
         }
-}
+    }
 
     public static void main(String[] args) throws Exception{
       GererSysteme();
