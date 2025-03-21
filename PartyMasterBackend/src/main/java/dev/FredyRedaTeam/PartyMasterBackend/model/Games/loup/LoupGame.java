@@ -101,7 +101,7 @@ public class LoupGame implements Game {
                         return cupidonChoix(action); // TODO: make function
 
                     case "verdict":
-                        return new Response(); // TODO: implementer le chef 
+                        return new Response(); // TODO: implementer le chef
 
                 }
 
