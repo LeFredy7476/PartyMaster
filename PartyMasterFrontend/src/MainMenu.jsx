@@ -15,7 +15,7 @@ function MainMenu() {
                 <input type="text" name="lobbyCode" id="lobbyCode" placeholder="Code"/>
                 <button id="lobbyJoin">Rejoindre</button>
             </section>
-            <button id="lobbyCreate">Créer une partie</button>
+            <button id="lobbyCreate" className="form-button">Créer une partie</button>
         </main>
     )
 }

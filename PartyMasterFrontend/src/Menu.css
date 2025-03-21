@@ -1,5 +1,5 @@
 
-button {
+button.form-button {
     height: 3rem;
     border: 4px solid #000;
     box-sizing: border-box;
@@ -18,11 +18,11 @@ button {
     transition: 0.3s 0s ease;
 }
 
-button:hover {
+button.form-button:hover {
     box-shadow: 0px 0px 0px 2px #000 inset;
 }
 
-button:active {
+button.form-button:active {
     box-shadow: 0px 0px 0px 2px #000 inset;
     background-color: #000;
     transition: 0s 0s ease;
@@ -38,6 +38,7 @@ div#root main {
     flex-direction: column;
     flex-wrap: nowrap;
     align-items: center;
+    justify-content: center;
     gap: 1rem;
     padding-top: 2rem;
 }
@@ -86,4 +87,19 @@ input[type="text"]#lobbyCode:focus {
     text-transform: uppercase;
     font-weight: 600;
     box-shadow: 0px 0px 0px 9px #0000, 0px 0px 0px 4px var(--bg), 0px 0px 0px 8px #000;
+}
+
+#icon-preview {
+    width: 12rem;
+    height: 12rem;
+    box-shadow: 0px 0px 0px 4px #000;
+    border-radius: 50%;
+}
+
+#icon-picker {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    grid-template-rows: auto;
+    align-items: center;
+    justify-items: center;
 }
