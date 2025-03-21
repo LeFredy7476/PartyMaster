@@ -37,11 +37,11 @@ public class Joueur {
         this.vivant = vivant;
     }
 
-    public Joueur getAmour() {
+    public UUID getAmour() {
         return amour;
     }
 
-    public void setAmour(Joueur amour) {
+    public void setAmour(UUID amour) {
         this.amour = amour;
     }
 }
