@@ -12,18 +12,18 @@ button.form-button {
     font-size: 1.25rem;
     color: #000;
     border-radius: 2rem;
-    box-shadow: 0px 0px 0px 0px #000 inset;
+    box-shadow: 0px 0px 0px 4px var(--bg), 0px 0px 0px 0px #000, 0px 0px 0px 10px transparent;
     flex-grow: 0;
     flex-shrink: 0;
     transition: 0.3s 0s ease;
 }
 
 button.form-button:hover {
-    box-shadow: 0px 0px 0px 2px #000 inset;
+    box-shadow: 0px 0px 0px 4px var(--bg), 0px 0px 0px 8px #000, 0px 0px 0px 10px transparent;
 }
 
 button.form-button:active {
-    box-shadow: 0px 0px 0px 2px #000 inset;
+    box-shadow: 0px 0px 0px 4px var(--bg), 0px 0px 0px 8px #000, 0px 0px 0px 10px transparent;
     background-color: #000;
     transition: 0s 0s ease;
 }
@@ -75,6 +75,11 @@ input[type="text"] {
     min-width: 0px;
     text-align: center;
     transition: 0.3s 0s ease;
+    background-color: var(--bg);
+}
+
+input[type="text"]::placeholder {
+    color: #0008;
 }
 
 input[type="text"]#lobbyCode {
@@ -87,6 +92,7 @@ input[type="text"]#lobbyCode:focus {
     text-transform: uppercase;
     font-weight: 600;
     box-shadow: 0px 0px 0px 9px #0000, 0px 0px 0px 4px var(--bg), 0px 0px 0px 8px #000;
+    background-color: #fff;
 }
 
 #icon-preview {
@@ -102,4 +108,15 @@ input[type="text"]#lobbyCode:focus {
     grid-template-rows: auto;
     align-items: center;
     justify-items: center;
+}
+
+button.icon-swap {
+    font-family: "Material Symbols Outlined";
+    font-size: 40px;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    color: #000;
+    font-weight: 400;
+    
 }
