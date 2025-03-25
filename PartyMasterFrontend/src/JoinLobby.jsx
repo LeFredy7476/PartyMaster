@@ -19,15 +19,15 @@ function JoinLobby() {
             <div id="icon-picker">
                 <button className="icon-swap" id="icon-last" onClick={function() {
                     setIcon((icon + nbIcon - 1) % nbIcon);
-                }}>arrow_back_ios_new</button>
+                }}><span>arrow_forward_ios</span></button>
                 <img src={get_player_icon(icon)} alt="" id="icon-preview"/>
                 <button className="icon-swap" id="icon-next" onClick={function() {
                     setIcon((icon + 1) % nbIcon);
-                }}>arrow_forward_ios</button>
+                }}><span>arrow_forward_ios</span></button>
                 {/* <input type="number" name="icon" id="icon" style={{display: "none"}} value={icon} max={nbIcon - 1} min={0} /> */}
             </div>
             
-            <input type="text" name="name" id="name" placeholder="nom" value={name} onChange={(e)=>{
+            <input type="text" name="name" id="name" className='form' placeholder="nom" value={name} onChange={(e)=>{
                 setName(e.target.value);
             }}/>
             <button className="form-button" id="join" onClick={function() {

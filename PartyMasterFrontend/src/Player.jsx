@@ -11,6 +11,7 @@ export default function Player({uuid, app}) {
         <div className="player">
             <img className="player-icon" src={get_player_icon(player.icon)} alt={"icon#" + player.icon} />
             <div className="player-name">{player.name}</div>
+            <span></span>
         </div>
     )
 }

@@ -16,7 +16,7 @@ function MainMenu() {
             <h2>Vos jeux favoris, au même endroit.</h2>
             <section>
                 <label htmlFor="lobbyCode">Joindre une partie</label>
-                <input type="text" name="lobbyCode" id="lobbyCode" placeholder="Code" value={room} onChange={function(e) {
+                <input type="text" name="lobbyCode" id="lobbyCode" placeholder="Code" className='form' value={room} onChange={function(e) {
                     setRoom(e.target.value);
                 }}/>
                 <button id="lobbyJoin" className="form-button" onClick={()=>{

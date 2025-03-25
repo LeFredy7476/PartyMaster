@@ -41,7 +41,7 @@ div#game {
 }
 
 .micon {
-    font-family: 'Material Symbols Outlined';
+    font-family: 'Material Symbols Rounded';
     font-variation-settings:
         'FILL' 0,
         'wght' 400,
@@ -49,4 +49,8 @@ div#game {
         'opsz' 24;
     font-size: 48px;
 
+}
+
+button {
+    cursor: pointer;
 }
