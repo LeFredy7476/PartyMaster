@@ -1,15 +1,18 @@
 package dev.FredyRedaTeam.PartyMasterBackend;
 
 import dev.FredyRedaTeam.PartyMasterBackend.model.Action;
+import dev.FredyRedaTeam.PartyMasterBackend.model.Event;
 import dev.FredyRedaTeam.PartyMasterBackend.model.Lobby;
 import dev.FredyRedaTeam.PartyMasterBackend.model.Response;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.LinkedList;
 import java.util.UUID;
 
 @RestController
@@ -52,7 +55,12 @@ public class MainController {
         if (Lobby.isInstance(room)) {
             Lobby lobby = Lobby.getInstance(room);
             UUID _uuid = parseUUID(uuid);
-            return lobby.toJson().toString();
+            LinkedList<Event> list = lobby.fetchEvents(_uuid);
+            JSONArray array = new JSONArray();
+            for (Event event : list) {
+                array.put(event.toJson(_uuid));
+            }
+            return array.toString();
         } else {
             return "{}";
         }
