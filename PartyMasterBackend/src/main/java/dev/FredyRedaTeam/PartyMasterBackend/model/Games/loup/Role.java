@@ -7,5 +7,6 @@ public enum Role {
     SORCIERE,
     CUPIDON,
     GUARDIEN,
-    CHASSEUR
+    CHASSEUR,
+    LOUPBLANC
 }
