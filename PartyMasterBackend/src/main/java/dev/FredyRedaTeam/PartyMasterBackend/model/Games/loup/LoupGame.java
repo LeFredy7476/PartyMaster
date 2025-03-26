@@ -22,6 +22,7 @@ public class LoupGame implements Game {
     private final HashMap<UUID, UUID> vote = new HashMap<>();
     private Lobby lobby;
     private int confirmAmoureux = 0;
+    private UUID protege=null;
 
     /**
      * game:state
@@ -98,7 +99,7 @@ public class LoupGame implements Game {
             case "execution":
                 switch (action.getTarget()[2]) {
                     case "vote":
-                        return cupidonChoix(action); // TODO: make function
+                        return villageoisChoix(action); // TODO: make function
 
                     case "verdict":
                         return new Response(); // TODO: implementer le chef
@@ -252,7 +253,7 @@ public class LoupGame implements Game {
             joueurs.get(targetB).setAmour(targetA);
             this.gameState = nextGameState;
             lobby.queueEventForAllPlayer(new StateEvent(gameState));
-            this.nextGameState = GameState.GUARDIEN_CHOIX;
+            this.nextGameState = GameState.CUPIDON_CHOIX;
             return new Response();
         } else {
             //message erreur envoyer au joueur copié de la classe lobby
@@ -260,6 +261,57 @@ public class LoupGame implements Game {
             r.getData().put("r", "PasUnChasseur");
             return r; // REFUSED
         }
+    }
+    public Response villageoisChoix(Action action){
+        //methode a verifier avec frederick
+        UUID uuid = action.getUuid();
+        UUID target = UUID.fromString(action.getContent().getString("target"));
+        if (joueurs.get(target).isVivant()){
+            vote.put(uuid, target);
+            boolean endVoteVerif = true;
+
+            for (UUID joueur:joueurs.keySet()) {
+                if (joueurs.get(joueur).isVivant()) {
+
+                    endVoteVerif = endVoteVerif && vote.containsKey(joueur);
+                }
+            }
+            if (endVoteVerif) {
+                UUID chosenOne = resolveVote();
+                if (chosenOne != null) {
+                    killJoueur(chosenOne);
+                }
+            }
+            return new Response();
+        }else{
+            Response r = new Response(3, new JSONObject());
+            r.getData().put("r", "InvalidTarget");
+            return r; // REFUSED
+
+        }
+
+
+
+
+    }
+    public Response gardien(Action action){
+        //pas sur de celui la a reverifier en equipe
+        UUID uuid = action.getUuid();
+        UUID target = UUID.fromString(action.getContent().getString("target"));
+        if (joueurs.get(action.getUuid()).getRole().equals(Role.GUARDIEN)&&joueurs.get(action.getUuid()).isVivant()){
+            vote.put(uuid, target);
+
+
+            for (UUID joueur:joueurs.keySet()) {
+                if (joueurs.get(joueur).isVivant()) {
+                    protege=target;
+                }
+            }
+        }
+
+
+
+        return new Response();
     }
 
     public UUID resolveVote() {
