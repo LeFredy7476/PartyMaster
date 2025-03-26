@@ -43,19 +43,27 @@ function Lobby() {
     const app = {
         data: data,
         updateData: updateData,
-        receiveEvent(event) {
-            app.updateData((data) => {
-
-            })
+        receiveEvent: function(e) {
+            console.log(e); // TODO: retirer apres debug
+            if (e.type == "ChatEvent") {
+                app.updateData((data) => {
+                    data.chat.push(e.message);
+                });
+            } else if (e.type == "ChatEvent") {
+                app.updateData((data) => {
+                    data.chat.push(e.message);
+                });
+            }
+            // app.updateData((data) => {});
         },
-        packAction(target, data) {
+        packAction: function(target, data) {
             return axios.post(window.location.protocol + "//" + window.location.hostname + ":8080/" + room + "/send", {
                 "target": target,
                 "uuid": localStorage.getItem("uuid"),
                 "data": data
             })
         },
-        sendMessage() {
+        sendMessage: function() {
             app.packAction(
                 "chat:send",
                 {
@@ -77,17 +85,17 @@ function Lobby() {
     useEffect(function(){
         let interval = setInterval(()=>{
             axios.get(
-                window.location.protocol + "//" + window.location.hostname + ":8080/" + room + "/state?uuid=" + localStorage.getItem("uuid")
+                window.location.protocol + "//" + window.location.hostname + ":8080/" + room + "/tick?uuid=" + localStorage.getItem("uuid")
             ).then((response) => {
-                for (let i; i < response.data.length; i++) {
-                    receiveEvent(response.data);
-                }
+                // console.log(response.data.length);
+                // console.log(response.data)
+                response.data.forEach(app.receiveEvent);
             });
-        }, 500);
+        }, 200);
         return function() {
             clearInterval(interval);
         }
-    }, [data, updateData]);
+    }, []);
 
     return (
         <>

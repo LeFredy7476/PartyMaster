@@ -1,3 +1,14 @@
+h1 {
+    font-size: 3rem;
+    margin-block-start: 0px;
+    margin-block-end: 0px;
+}
+
+h2 {
+    font-size: 2rem;
+    margin-block-start: 0px;
+    margin-block-end: 0px;
+}
 
 button.form-button {
     height: 3rem;
@@ -33,14 +44,15 @@ div#root main {
     flex-shrink: 1;
     border: 4px solid black;
     margin: 1rem 1rem;
-    border-radius: 1rem;
+    border-radius: calc(1rem + 8px);
     display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
     align-items: center;
     justify-content: center;
-    gap: 1rem;
+    gap: 12px;
     padding-top: 2rem;
+    position: relative;
 }
 
 div#root main section {
@@ -54,6 +66,10 @@ div#root main section {
     gap: 12px;
     background-color: #ffc639;
     --bg: #ffc639;
+}
+
+div#root main section.join-section {
+    margin-top: 2rem;
 }
 
 label {
@@ -111,7 +127,7 @@ input[type="text"].form:focus {
     grid-template-rows: auto;
     align-items: center;
     justify-items: center;
-    margin-bottom: 1em;
+    margin: 1em;
 }
 
 button.icon-swap {
@@ -134,22 +150,96 @@ button.icon-swap span {
     background-color: transparent;
     color: #000;
     font-weight: 600;
-    filter: drop-shadow(0px 0px 0px black);
+    /* filter: drop-shadow(0px 0px 0px black); */
     transition: 0.3s ease;
     position: relative;
     left: 0px;
 }
 
-button.icon-swap:hover span {
+button.icon-swap span::after {
+    content: "arrow_forward_ios";
+    font-family: "Material Symbols Rounded";
+    font-size: 40px;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    color: #000;
+    font-weight: 600;
+    transition: 0.3s ease;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    position: absolute;
+    opacity: 0;
+}
+
+/* button.icon-swap:hover span {
     filter: drop-shadow(12px 0px 0px black);
+} */
+
+button.icon-swap:hover span::after {
+    left: 12px;
+    right: -12px;
+    opacity: 1;
 }
 
 button.icon-swap:active span {
-    filter: drop-shadow(0px 0px 0px black);
+    /* filter: drop-shadow(0px 0px 0px black); */
     left: 24px;
-    transition: 0.05s ease;
+    transition: 0.1s ease;
+}
+
+button.icon-swap:active span::after {
+    left: 0px;
+    right: 0px;
+    transition: 0.1s ease;
+    opacity: 1;
 }
 
 button.icon-swap#icon-last {
     transform: scaleX(-1);
+}
+
+div#lobby-check {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1em;
+    gap: 1em;
+    flex-direction: row;
+}
+
+div#lobby-check span#lobby-check-status {
+    font-size: 24px;
+}
+
+button.back {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    border-radius: 1rem;
+    border: 4px solid black;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    transition: 0.3s ease;
+    box-shadow: 0px 0px 0px 4px var(--bg), 0px 0px 0px 0px #000, 0px 0px 0px 10px transparent;
+    background-color: #fff;
+}
+
+button.back:hover {
+    box-shadow: 0px 0px 0px 4px var(--bg), 0px 0px 0px 8px #000, 0px 0px 0px 10px transparent;
+}
+
+button.back:active {
+    transition: 0s 0s ease;
+    background-color: #000;
+}
+
+button.back span.micon {
+    font-size: 24px;
+    font-weight: 800;
 }

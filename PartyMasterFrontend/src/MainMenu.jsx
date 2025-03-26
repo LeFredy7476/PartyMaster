@@ -24,9 +24,9 @@ function MainMenu() {
         <main>
             <h1>PartyMaster</h1>
             <h2>Vos jeux favoris, au même endroit.</h2>
-            <section>
-                <label htmlFor="lobbyCode">Joindre une partie</label>
-                <input type="text" name="lobbyCode" id="lobbyCode" placeholder="Code" className='form' value={room} onChange={function(e) {
+            <section className="join-section">
+                <label htmlFor="lobbyCode">Rejoindre un groupe</label>
+                <input type="text" name="lobbyCode" id="lobbyCode" placeholder="Code" className='form' autocomplete="off" value={room} onChange={function(e) {
                     setRoom(e.target.value);
                 }}/>
                 <button id="lobbyJoin" className="form-button" onClick={()=>{
@@ -48,7 +48,7 @@ function MainMenu() {
                         navigate("/" + response.data.data.lobby);
                     }
                 });
-            }}>Créer une partie</button>
+            }}>Créer un groupe</button>
         </main>
     )
 }

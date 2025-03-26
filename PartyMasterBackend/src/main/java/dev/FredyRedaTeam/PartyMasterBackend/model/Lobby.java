@@ -203,8 +203,12 @@ public class Lobby {
         return preferedName;
     }
 
+    public boolean isOpen() {
+        return this.game instanceof LobbyHome && this.players.size() < MAX_PLAYER_BY_LOBBY;
+    }
+
     public Response join(Action action) {
-        if (Objects.equals(this.game.getType(), "LobbyHome")) {
+        if (this.game instanceof LobbyHome) {
             if (this.players.size() < MAX_PLAYER_BY_LOBBY) {
                 try {
                     UUID uuid = this.assignUuid(action.getUuid());

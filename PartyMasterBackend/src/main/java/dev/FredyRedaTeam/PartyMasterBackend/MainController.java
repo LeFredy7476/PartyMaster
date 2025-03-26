@@ -1,11 +1,9 @@
 package dev.FredyRedaTeam.PartyMasterBackend;
 
-import dev.FredyRedaTeam.PartyMasterBackend.model.Action;
 import dev.FredyRedaTeam.PartyMasterBackend.model.Event;
 import dev.FredyRedaTeam.PartyMasterBackend.model.Lobby;
 import dev.FredyRedaTeam.PartyMasterBackend.model.Response;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -43,14 +41,19 @@ public class MainController {
     }
 
     @GetMapping(value = "/{room}/ping", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String exist(@PathVariable String room, HttpServletRequest request) {
+    public String ping(@PathVariable String room, HttpServletRequest request) {
         boolean doesExist = Lobby.isInstance(room);
         JSONObject out = new JSONObject();
         out.put("exist", doesExist);
+        if (doesExist) {
+            out.put("open", Lobby.getInstance(room).isOpen());
+        } else {
+            out.put("open", false);
+        }
         return out.toString();
     }
 
-    @GetMapping(value = "{room}/tick", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{room}/tick", produces = MediaType.APPLICATION_JSON_VALUE)
     public String tick(@PathVariable String room, @ModelAttribute("uuid") String uuid, HttpServletRequest request) {
         if (Lobby.isInstance(room)) {
             Lobby lobby = Lobby.getInstance(room);
@@ -62,7 +65,7 @@ public class MainController {
             }
             return array.toString();
         } else {
-            return "{}";
+            return "[]";
         }
     }
 

@@ -10,7 +10,7 @@ public class App {
 	public static void main(String[] args) {
 		Lobby.main(args);
 
-		Lobby test = new Lobby("abc123");
+		Lobby test = new Lobby("ABCDE123");
 
 
 		SpringApplication.run(App.class, args);
