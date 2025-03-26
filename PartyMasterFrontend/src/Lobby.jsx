@@ -38,7 +38,7 @@ function Lobby() {
             })
         });
         return function(){}
-    }, [data, updateData]);
+    }, []);
 
     const app = {
         data: data,

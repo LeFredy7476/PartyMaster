@@ -3,12 +3,22 @@ import './Lobby.css'
 import './Menu.css'
 import axios from 'axios'
 import {useNavigate, useParams} from "react-router-dom";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 function MainMenu() {
 
     const [room, setRoom] = useState("");
     let navigate = useNavigate();
+
+    // // use effect test
+    // useEffect(()=>{
+    //     let i = setTimeout(()=>{
+    //         console.log("asking smth to the server");
+    //     }, 10);
+    //     return ()=>{
+    //         clearTimeout(i)
+    //     }
+    // }, [])
 
     return (
         <main>
