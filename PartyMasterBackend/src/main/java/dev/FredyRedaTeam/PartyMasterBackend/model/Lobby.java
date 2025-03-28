@@ -245,7 +245,7 @@ public class Lobby {
     public Response kick(Action action) {
         if (action.getUuid().equals(this.lobbyMaster)) {
             try {
-                UUID kickTarget = UUID.fromString(action.getData().getString("kickTarget"));
+                UUID kickTarget = UUID.fromString(action.getData().getString("target"));
                 if (this.players.containsKey(kickTarget)) {
                     this.players.remove(kickTarget);
                     this.eventQueues.remove(kickTarget);

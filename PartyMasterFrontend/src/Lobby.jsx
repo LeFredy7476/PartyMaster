@@ -10,11 +10,12 @@ import { useEffect } from 'react'
 function Lobby() {
 
     let { room } = useParams();
+    const navigate = useNavigate();
 
     const [data, updateData] = useImmer({
         "room": room,
         "timestamp": 0,
-        "party_master": null,
+        "lobby_master": null,
         "players": {},
         "game": {},
         "chat": [],
@@ -32,7 +33,7 @@ function Lobby() {
             updateData((data) => {
                 data.chat = response.data.chat;
                 data.game = response.data.game;
-                data.party_master = response.data.party_master;
+                data.lobby_master = response.data.lobby_master;
                 data.players = response.data.players;
                 data.room = response.data.room;
             })
@@ -53,6 +54,14 @@ function Lobby() {
                 app.updateData((data) => {
                     data.chat.push(e.message);
                 });
+            } else if (e.type == "TerminationEvent") {
+                if (e.target == localStorage.getItem("uuid")) {
+                    navigate("/");
+                } else {
+                    app.updateData((data) => {
+                        delete data.players[e.target];
+                    });
+                }
             }
             // app.updateData((data) => {});
         },
@@ -78,6 +87,13 @@ function Lobby() {
             // /* debug purpose only */ console.log(value);
             updateData((data)=>{
                 data.msg = "";
+            })
+        }, 
+        kickPlayer: function(uuid) {
+            app.packAction("player:kick", {
+                "target": uuid
+            }).then(()=>{
+                console.log("kicked player");
             })
         }
     }
