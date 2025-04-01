@@ -4,8 +4,9 @@ public enum Role {
     VILLAGEOIS,
     LOUPGAROUX,
     VOYANTE,
-    SORCIERE,
+    TRAITRE,
     CUPIDON,
     GUARDIEN,
-    CHASSEUR
+    CHASSEUR,
+    LOUPBLANC
 }

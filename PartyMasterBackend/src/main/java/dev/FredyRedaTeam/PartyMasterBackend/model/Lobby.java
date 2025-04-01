@@ -11,7 +11,7 @@ public class Lobby {
     public static final int MAX_PLAYER_BY_LOBBY = 20;
     public static final int MAX_CHAT_HISTORY = 50;
     private static final HashMap<String, Lobby> lobbies = new HashMap<>();
-    private static Random random = new Random();
+    public static final Random random = new Random();
 
     public static boolean isInstance(String room) {
         return lobbies.containsKey(room);
@@ -112,6 +112,10 @@ public class Lobby {
         for (LinkedList<Event> eventQueue : eventQueues.values()) {
             eventQueue.add(event);
         }
+    }
+
+    public void queueEvent(UUID uuid, Event event) {
+        this.eventQueues.get(uuid).add(event);
     }
 
     public void tick() {

@@ -7,10 +7,7 @@ import dev.FredyRedaTeam.PartyMasterBackend.model.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 
 public class LoupGame implements Game {
 
@@ -20,9 +17,13 @@ public class LoupGame implements Game {
     private int manche = 0;
     private final ArrayList<UUID> loups = new ArrayList<>();
     private final HashMap<UUID, UUID> vote = new HashMap<>();
+    private final ArrayList<UUID> vivants = new ArrayList<>();
     private Lobby lobby;
     private int confirmAmoureux = 0;
     private UUID protege=null;
+    private boolean potion=true;
+    private UUID roleDecouvert=null;
+    private UUID loupBlanc;
 
     /**
      * game:state
@@ -74,22 +75,31 @@ public class LoupGame implements Game {
             case "voyante":
                 switch (action.getTarget()[2]) {
                     case "choose":
-                        return cupidonChoix(action); // TODO: make function
+                        return voyante(action);
                     case "confirm":
-                        return cupidonChoix(action); // TODO: make function
+                        if (joueurs.get(action.getUuid()).equals(roleDecouvert)){
+                            this.gameState = nextGameState;
+                            lobby.queueEventForAllPlayer(new StateEvent(gameState));
+                            this.nextGameState = GameState.LOUPGAROUX_CHOIX;
+                        }
                 }
             case "guardian":
                 switch (action.getTarget()[2]) {
                     case "choose":
-                        return cupidonChoix(action); // TODO: make function
+
+                        return gardien(action);
 
                 }
-            case "sorciere":
+            case "traitre":
                 switch (action.getTarget()[2]) {
                     case "choose":
-                        return cupidonChoix(action); // TODO: make function
+                        return traitre(action);
+                    case "reveal":
+                        return traitre(action);
+
 
                 }
+
             case "election":
                 switch (action.getTarget()[2]) {
                     case "vote":
@@ -99,7 +109,7 @@ public class LoupGame implements Game {
             case "execution":
                 switch (action.getTarget()[2]) {
                     case "vote":
-                        return villageoisChoix(action); // TODO: make function
+                        return villageChoix(action);
 
                     case "verdict":
                         return new Response(); // TODO: implementer le chef
@@ -120,10 +130,14 @@ public class LoupGame implements Game {
         this.lobby = lobby;
         ArrayList<Role> roles = new ArrayList<>();
         int nbJoueurs = lobby.getPlayers().size();
-        int nbLoups = Math.min(Math.max((int) Math.round((double) nbJoueurs / 4.0), 1), 3);
+        int nbLoups = Math.min(Math.max((int) Math.round((double) nbJoueurs / 4.0), 1), 4);
 
         while (nbLoups != 0) {
-            roles.add(Role.LOUPGAROUX);
+            if (nbLoups == 4) {
+                roles.add(Role.LOUPBLANC);
+            } else {
+                roles.add(Role.LOUPGAROUX);
+            }
             nbLoups--; nbJoueurs--;
         }
 
@@ -143,7 +157,7 @@ public class LoupGame implements Game {
         }
 
         if (nbJoueurs > 4) {
-            roles.add(Role.SORCIERE);
+            roles.add(Role.TRAITRE);
             nbJoueurs--;
         }
 
@@ -159,8 +173,17 @@ public class LoupGame implements Game {
 
         Collections.shuffle(roles);
         for (UUID uuid : lobby.getPlayers().keySet()) {
+            this.vivants.add(uuid);
             Role role = roles.removeFirst();
-            joueurs.put(uuid, new Joueur(uuid, role));
+            Joueur j = new Joueur(uuid, role);
+            joueurs.put(uuid, j);
+            if (role.equals(Role.LOUPBLANC)) {
+                this.loupBlanc = uuid;
+                loups.add(uuid);
+            } else if (role.equals(Role.LOUPGAROUX)){
+                loups.add(uuid);
+            }
+
         }
         this.lobby.queueEventForAllPlayer(new StateEvent(GameState.DISTRIBUTION_ROLE));
     }
@@ -184,7 +207,13 @@ public class LoupGame implements Game {
                 if (endVoteVerif) {
                     UUID chosenOne = resolveVote();
                     if (chosenOne != null) {
-                        killJoueur(chosenOne);
+                        boolean _continue ;
+                        _continue = killJoueur(chosenOne);
+                        if (_continue) {
+                            this.gameState = nextGameState;
+                            lobby.queueEventForAllPlayer(new StateEvent(gameState));
+                            this.nextGameState = GameState.TRAITRE_CHOIX;
+                        }
                     }
                 }
                 return new Response();
@@ -208,7 +237,11 @@ public class LoupGame implements Game {
             UUID target = UUID.fromString(action.getContent().getString("target"));
             if (joueurs.get(action.getUuid()).isVivant()) {
                 killJoueur(target);
-                return new Response(); // OK
+                this.gameState = nextGameState;
+                lobby.queueEventForAllPlayer(new StateEvent(gameState));
+                this.nextGameState = GameState.GUARDIEN_CHOIX;
+                return new Response();
+
             } else {
                 Response r = new Response(3, new JSONObject());
                 r.getData().put("r", "InvalidTarget");
@@ -222,29 +255,7 @@ public class LoupGame implements Game {
         }
     }
 
-    public void killJoueur(UUID uuid) {
 
-        joueurs.get(uuid).setVivant(false);
-
-        if (joueurs.get(uuid).getRole().equals(Role.CHASSEUR)) {
-            this.gameState = GameState.CHASSEUR_CHOIX;
-            lobby.queueEventForAllPlayer(new StateEvent(GameState.CHASSEUR_CHOIX));
-        }
-
-        if(joueurs.get(uuid).getAmour() != null) {
-
-            uuid = joueurs.get(uuid).getAmour();
-
-            joueurs.get(uuid).setVivant(false);
-
-            if (joueurs.get(uuid).getRole().equals(Role.CHASSEUR)) {
-                this.gameState = GameState.CHASSEUR_CHOIX;
-                lobby.queueEventForAllPlayer(new StateEvent(GameState.CHASSEUR_CHOIX));
-            }
-
-        }
-
-    }
     public Response cupidonChoix(Action action){
         if (joueurs.get(action.getUuid()).getRole().equals(Role.CUPIDON)) {
             UUID targetA= UUID.fromString(action.getContent().getString("targetA"));
@@ -253,7 +264,7 @@ public class LoupGame implements Game {
             joueurs.get(targetB).setAmour(targetA);
             this.gameState = nextGameState;
             lobby.queueEventForAllPlayer(new StateEvent(gameState));
-            this.nextGameState = GameState.CUPIDON_CHOIX;
+            this.nextGameState = GameState.GUARDIEN_CHOIX;
             return new Response();
         } else {
             //message erreur envoyer au joueur copié de la classe lobby
@@ -262,58 +273,144 @@ public class LoupGame implements Game {
             return r; // REFUSED
         }
     }
-    public Response villageoisChoix(Action action){
-        //methode a verifier avec frederick
+
+
+    public Response villageChoix(Action action){
         UUID uuid = action.getUuid();
         UUID target = UUID.fromString(action.getContent().getString("target"));
-        if (joueurs.get(target).isVivant()){
-            vote.put(uuid, target);
-            boolean endVoteVerif = true;
+        if(joueurs.get(uuid).isVivant()) {
+            if (joueurs.get(target).isVivant()) {
+                vote.put(uuid, target);
+                boolean endVoteVerif = true;
 
-            for (UUID joueur:joueurs.keySet()) {
-                if (joueurs.get(joueur).isVivant()) {
+                for (UUID joueur : joueurs.keySet()) {
+                    if (joueurs.get(joueur).isVivant()) {
 
-                    endVoteVerif = endVoteVerif && vote.containsKey(joueur);
+                        endVoteVerif = endVoteVerif && vote.containsKey(joueur);
+                    }
                 }
-            }
-            if (endVoteVerif) {
-                UUID chosenOne = resolveVote();
-                if (chosenOne != null) {
-                    killJoueur(chosenOne);
+                if (endVoteVerif) {
+                    UUID chosenOne = resolveVote();
+                    if (chosenOne != null) {
+                        boolean _continue;
+                        _continue = killJoueur(chosenOne);
+                        if (_continue) {
+                            this.gameState = nextGameState;
+                            lobby.queueEventForAllPlayer(new StateEvent(gameState));
+                            this.nextGameState = GameState.GUARDIEN_CHOIX;
+                        }
+                    }
                 }
+                return new Response();
+            } else {
+                Response r = new Response(3, new JSONObject());
+                r.getData().put("r", "InvalidTarget");
+                return r; // REFUSED
+
             }
-            return new Response();
-        }else{
+        } else {
             Response r = new Response(3, new JSONObject());
-            r.getData().put("r", "InvalidTarget");
+            r.getData().put("r", "VoteurMort");
             return r; // REFUSED
 
         }
 
-
-
-
     }
+
+    public Response traitre(Action action){
+        UUID uuid = action.getUuid();
+        UUID target = UUID.fromString(action.getContent().getString("target"));
+        if (joueurs.get(uuid).getRole().equals(Role.TRAITRE)&&joueurs.get(uuid).isVivant()){
+
+            UUID connaisseur= vivants.get(this.lobby.random.nextInt(vivants.size()));
+            this.gameState = nextGameState;
+            lobby.queueEventForAllPlayer(new StateEvent(gameState));
+            this.nextGameState = GameState.VILLAGE_ELECTION;
+            //cette ligne ci dessous regarde le uuid de celui qui receveras l'info et il appelle l'event qui envoie le uuid de la cible vers lui
+            this.lobby.queueEvent(connaisseur, new TraitreEvent(target, joueurs.get(target).getRole()));
+            return new Response();
+        }else {
+            Response r = new Response(3, new JSONObject());
+            r.getData().put("r", "pas le traitre");
+            return r; // REFUSED
+        }
+    }
+
+
     public Response gardien(Action action){
         //pas sur de celui la a reverifier en equipe
         UUID uuid = action.getUuid();
         UUID target = UUID.fromString(action.getContent().getString("target"));
-        if (joueurs.get(action.getUuid()).getRole().equals(Role.GUARDIEN)&&joueurs.get(action.getUuid()).isVivant()){
-            vote.put(uuid, target);
+        if (joueurs.get(uuid).getRole().equals(Role.GUARDIEN) && joueurs.get(uuid).isVivant()) {
+            if (joueurs.get(target).isVivant()&& !this.protege.equals(target)) {
+                this.protege = target;
 
+                this.gameState = nextGameState;
+                lobby.queueEventForAllPlayer(new StateEvent(gameState));
+                this.nextGameState = GameState.VOYANTE_CHOIX;
 
-            for (UUID joueur:joueurs.keySet()) {
-                if (joueurs.get(joueur).isVivant()) {
-                    protege=target;
-                }
+                return new Response();
+            } else {
+                Response r = new Response(3, new JSONObject());
+                r.getData().put("r", "InvalidTarget");
+                return r; // REFUSED
             }
+        } else {
+            Response r = new Response(3, new JSONObject());
+            r.getData().put("r", "pas le gardien");
+            return r; // REFUSED
+        }
+    }
+
+
+    public Response voyante(Action action){
+        UUID uuid = action.getUuid();
+        UUID target = UUID.fromString(action.getContent().getString("target"));
+        if (joueurs.get(uuid).getRole().equals(Role.VOYANTE)&&joueurs.get(uuid).isVivant()){
+            this.roleDecouvert=target;
+
+            this.gameState = nextGameState;
+            lobby.queueEventForAllPlayer(new StateEvent(gameState));
+            this.nextGameState = GameState.LOUPGAROUX_CHOIX;
+
+            return new Response();
+        }else {
+            Response r = new Response(3, new JSONObject());
+            r.getData().put("r", "pas la voyante");
+            return r; // REFUSED
         }
 
 
-
-        return new Response();
     }
 
+    public boolean killJoueur(UUID uuid) {
+
+        joueurs.get(uuid).setVivant(false);
+        vivants.remove(uuid);
+        boolean _continue = true;
+
+        if (joueurs.get(uuid).getRole().equals(Role.CHASSEUR)) {
+            this.gameState = GameState.CHASSEUR_CHOIX;
+            lobby.queueEventForAllPlayer(new StateEvent(GameState.CHASSEUR_CHOIX));
+            _continue = false;
+        }
+
+        if(joueurs.get(uuid).getAmour() != null) {
+
+            uuid = joueurs.get(uuid).getAmour();
+
+            joueurs.get(uuid).setVivant(false);
+            vivants.remove(uuid);
+
+            if (joueurs.get(uuid).getRole().equals(Role.CHASSEUR)) {
+                this.gameState = GameState.CHASSEUR_CHOIX;
+                lobby.queueEventForAllPlayer(new StateEvent(GameState.CHASSEUR_CHOIX));
+                _continue = false;
+            }
+
+        }
+        return _continue;
+    }
     public UUID resolveVote() {
         //en gros sa vérifie si le vote est legit mathematiquement
         //la liste prend en compte qui a été voté combien de fois
@@ -336,6 +433,57 @@ public class LoupGame implements Game {
         } else {
             return null;
         }
+    }
+
+    public Response DecideWinner(Action action){
+
+
+        boolean clear = true;
+        for (UUID uuid1:vivants){
+           if(joueurs.get(uuid1).getRole().equals(Role.LOUPGAROUX)){
+               clear = false;
+           }
+        }
+        if (clear) {
+            // end the game
+        } else {
+            // teste les autres scénario
+        }
+        return new Response();
+    }
+    public boolean VillageWinner(Action action){
+        for (UUID uuid1:vivants){
+            if (!joueurs.get(uuid1).getRole().equals(Role.LOUPGAROUX)
+                    && !joueurs.get(uuid1).getRole().equals(Role.LOUPBLANC)
+                   
+
+            ) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean LoupGarouWinner(Action action){
+        for (UUID uuid1:vivants){
+            if(joueurs.get(uuid1).getRole().equals(Role.LOUPGAROUX)
+                    && !joueurs.get(uuid1).getRole().equals(Role.LOUPBLANC)
+                    && loups.size()>=vivants.size()/loups.size()
+
+            ){
+                return false;
+            }
+        }
+        return true;
+    }
+    public boolean LoupBlancWinner(Action action){
+        for (UUID uuid1:vivants){
+            if( joueurs.get(uuid1).getRole().equals(Role.LOUPGAROUX)
+                    &&joueurs.get(uuid1).getRole().equals(Role.LOUPBLANC)&&vivants.size()>1) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
