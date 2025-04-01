@@ -21,7 +21,6 @@ public class LoupGame implements Game {
     private Lobby lobby;
     private int confirmAmoureux = 0;
     private UUID protege=null;
-    private boolean potion=true;
     private UUID roleDecouvert=null;
     private UUID loupBlanc;
 
@@ -439,15 +438,24 @@ public class LoupGame implements Game {
 
 
         boolean clear = true;
-        for (UUID uuid1:vivants){
-           if(joueurs.get(uuid1).getRole().equals(Role.LOUPGAROUX)){
-               clear = false;
+
+           if(VillageWinner(action)){
+               this.gameState = GameState.RESULTAT;
+               lobby.queueEventForAllPlayer(new StateEvent(GameState.RESULTAT));
            }
-        }
-        if (clear) {
-            // end the game
-        } else {
-            // teste les autres scénario
+
+           if (LoupGarouWinner(action)){
+               this.gameState = GameState.RESULTAT;
+               lobby.queueEventForAllPlayer(new StateEvent(GameState.RESULTAT));
+           }
+
+           if (LoupBlancWinner(action)) {
+               this.gameState = GameState.RESULTAT;
+               lobby.queueEventForAllPlayer(new StateEvent(GameState.RESULTAT));
+           }
+           else {
+               this.gameState=GameState.VILLAGE_ELECTION;
+
         }
         return new Response();
     }
@@ -455,13 +463,11 @@ public class LoupGame implements Game {
         for (UUID uuid1:vivants){
             if (!joueurs.get(uuid1).getRole().equals(Role.LOUPGAROUX)
                     && !joueurs.get(uuid1).getRole().equals(Role.LOUPBLANC)
-                   
-
             ) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     public boolean LoupGarouWinner(Action action){
@@ -471,19 +477,19 @@ public class LoupGame implements Game {
                     && loups.size()>=vivants.size()/loups.size()
 
             ){
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
     public boolean LoupBlancWinner(Action action){
         for (UUID uuid1:vivants){
             if( joueurs.get(uuid1).getRole().equals(Role.LOUPGAROUX)
                     &&joueurs.get(uuid1).getRole().equals(Role.LOUPBLANC)&&vivants.size()>1) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     @Override
