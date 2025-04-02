@@ -139,9 +139,9 @@ public class Lobby {
      */
     public Response receiveAction(UUID uuid, String target, JSONObject content) {
         Action action = new Action(uuid, target, content);
-        switch (action.getTarget()[0]) {
+        switch (action.getTarget(0)) {
             case "player":
-                switch (action.getTarget()[1]) {
+                switch (action.getTarget(1)) {
                     case "quit":
                         return quit(action);
                     case "join":
@@ -151,9 +151,13 @@ public class Lobby {
                 }
                 break;
             case "chat" :
-                switch (action.getTarget()[1]) {
+                switch (action.getTarget(1)) {
                     case "send":
                         return sendMessage(action);
+                    case "fetch":
+                        Response r = new Response(0, new JSONObject());
+                        r.getData().put("chat", this.chatToJson());
+                        return r;
                 }
                 break;
             case "game" :
@@ -161,8 +165,8 @@ public class Lobby {
             case "tick" :
                 return null; // TODO: handle the event queue flushing
         }
-        Response r = new Response(1, new JSONObject());
-        r.getData().put("r", "InvalidAction");
+        Response r = new Response(2, new JSONObject());
+        r.getData().put("r", "UnknownAction");
         return r;
     }
 

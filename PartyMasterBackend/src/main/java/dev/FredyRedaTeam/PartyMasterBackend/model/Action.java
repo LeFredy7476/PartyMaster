@@ -29,6 +29,14 @@ public class Action {
         return target;
     }
 
+    public String getTarget(int i) {
+        try {
+            return this.target[i];
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public JSONObject getContent() {
         return content;
     }
