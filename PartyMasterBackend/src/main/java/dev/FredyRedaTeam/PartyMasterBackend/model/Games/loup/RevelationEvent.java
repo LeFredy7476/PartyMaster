@@ -5,16 +5,18 @@ import org.json.JSONObject;
 
 import java.util.UUID;
 
-public class TraitreEvent implements Event {
+public class RevelationEvent implements Event {
 
     private final long timestamp;
     private final UUID uuid;
     private final Role role;
+    private final String sender;
 
-    public TraitreEvent(UUID uuid, Role role) {
+    public RevelationEvent(UUID uuid, Role role, String sender) {
         this.timestamp = System.currentTimeMillis();
         this.uuid = uuid;
         this.role = role;
+        this.sender = sender;
     }
 
     public UUID getUuid() {
@@ -25,6 +27,10 @@ public class TraitreEvent implements Event {
         return role;
     }
 
+    public String getSender() {
+        return sender;
+    }
+
     public long getTimestamp() {
         return timestamp;
     }
@@ -33,7 +39,7 @@ public class TraitreEvent implements Event {
 
     @Override
     public String getType() {
-        return "Games.loup.TraitreEvent";
+        return "Games.loup.RevelationEvent";
     }
 
     @Override

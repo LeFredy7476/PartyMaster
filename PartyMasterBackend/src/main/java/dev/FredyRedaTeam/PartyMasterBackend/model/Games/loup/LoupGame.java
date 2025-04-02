@@ -21,8 +21,35 @@ public class LoupGame implements Game {
     private Lobby lobby;
     private int confirmAmoureux = 0;
     private UUID protege=null;
-    private UUID roleDecouvert=null;
+    private UUID connaisseur = null;
     private UUID loupBlanc;
+
+    private boolean isVoyanteAlive() {
+        for (UUID uuid : vivants) {
+            if (joueurs.get(uuid).getRole().equals(Role.VOYANTE)) {return true;}
+        }
+        return false;
+    }
+    private boolean isGuardianAlive() {
+        for (UUID uuid : vivants) {
+            if (joueurs.get(uuid).getRole().equals(Role.GUARDIEN)) {return true;}
+        }
+        return false;
+    }
+    private boolean isTraitreAlive() {
+        for (UUID uuid : vivants) {
+            if (joueurs.get(uuid).getRole().equals(Role.TRAITRE)) {return true;}
+        }
+        return false;
+    }
+
+    private boolean isCupidonAlive() {
+        for (UUID uuid : vivants) {
+            if (joueurs.get(uuid).getRole().equals(Role.CUPIDON)) {return true;}
+        }
+        return false;
+    }
+
 
     /**
      * game:state
@@ -33,7 +60,8 @@ public class LoupGame implements Game {
      * game:voyante:choose
      * game:voyante:confirm
      * game:guardien:choose
-     * game:sorciere:choose
+     * game:traitre:choose
+     * game:traitre:confirm
      * game:chasseur:choose
      * game:election:vote
      * game:execution:vote
@@ -76,16 +104,27 @@ public class LoupGame implements Game {
                     case "choose":
                         return voyante(action);
                     case "confirm":
-                        if (joueurs.get(action.getUuid()).equals(roleDecouvert)){
+                        if (joueurs.get(action.getUuid()).equals(connaisseur)){
+                            this.connaisseur = null;
+                            if (isGuardianAlive()) {
+                                this.gameState = GameState.GUARDIEN_CHOIX;
+                                this.nextGameState = GameState.LOUPGAROUX_CHOIX;
+                            } else if (isTraitreAlive()) {
+                                this.gameState = GameState.LOUPGAROUX_CHOIX;
+                                this.nextGameState = GameState.TRAITRE_CHOIX;
+                            } else {
+                                this.gameState=gameState.LOUPGAROUX_CHOIX;
+                                this.nextGameState=GameState.VILLAGE_EXECUTION;
+                            }
                             this.gameState = nextGameState;
                             lobby.queueEventForAllPlayer(new StateEvent(gameState));
                             this.nextGameState = GameState.LOUPGAROUX_CHOIX;
+                            return new Response();
                         }
                 }
             case "guardian":
                 switch (action.getTarget()[2]) {
                     case "choose":
-
                         return gardien(action);
 
                 }
@@ -93,25 +132,41 @@ public class LoupGame implements Game {
                 switch (action.getTarget()[2]) {
                     case "choose":
                         return traitre(action);
-                    case "reveal":
-                        return traitre(action);
+                    case "confirm":
+                        if (joueurs.get(action.getUuid()).equals(connaisseur)){
+                            this.connaisseur = null;
+                            if (isGuardianAlive()) {
+                                this.gameState = GameState.GUARDIEN_CHOIX;
+                                this.nextGameState = GameState.LOUPGAROUX_CHOIX;
+                            } else if (isTraitreAlive()) {
+                                this.gameState = GameState.LOUPGAROUX_CHOIX;
+                                this.nextGameState = GameState.TRAITRE_CHOIX;
+                            } else {
+                                this.gameState=gameState.LOUPGAROUX_CHOIX;
+                                this.nextGameState=GameState.VILLAGE_EXECUTION;
+                            }
+                            this.gameState = nextGameState;
+                            lobby.queueEventForAllPlayer(new StateEvent(gameState));
+                            this.nextGameState = GameState.LOUPGAROUX_CHOIX;
+                            return new Response();
+                        }
 
 
                 }
 
-            case "election":
-                switch (action.getTarget()[2]) {
-                    case "vote":
-                        return cupidonChoix(action); // TODO: make function
+            // case "election":
+            //     switch (action.getTarget()[2]) {
+            //         case "vote":
+            //             return cupidonChoix(action); // TODO: make function
 
-                }
+            //     }
             case "execution":
                 switch (action.getTarget()[2]) {
                     case "vote":
                         return villageChoix(action);
 
-                    case "verdict":
-                        return new Response(); // TODO: implementer le chef
+                    // case "verdict":
+                    //     return new Response(); // TODO: implementer le chef
 
                 }
 
@@ -140,7 +195,7 @@ public class LoupGame implements Game {
             nbLoups--; nbJoueurs--;
         }
 
-        if (nbJoueurs > 8) {
+        if (nbJoueurs > 12) {
             roles.add(Role.CUPIDON);
             nbJoueurs--;
         }
@@ -155,7 +210,7 @@ public class LoupGame implements Game {
             nbJoueurs--;
         }
 
-        if (nbJoueurs > 4) {
+        if (nbJoueurs > 9) {
             roles.add(Role.TRAITRE);
             nbJoueurs--;
         }
@@ -206,12 +261,25 @@ public class LoupGame implements Game {
                 if (endVoteVerif) {
                     UUID chosenOne = resolveVote();
                     if (chosenOne != null) {
-                        boolean _continue ;
-                        _continue = killJoueur(chosenOne);
-                        if (_continue) {
-                            this.gameState = nextGameState;
+
+                        // TODO: faire en sorte que la mise à mort se fasse au lever du jour
+
+                        if (killJoueur(chosenOne)) {
+                            if (isTraitreAlive()) {
+                                this.gameState = GameState.TRAITRE_CHOIX;
+                                this.nextGameState = GameState.TRAITRE_REVELATION;
+                            } else {
+                                this.gameState = GameState.VILLAGE_EXECUTION;
+                                if (isVoyanteAlive()){
+                                    this.nextGameState = GameState.VOYANTE_CHOIX;
+                                } else if (isGuardianAlive()) {
+                                    this.nextGameState = GameState.GUARDIEN_CHOIX;
+                                } else {
+                                    this.nextGameState = GameState.LOUPGAROUX_CHOIX;
+                                }
+                               
+                            }
                             lobby.queueEventForAllPlayer(new StateEvent(gameState));
-                            this.nextGameState = GameState.TRAITRE_CHOIX;
                         }
                     }
                 }
@@ -235,10 +303,21 @@ public class LoupGame implements Game {
         if (joueurs.get(action.getUuid()).getRole().equals(Role.CHASSEUR)) {
             UUID target = UUID.fromString(action.getContent().getString("target"));
             if (joueurs.get(action.getUuid()).isVivant()) {
+
                 killJoueur(target);
+
                 this.gameState = nextGameState;
+                if (this.gameState.equals(GameState.VOYANTE_CHOIX) && !isVoyanteAlive()) {
+                    this.gameState = GameState.GUARDIEN_CHOIX;
+                }
+                if (this.gameState.equals(GameState.GUARDIEN_CHOIX) && !isGuardianAlive()) {
+                    this.gameState = GameState.LOUPGAROUX_CHOIX;
+                }
+                if (this.gameState.equals(GameState.TRAITRE_CHOIX) && !isTraitreAlive()) {
+                    this.gameState = GameState.VILLAGE_EXECUTION;
+                }
                 lobby.queueEventForAllPlayer(new StateEvent(gameState));
-                this.nextGameState = GameState.GUARDIEN_CHOIX;
+
                 return new Response();
 
             } else {
@@ -261,9 +340,11 @@ public class LoupGame implements Game {
             UUID targetB = UUID.fromString(action.getContent().getString("targetB"));
             joueurs.get(targetA).setAmour(targetB);
             joueurs.get(targetB).setAmour(targetA);
-            this.gameState = nextGameState;
+            
+            this.gameState = GameState.VOYANTE_CHOIX;
+            this.nextGameState = GameState.VOYANTE_REVELATION;
+           
             lobby.queueEventForAllPlayer(new StateEvent(gameState));
-            this.nextGameState = GameState.GUARDIEN_CHOIX;
             return new Response();
         } else {
             //message erreur envoyer au joueur copié de la classe lobby
@@ -291,12 +372,25 @@ public class LoupGame implements Game {
                 if (endVoteVerif) {
                     UUID chosenOne = resolveVote();
                     if (chosenOne != null) {
-                        boolean _continue;
-                        _continue = killJoueur(chosenOne);
-                        if (_continue) {
-                            this.gameState = nextGameState;
+                        if (killJoueur(chosenOne)) {
+                            if (isVoyanteAlive()) {
+                                this.gameState = GameState.VOYANTE_CHOIX;
+                                this.nextGameState = GameState.VOYANTE_REVELATION;
+                            } else {
+                                if (isGuardianAlive()) {
+                                    this.gameState = GameState.GUARDIEN_CHOIX;
+                                    this.nextGameState = GameState.LOUPGAROUX_CHOIX;
+                                } else {
+                                    this.gameState = GameState.LOUPGAROUX_CHOIX;
+                                    if (isTraitreAlive()) {
+                                        this.nextGameState = GameState.TRAITRE_CHOIX;
+                                    } else {
+                                        this.nextGameState = GameState.VILLAGE_EXECUTION;
+                                    }
+                                }
+                               
+                            }
                             lobby.queueEventForAllPlayer(new StateEvent(gameState));
-                            this.nextGameState = GameState.GUARDIEN_CHOIX;
                         }
                     }
                 }
@@ -319,14 +413,18 @@ public class LoupGame implements Game {
     public Response traitre(Action action){
         UUID uuid = action.getUuid();
         UUID target = UUID.fromString(action.getContent().getString("target"));
-        if (joueurs.get(uuid).getRole().equals(Role.TRAITRE)&&joueurs.get(uuid).isVivant()){
+        if (isTraitreAlive()&&joueurs.get(uuid).getRole().equals(Role.TRAITRE)){
 
-            UUID connaisseur= vivants.get(this.lobby.random.nextInt(vivants.size()));
-            this.gameState = nextGameState;
-            lobby.queueEventForAllPlayer(new StateEvent(gameState));
-            this.nextGameState = GameState.VILLAGE_ELECTION;
+            this.connaisseur = vivants.get(Lobby.random.nextInt(vivants.size()));
+            
+            
+
             //cette ligne ci dessous regarde le uuid de celui qui receveras l'info et il appelle l'event qui envoie le uuid de la cible vers lui
-            this.lobby.queueEvent(connaisseur, new TraitreEvent(target, joueurs.get(target).getRole()));
+
+            this.lobby.queueEvent(connaisseur, new RevelationEvent(target, joueurs.get(target).getRole(), "traitre"));
+            this.gameState = GameState.TRAITRE_REVELATION;
+            lobby.queueEventForAllPlayer(new StateEvent(gameState));
+            this.nextGameState = GameState.VILLAGE_EXECUTION;
             return new Response();
         }else {
             Response r = new Response(3, new JSONObject());
@@ -344,10 +442,13 @@ public class LoupGame implements Game {
             if (joueurs.get(target).isVivant()&& !this.protege.equals(target)) {
                 this.protege = target;
 
-                this.gameState = nextGameState;
+                this.gameState = GameState.LOUPGAROUX_CHOIX;
+                if (isTraitreAlive()) {
+                    this.nextGameState = GameState.TRAITRE_CHOIX;
+                } else {
+                    this.nextGameState = GameState.VILLAGE_EXECUTION;
+                }
                 lobby.queueEventForAllPlayer(new StateEvent(gameState));
-                this.nextGameState = GameState.VOYANTE_CHOIX;
-
                 return new Response();
             } else {
                 Response r = new Response(3, new JSONObject());
@@ -366,12 +467,18 @@ public class LoupGame implements Game {
         UUID uuid = action.getUuid();
         UUID target = UUID.fromString(action.getContent().getString("target"));
         if (joueurs.get(uuid).getRole().equals(Role.VOYANTE)&&joueurs.get(uuid).isVivant()){
-            this.roleDecouvert=target;
 
-            this.gameState = nextGameState;
+            this.connaisseur = uuid;
+            this.lobby.queueEvent(uuid, new RevelationEvent(target, joueurs.get(target).getRole(), "voyante"));
+            
+            this.gameState = GameState.VOYANTE_REVELATION;
+            if (isGuardianAlive()) {
+                this.nextGameState = GameState.GUARDIEN_CHOIX;
+            } else {
+                this.nextGameState = GameState.LOUPGAROUX_CHOIX;
+            }
             lobby.queueEventForAllPlayer(new StateEvent(gameState));
-            this.nextGameState = GameState.LOUPGAROUX_CHOIX;
-
+            
             return new Response();
         }else {
             Response r = new Response(3, new JSONObject());
@@ -440,27 +547,27 @@ public class LoupGame implements Game {
 
 
 
-           if(VillageWinner(action)){
+           if(VillageWinner()){
                this.gameState = GameState.RESULTAT;
                lobby.queueEventForAllPlayer(new StateEvent(GameState.RESULTAT));
            }
 
-           if (LoupGarouWinner(action)){
+           if (LoupGarouWinner()){
                this.gameState = GameState.RESULTAT;
                lobby.queueEventForAllPlayer(new StateEvent(GameState.RESULTAT));
            }
 
-           if (LoupBlancWinner(action)) {
+           if (LoupBlancWinner()) {
                this.gameState = GameState.RESULTAT;
                lobby.queueEventForAllPlayer(new StateEvent(GameState.RESULTAT));
            }
            else {
-               this.gameState=GameState.VILLAGE_ELECTION;
+               this.gameState=GameState.VILLAGE_EXECUTION;
 
         }
         return new Response();
     }
-    public boolean VillageWinner(Action action){
+    public boolean VillageWinner(){
         for (UUID uuid1:vivants){
             if (!joueurs.get(uuid1).getRole().equals(Role.LOUPGAROUX)
                     && !joueurs.get(uuid1).getRole().equals(Role.LOUPBLANC)
@@ -471,7 +578,7 @@ public class LoupGame implements Game {
         return false;
     }
 
-    public boolean LoupGarouWinner(Action action){
+    public boolean LoupGarouWinner(){
         for (UUID uuid1:vivants){
             if(joueurs.get(uuid1).getRole().equals(Role.LOUPGAROUX)
                     && !joueurs.get(uuid1).getRole().equals(Role.LOUPBLANC)
@@ -483,7 +590,7 @@ public class LoupGame implements Game {
         }
         return false;
     }
-    public boolean LoupBlancWinner(Action action){
+    public boolean LoupBlancWinner(){
         for (UUID uuid1:vivants){
             if( joueurs.get(uuid1).getRole().equals(Role.LOUPGAROUX)
                     &&joueurs.get(uuid1).getRole().equals(Role.LOUPBLANC)&&vivants.size()>1) {
