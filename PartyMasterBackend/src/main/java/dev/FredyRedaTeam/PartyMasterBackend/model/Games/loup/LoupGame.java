@@ -415,16 +415,17 @@ public class LoupGame implements Game {
         //la liste prend en compte qui a été voté combien de fois
         HashMap<UUID, Integer> count = new HashMap<>();
         for (UUID v : vote.values()){
-            count.putIfAbsent(v,0);//initialise si il est pas présent dans le hashmap
-            count.put(v,count.get(v)+1); //compte son vote et est la reponse direct si la personne a déja été voté une fois
+            // hot fix for Integer != int error sa demande un integer mais ont donne un int donc ont le transforme de force
+            count.putIfAbsent(v, (Integer) 0);//initialise si il est pas présent dans le hashmap
+            count.put(v, (Integer)(count.get(v) + 1)); //compte son vote et est la reponse direct si la personne a déja été voté une fois
         }
         //.max prend le nombre maximum qui a été voté mais si deux personne ont été voté exacquo, .frequency vérifie si il y une égalité
         //, si c'est le cas cela renvoie un false et donc rien n'est return et personne n'est tué
-        int max = Collections.max(count.values());
-        if (1 == Collections.frequency(count.values(), max)) {
+
+        if (1 == Collections.frequency(count.values(),Collections.max(count.values()))) {
             UUID chosenOne = null;
             for (UUID uuid : count.keySet()) {
-                if (count.get(uuid) == max) {
+                if (count.get(uuid) == Collections.max(count.values())) {
                     chosenOne = uuid;
                 }
             }
@@ -437,7 +438,7 @@ public class LoupGame implements Game {
     public Response DecideWinner(Action action){
 
 
-        boolean clear = true;
+
 
            if(VillageWinner(action)){
                this.gameState = GameState.RESULTAT;
@@ -511,7 +512,12 @@ public class LoupGame implements Game {
             out.put("loups", new JSONArray(this.loups));
         }
         out.put("alive", joueur.isVivant());
-        out.put("amour", joueur.getAmour() == null ? 0 : joueur.getAmour());
+        if (joueur.getAmour() == null) {
+                                                    //si célibataire sa l'inscrit comme null sinon sa met son amoureux
+            out.put("amour", JSONObject.NULL);
+        } else {
+            out.put("amour", joueur.getAmour());
+        }
         return out;
     }
 }
