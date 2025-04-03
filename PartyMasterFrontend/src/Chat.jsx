@@ -10,7 +10,11 @@ export default function Chat({app}) {
             </div>
             <ChatLog app={app} />
             <div className="chat-input-box">
-                <input type="text" name="chat-input-message" id="chat-input-message" />
+                <input type="text" name="chat-input-message" id="chat-input-message" value={app.data.msg} onChange={(e)=>{
+                    app.updateData((data)=>{
+                        data.msg = e.target.value
+                    });
+                }}/>
                 <button id="chat-send-message" onClick={app.sendMessage}>send</button>
             </div>
         </div>
