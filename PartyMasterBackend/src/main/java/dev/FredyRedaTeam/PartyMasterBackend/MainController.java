@@ -61,7 +61,7 @@ public class MainController {
             LinkedList<Event> list = lobby.fetchEvents(_uuid);
             JSONArray array = new JSONArray();
             for (Event event : list) {
-                array.put(event.toJson(_uuid));
+                array.put(event.toJson());
             }
             return array.toString();
         } else {

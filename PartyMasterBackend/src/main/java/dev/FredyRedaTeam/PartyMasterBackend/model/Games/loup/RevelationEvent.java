@@ -43,7 +43,7 @@ public class RevelationEvent implements Event {
     }
 
     @Override
-    public JSONObject toJson(UUID uuid) {
+    public JSONObject toJson() {
         JSONObject obj = new JSONObject();
         obj.put("type", getType());
         return obj;

@@ -31,10 +31,10 @@ public class LobbyHome implements Game {
         }
 
         @Override
-        public JSONObject toJson(UUID uuid) {
+        public JSONObject toJson() {
             JSONObject obj = new JSONObject();
             obj.put("type", getType());
-            obj.put("type", this.timestamp);
+            obj.put("timestamp", this.timestamp);
             obj.put("game", this.game);
             return obj;
         }
@@ -70,12 +70,11 @@ public class LobbyHome implements Game {
         }
 
         @Override
-        public JSONObject toJson(UUID uuid) {
+        public JSONObject toJson() {
             JSONObject obj = new JSONObject();
             obj.put("type", getType());
-            obj.put("type", this.timestamp);
+            obj.put("timestamp", this.timestamp);
             obj.put("game", this.game);
-            obj.put("type", this.uuid);
             return obj;
         }
     }

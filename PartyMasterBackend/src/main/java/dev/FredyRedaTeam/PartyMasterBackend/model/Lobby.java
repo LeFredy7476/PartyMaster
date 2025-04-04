@@ -61,6 +61,9 @@ public class Lobby {
         this.room = generateRoom();
         System.out.println("room generated : " + this.room);
         lobbies.put(room, this);
+
+        // TODO: "logger" la création du groupe dans la DB
+
         this.game = new LobbyHome();
         this.game.init(this);
     }
@@ -224,6 +227,7 @@ public class Lobby {
                     name = this.assignName(name);
                     int icon = action.getData().getInt("icon");
                     Player player = new Player(uuid, name, icon);
+                    this.queueEventForAllPlayer(new JoinEvent(player));
                     this.players.put(player.getUuid(), player);
                     this.eventQueues.put(player.getUuid(), new LinkedList<>());
                     if (this.lobbyMaster == null) {
