@@ -22,26 +22,8 @@ function Lobby() {
         "msg": ""
     });
 
-    useEffect(function(){
-        axios.get(
-            window.location.protocol + "//" + window.location.hostname + ":8080/" + room + "/state?uuid=" + localStorage.getItem("uuid")
-        ).then((response) => {
-            if (response.data.room == "") {
-                window.location.assign(window.location.protocol + "//" + window.location.host + "/");
-                // window.location.reload();
-            }
-            updateData((data) => {
-                data.chat = response.data.chat;
-                data.game = response.data.game;
-                data.lobby_master = response.data.lobby_master;
-                data.players = response.data.players;
-                data.room = response.data.room;
-            })
-        });
-        return function(){}
-    }, []);
-
     const app = {
+        host: "http://10.10.2.122",
         data: data,
         updateData: updateData,
         receiveEvent: function(e) {
@@ -66,7 +48,7 @@ function Lobby() {
             // app.updateData((data) => {});
         },
         packAction: function(target, data) {
-            return axios.post(window.location.protocol + "//" + window.location.hostname + ":8080/" + room + "/send", {
+            return axios.post(app.host + ":8080/" + room + "/send", {
                 "target": target,
                 "uuid": localStorage.getItem("uuid"),
                 "data": data
@@ -99,9 +81,28 @@ function Lobby() {
     }
 
     useEffect(function(){
+        axios.get(
+            app.host + ":8080/" + room + "/state?uuid=" + localStorage.getItem("uuid")
+        ).then((response) => {
+            if (response.data.room == "") {
+                window.location.assign(window.location.protocol + "//" + window.location.hostname + "/");
+                // window.location.reload();
+            }
+            updateData((data) => {
+                data.chat = response.data.chat;
+                data.game = response.data.game;
+                data.lobby_master = response.data.lobby_master;
+                data.players = response.data.players;
+                data.room = response.data.room;
+            })
+        });
+        return function(){}
+    }, []);
+
+    useEffect(function(){
         let interval = setInterval(()=>{
             axios.get(
-                window.location.protocol + "//" + window.location.hostname + ":8080/" + room + "/tick?uuid=" + localStorage.getItem("uuid")
+                app.host + ":8080/" + room + "/tick?uuid=" + localStorage.getItem("uuid")
             ).then((response) => {
                 // console.log(response.data.length);
                 // console.log(response.data)

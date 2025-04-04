@@ -8,8 +8,8 @@ import pm from "/icon.svg";
 export default function Player({uuid, app}) {
 
     let player = app.data.players[uuid];
-    console.log(app.data.lobby_master);
-    console.log(localStorage.getItem("uuid"));
+    // console.log(app.data.lobby_master);
+    // console.log(localStorage.getItem("uuid"));
 
     return (
         <div className="player">

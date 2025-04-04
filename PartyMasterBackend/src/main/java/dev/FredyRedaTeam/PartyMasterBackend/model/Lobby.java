@@ -11,7 +11,7 @@ public class Lobby {
     public static final int MAX_PLAYER_BY_LOBBY = 20;
     public static final int MAX_CHAT_HISTORY = 50;
     private static final HashMap<String, Lobby> lobbies = new HashMap<>();
-    private static Random random = new Random();
+    public static final Random random = new Random();
 
     public static boolean isInstance(String room) {
         return lobbies.containsKey(room);
@@ -118,6 +118,10 @@ public class Lobby {
         }
     }
 
+    public void queueEvent(UUID uuid, Event event) {
+        this.eventQueues.get(uuid).add(event);
+    }
+
     public void tick() {
         this.lastTick = System.currentTimeMillis();
     }
@@ -139,9 +143,9 @@ public class Lobby {
      */
     public Response receiveAction(UUID uuid, String target, JSONObject data) {
         Action action = new Action(uuid, target, data);
-        switch (action.getTarget()[0]) {
+        switch (action.getTarget(0)) {
             case "player":
-                switch (action.getTarget()[1]) {
+                switch (action.getTarget(1)) {
                     case "quit":
                         return quit(action);
                     case "join":
@@ -151,9 +155,13 @@ public class Lobby {
                 }
                 break;
             case "chat" :
-                switch (action.getTarget()[1]) {
+                switch (action.getTarget(1)) {
                     case "send":
                         return sendMessage(action);
+                    case "fetch":
+                        Response r = new Response(0, new JSONObject());
+                        r.getData().put("chat", this.chatToJson());
+                        return r;
                 }
                 break;
             case "game" :
@@ -161,8 +169,8 @@ public class Lobby {
             case "tick" :
                 return null; // TODO: handle the event queue flushing
         }
-        Response r = new Response(1, new JSONObject());
-        r.getData().put("r", "InvalidAction");
+        Response r = new Response(2, new JSONObject());
+        r.getData().put("r", "UnknownAction");
         return r;
     }
 

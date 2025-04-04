@@ -55,6 +55,21 @@ div#root main {
     position: relative;
 }
 
+div#root main.docs {
+    justify-content: start;
+    padding: 5rem 15vw;
+    overflow-y: scroll;
+    
+}
+
+div#root main.docs .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    gap: 2rem;
+}
+
+
 div#root main section {
     display: flex;
     border: 4px solid black;
