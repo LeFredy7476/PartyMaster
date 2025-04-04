@@ -10,5 +10,5 @@ public interface Event {
 
     String getType();
 
-    JSONObject toJson(UUID uuid);
+    JSONObject toJson();
 }
