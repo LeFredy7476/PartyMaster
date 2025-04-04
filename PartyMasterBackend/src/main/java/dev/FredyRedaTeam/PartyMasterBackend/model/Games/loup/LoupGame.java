@@ -26,26 +26,34 @@ public class LoupGame implements Game {
 
     private boolean isVoyanteAlive() {
         for (UUID uuid : vivants) {
-            if (joueurs.get(uuid).getRole().equals(Role.VOYANTE)) {return true;}
+            if (joueurs.get(uuid).getRole().equals(Role.VOYANTE)) {
+                return true;
+            }
         }
         return false;
     }
     private boolean isGuardianAlive() {
         for (UUID uuid : vivants) {
-            if (joueurs.get(uuid).getRole().equals(Role.GUARDIEN)) {return true;}
+            if (joueurs.get(uuid).getRole().equals(Role.GUARDIEN)) {
+                return true;
+            }
         }
         return false;
     }
     private boolean isTraitreAlive() {
         for (UUID uuid : vivants) {
-            if (joueurs.get(uuid).getRole().equals(Role.TRAITRE)) {return true;}
+            if (joueurs.get(uuid).getRole().equals(Role.TRAITRE)) {
+                return true;
+            }
         }
         return false;
     }
 
     private boolean isCupidonAlive() {
         for (UUID uuid : vivants) {
-            if (joueurs.get(uuid).getRole().equals(Role.CUPIDON)) {return true;}
+            if (joueurs.get(uuid).getRole().equals(Role.CUPIDON)) {
+                return true;
+            }
         }
         return false;
     }
@@ -151,7 +159,7 @@ public class LoupGame implements Game {
             // case "election":
             //     switch (action.getTarget()[2]) {
             //         case "vote":
-            //             return cupidonChoix(action); // TODO: make function
+            //             return cupidonChoix(action);
 
             //     }
             case "execution":
@@ -160,7 +168,7 @@ public class LoupGame implements Game {
                         return villageChoix(action);
 
                     // case "verdict":
-                    //     return new Response(); // TODO: implementer le chef
+                    //     return new Response(); //
 
                 }
 
@@ -228,7 +236,7 @@ public class LoupGame implements Game {
             Joueur j = new Joueur(uuid, role);
             joueurs.put(uuid, j);
             if (role.equals(Role.LOUPBLANC)) {
-                this.loupBlanc = uuid;
+                this.loupBlanc=uuid;
                 loups.add(uuid);
             } else if (role.equals(Role.LOUPGAROUX)){
                 loups.add(uuid);
@@ -236,6 +244,21 @@ public class LoupGame implements Game {
 
         }
         this.lobby.queueEventForAllPlayer(new StateEvent(GameState.DISTRIBUTION_ROLE));
+        this.gameState = GameState.DISTRIBUTION_ROLE;
+        if (this.isCupidonAlive()) {
+            this.nextGameState = GameState.CUPIDON_CHOIX;
+        } else {
+            if (this.isVoyanteAlive()) {
+                this.nextGameState = GameState.VOYANTE_CHOIX;
+            }else {
+                if (this.isGuardianAlive()){
+                    this.nextGameState=GameState.GUARDIEN_CHOIX;
+                }else {
+                    this.nextGameState=GameState.LOUPGAROUX_CHOIX;
+                }
+            }
+
+        }
     }
 
 
