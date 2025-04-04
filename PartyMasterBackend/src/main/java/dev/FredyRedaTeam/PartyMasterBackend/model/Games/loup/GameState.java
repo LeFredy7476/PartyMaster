@@ -1,0 +1,16 @@
+package dev.FredyRedaTeam.PartyMasterBackend.model.Games.loup;
+
+public enum GameState {
+    DISTRIBUTION_ROLE,
+    CUPIDON_CHOIX,
+    AMOUREUX_REVELATION,
+    GUARDIEN_CHOIX,
+    VOYANTE_CHOIX,
+    VOYANTE_REVELATION,
+    LOUPGAROUX_CHOIX,
+    TRAITRE_CHOIX,
+    TRAITRE_REVELATION,
+    VILLAGE_EXECUTION,
+    CHASSEUR_CHOIX,
+    RESULTAT
+}
