@@ -32,9 +32,12 @@ function Lobby() {
                 app.updateData((data) => {
                     data.chat.push(e.message);
                 });
-            } else if (e.type == "ChatEvent") {
+            } else if (e.type == "JoinEvent") {
                 app.updateData((data) => {
-                    data.chat.push(e.message);
+                    data.players[e.player.uuid] = {
+                        name: e.player.name,
+                        icon: e.player.icon
+                    };
                 });
             } else if (e.type == "TerminationEvent") {
                 if (e.target == localStorage.getItem("uuid")) {
@@ -76,7 +79,7 @@ function Lobby() {
                 "target": uuid
             }).then(()=>{
                 console.log("kicked player");
-            })
+            }).catch(() => {console.error("axios post error")});
         }
     }
 
