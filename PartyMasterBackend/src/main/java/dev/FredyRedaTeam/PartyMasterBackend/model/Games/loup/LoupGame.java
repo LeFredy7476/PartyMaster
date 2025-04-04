@@ -242,7 +242,7 @@ public class LoupGame implements Game {
     public Response loupVote(Action action){
 
         UUID uuid = action.getUuid();
-        UUID target = UUID.fromString(action.getContent().getString("target"));
+        UUID target = UUID.fromString(action.getData().getString("target"));
         Joueur joueur = joueurs.get(uuid);
         if (loups.contains(uuid) && joueur.isVivant()) {
             if (joueurs.get(target).isVivant()){
@@ -297,7 +297,7 @@ public class LoupGame implements Game {
 
     public Response chasseurVote(Action action) {
         if (joueurs.get(action.getUuid()).getRole().equals(Role.CHASSEUR)) {
-            UUID target = UUID.fromString(action.getContent().getString("target"));
+            UUID target = UUID.fromString(action.getData().getString("target"));
             if (joueurs.get(action.getUuid()).isVivant()) {
 
                 killJoueur(target);
@@ -332,8 +332,8 @@ public class LoupGame implements Game {
 
     public Response cupidonChoix(Action action){
         if (joueurs.get(action.getUuid()).getRole().equals(Role.CUPIDON)) {
-            UUID targetA= UUID.fromString(action.getContent().getString("targetA"));
-            UUID targetB = UUID.fromString(action.getContent().getString("targetB"));
+            UUID targetA= UUID.fromString(action.getData().getString("targetA"));
+            UUID targetB = UUID.fromString(action.getData().getString("targetB"));
             joueurs.get(targetA).setAmour(targetB);
             joueurs.get(targetB).setAmour(targetA);
             
@@ -353,7 +353,7 @@ public class LoupGame implements Game {
 
     public Response villageChoix(Action action){
         UUID uuid = action.getUuid();
-        UUID target = UUID.fromString(action.getContent().getString("target"));
+        UUID target = UUID.fromString(action.getData().getString("target"));
         if(joueurs.get(uuid).isVivant()) {
             if (joueurs.get(target).isVivant()) {
                 vote.put(uuid, target);
@@ -409,7 +409,7 @@ public class LoupGame implements Game {
 
     public Response traitre(Action action){
         UUID uuid = action.getUuid();
-        UUID target = UUID.fromString(action.getContent().getString("target"));
+        UUID target = UUID.fromString(action.getData().getString("target"));
         if (isTraitreAlive()&&joueurs.get(uuid).getRole().equals(Role.TRAITRE)){
 
             this.connaisseur = vivants.get(Lobby.random.nextInt(vivants.size()));
@@ -434,7 +434,7 @@ public class LoupGame implements Game {
     public Response gardien(Action action){
         //pas sur de celui la a reverifier en equipe
         UUID uuid = action.getUuid();
-        UUID target = UUID.fromString(action.getContent().getString("target"));
+        UUID target = UUID.fromString(action.getData().getString("target"));
         if (joueurs.get(uuid).getRole().equals(Role.GUARDIEN) && joueurs.get(uuid).isVivant()) {
             if (joueurs.get(target).isVivant()&& !this.protege.equals(target)) {
                 this.protege = target;
@@ -462,7 +462,7 @@ public class LoupGame implements Game {
 
     public Response voyante(Action action){
         UUID uuid = action.getUuid();
-        UUID target = UUID.fromString(action.getContent().getString("target"));
+        UUID target = UUID.fromString(action.getData().getString("target"));
         if (joueurs.get(uuid).getRole().equals(Role.VOYANTE)&&joueurs.get(uuid).isVivant()){
 
             this.connaisseur = uuid;

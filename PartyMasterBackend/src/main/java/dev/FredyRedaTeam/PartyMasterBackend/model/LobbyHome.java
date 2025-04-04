@@ -89,6 +89,8 @@ public class LobbyHome implements Game {
         return lobby;
     }
 
+    public LobbyHome() {}
+
     @Override
     public Response receiveAction(Action action) {
         switch (action.getTarget()[1]) {
@@ -103,7 +105,7 @@ public class LobbyHome implements Game {
     }
 
     public Response select(Action action) {
-        int targetGame = action.getContent().getInt("game");
+        int targetGame = action.getData().getInt("game");
         if (lobby.getLobbyMaster().equals(action.getUuid())) {
             this.selectedGame = targetGame;
             this.lobby.queueEventForAllPlayer(new HighlightEvent(targetGame));

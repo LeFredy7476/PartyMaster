@@ -7,13 +7,13 @@ public class Action {
     private final UUID uuid;
     private final long timestamp;
     private final String[] target;
-    private final JSONObject content;
+    private final JSONObject data;
 
-    public Action(UUID uuid, String target, JSONObject content) {
+    public Action(UUID uuid, String target, JSONObject data) {
         this.uuid = uuid;
         this.timestamp = System.currentTimeMillis();
         this.target = target.split(":", 5);
-        this.content = content;
+        this.data = data;
         System.out.println(this.getTarget()[0]);
     }
 
@@ -37,7 +37,7 @@ public class Action {
         }
     }
 
-    public JSONObject getContent() {
-        return content;
+    public JSONObject getData() {
+        return data;
     }
 }

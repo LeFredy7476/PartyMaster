@@ -8,7 +8,7 @@ import icon6 from '/players/icon-6.svg'
 import icon7 from '/players/icon-7.svg'
 import icon8 from '/players/icon-8.svg'
 
-const icons = [
+export const icons = [
     icon0,
     icon1,
     icon2,
@@ -20,6 +20,8 @@ const icons = [
     icon8
 ];
 
-export default function get_player_icon(icon_id) {
+export function get_player_icon(icon_id) {
     return icons[icon_id];
 }
+
+export default get_player_icon;

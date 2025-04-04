@@ -33,10 +33,12 @@ public class Lobby {
         String characters = "0123456789abcdefghijklmnopqrstuvwxyz";
         String out = "";
         do {
+            out = "";
             for (int i = 0; i < 8; i++) {
-                out = out + characters.charAt(random.nextInt(36));
+                out = out + String.valueOf(characters.charAt(random.nextInt(36)));
             }
-        } while (!isInstance(out));
+            System.out.println(out);
+        } while (isInstance(out));
         return out;
     }
 
@@ -55,7 +57,9 @@ public class Lobby {
 
 
     public Lobby() {
+        System.out.println("generating room...");
         this.room = generateRoom();
+        System.out.println("room generated : " + this.room);
         lobbies.put(room, this);
         this.game = new LobbyHome();
         this.game.init(this);
@@ -134,11 +138,11 @@ public class Lobby {
      *
      * @param uuid client's uuid
      * @param target the path to redirect the data to
-     * @param content the data itself
+     * @param data the data itself
      * @return result code
      */
-    public Response receiveAction(UUID uuid, String target, JSONObject content) {
-        Action action = new Action(uuid, target, content);
+    public Response receiveAction(UUID uuid, String target, JSONObject data) {
+        Action action = new Action(uuid, target, data);
         switch (action.getTarget(0)) {
             case "player":
                 switch (action.getTarget(1)) {
@@ -207,21 +211,28 @@ public class Lobby {
         return preferedName;
     }
 
+    public boolean isOpen() {
+        return this.game instanceof LobbyHome && this.players.size() < MAX_PLAYER_BY_LOBBY;
+    }
+
     public Response join(Action action) {
-        if (this.game.getType() == "LobbyHome") {
+        if (this.game instanceof LobbyHome) {
             if (this.players.size() < MAX_PLAYER_BY_LOBBY) {
                 try {
                     UUID uuid = this.assignUuid(action.getUuid());
-                    String name = action.getContent().getString("name");
+                    String name = action.getData().getString("name");
                     name = this.assignName(name);
-                    int icon = action.getContent().getInt("icon");
+                    int icon = action.getData().getInt("icon");
                     Player player = new Player(uuid, name, icon);
                     this.players.put(player.getUuid(), player);
                     this.eventQueues.put(player.getUuid(), new LinkedList<>());
                     if (this.lobbyMaster == null) {
                         this.lobbyMaster = uuid;
                     }
-                    return new Response(0); // OK
+                    JSONObject out = new JSONObject();
+                    out.put("uuid", uuid.toString());
+                    out.put("name", name);
+                    return new Response(0, out); // OK
                 } catch (JSONException e) {
                     Response r = new Response(1, new JSONObject());
                     r.getData().put("r", "InvalidRequest");
@@ -242,7 +253,7 @@ public class Lobby {
     public Response kick(Action action) {
         if (action.getUuid().equals(this.lobbyMaster)) {
             try {
-                UUID kickTarget = UUID.fromString(action.getContent().getString("kickTarget"));
+                UUID kickTarget = UUID.fromString(action.getData().getString("target"));
                 if (this.players.containsKey(kickTarget)) {
                     this.players.remove(kickTarget);
                     this.eventQueues.remove(kickTarget);
@@ -290,7 +301,7 @@ public class Lobby {
     }
 
     public Response sendMessage(Action action) {
-        String content = action.getContent().getString("content");
+        String content = action.getData().getString("content");
         // put a censor here if needed
         Message message = new Message("user all", action.getUuid(), content);
         // for private message (i.e. werewolves), filter the players here

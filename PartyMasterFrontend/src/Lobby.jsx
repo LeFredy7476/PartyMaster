@@ -4,107 +4,115 @@ import PlayerList from './PlayerList'
 import Game from './Game'
 import Chat from './Chat'
 import axios from 'axios'
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
+import { useEffect } from 'react'
 
 function Lobby() {
 
-    if (false) {
-        axios.get("/state", )
-    }
-
     let { room } = useParams();
+    const navigate = useNavigate();
 
     const [data, updateData] = useImmer({
         "room": room,
         "timestamp": 0,
-        "party_master": "4",
-        "players": {
-            "0": { "name": "Bob Ross", "icon": 1 },
-            "1": { "name": "Jack Dalton", "icon": 0 },
-            "2": { "name": "Mike Brown", "icon": 2 },
-            "3": { "name": "Joe Dassin", "icon": 3 },
-            "4": { "name": "Marc Robinson", "icon": 4 },
-            "5": { "name": "Derick Robert", "icon": 5 },
-            "6": { "name": "Bob Ross", "icon": 8 },
-            "7": { "name": "Jack Dalton", "icon": 3 },
-            "8": { "name": "Jack Dalton", "icon": 4 },
-            "9": { "name": "Jack Dalton", "icon": 8 },
-            "a": { "name": "Jack Dalton", "icon": 7 },
-            "b": { "name": "Jack Dalton", "icon": 3 },
-            "c": { "name": "Jack Dalton", "icon": 6 }
-        },
-        "game": {
-            "name": "lobby",
-            "ready": true,
-            "selected_game": "uno",
-            "ready_check": {
-                "0": true,
-                "1": false,
-                "2": true,
-                "3": false,
-                "4": false,
-                "5": true,
-                "6": true,
-                "7": false,
-                "8": false,
-                "9": false,
-                "a": true,
-                "b": false,
-                "c": true
-            }
-        },
-        "chat": [
-            {
-                "uuid": "2",
-                "timestamp": 6,
-                "content": "Hey! hello!"
-            }, {
-                "uuid": "3",
-                "timestamp": 18,
-                "content": "Hello! How u doing?"
-            }, {
-                "uuid": "2",
-                "timestamp": 24,
-                "content": "I'm doin fine"
-            }
-        ]
+        "lobby_master": null,
+        "players": {},
+        "game": {},
+        "chat": [],
+        "msg": ""
     });
 
     const app = {
+        host: "http://10.10.2.122",
         data: data,
         updateData: updateData,
-        packAction(target, content) {
-            return JSON.stringify({
-                "room": app.room,
+        receiveEvent: function(e) {
+            console.log(e); // TODO: retirer apres debug
+            if (e.type == "ChatEvent") {
+                app.updateData((data) => {
+                    data.chat.push(e.message);
+                });
+            } else if (e.type == "ChatEvent") {
+                app.updateData((data) => {
+                    data.chat.push(e.message);
+                });
+            } else if (e.type == "TerminationEvent") {
+                if (e.target == localStorage.getItem("uuid")) {
+                    navigate("/");
+                } else {
+                    app.updateData((data) => {
+                        delete data.players[e.target];
+                    });
+                }
+            }
+            // app.updateData((data) => {});
+        },
+        packAction: function(target, data) {
+            return axios.post(app.host + ":8080/" + room + "/send", {
                 "target": target,
-                "uuid": app.uuid,
-                "content": content
+                "uuid": localStorage.getItem("uuid"),
+                "data": data
             })
         },
-        sendMessage() {
-            let value = document.querySelector("#chat-input-message").value;
-            // app.updateData(data => {data.chat.push({
-            //     "uuid": "0",
-            //     "timestamp": Date.now(),
-            //     "content": value
-            // })});
-            document.querySelector("#chat-input-message").value = "";
-            let out = app.packAction(
+        sendMessage: function() {
+            app.packAction(
                 "chat:send",
                 {
-                    "content": value,
+                    "content": app.data.msg,
                     "flags": "ALL"
                 }
-            );
-            axios.post("", out).then((response) => {
-                let responsedata = JSON.parse(response.data)
-                if (responsedata.code != 0) {
-                    console.error("sendMessage returned error code " + responsedata.code, response.data);
+            ).then((response) => {
+                if (response.data.code != 0) {
+                    console.error("sendMessage returned error code " + response.data.code, response.data);
                 }
             }).catch(() => {console.error("axios post error")}); // TODO: change this to the actual mapping for the backend
-            /* debug purpose only */ console.log(value);
+            // /* debug purpose only */ console.log(value);
+            updateData((data)=>{
+                data.msg = "";
+            })
+        }, 
+        kickPlayer: function(uuid) {
+            app.packAction("player:kick", {
+                "target": uuid
+            }).then(()=>{
+                console.log("kicked player");
+            })
         }
     }
+
+    useEffect(function(){
+        axios.get(
+            app.host + ":8080/" + room + "/state?uuid=" + localStorage.getItem("uuid")
+        ).then((response) => {
+            if (response.data.room == "") {
+                window.location.assign(window.location.protocol + "//" + window.location.hostname + "/");
+                // window.location.reload();
+            }
+            updateData((data) => {
+                data.chat = response.data.chat;
+                data.game = response.data.game;
+                data.lobby_master = response.data.lobby_master;
+                data.players = response.data.players;
+                data.room = response.data.room;
+            })
+        });
+        return function(){}
+    }, []);
+
+    useEffect(function(){
+        let interval = setInterval(()=>{
+            axios.get(
+                app.host + ":8080/" + room + "/tick?uuid=" + localStorage.getItem("uuid")
+            ).then((response) => {
+                // console.log(response.data.length);
+                // console.log(response.data)
+                response.data.forEach(app.receiveEvent);
+            });
+        }, 200);
+        return function() {
+            clearInterval(interval);
+        }
+    }, []);
 
     return (
         <>

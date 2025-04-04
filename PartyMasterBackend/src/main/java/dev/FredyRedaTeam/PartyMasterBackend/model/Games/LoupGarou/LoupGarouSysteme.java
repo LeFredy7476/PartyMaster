@@ -140,7 +140,7 @@ public class LoupGarouSysteme  {
                     if (!loupGarou2.isVivant()){
                         System.out.println("voulez vous ressuciter"+" "+loupGarou2.getNom()+" "+"oui/ne rien ecrire");
                         String reponse2= scanner.nextLine();
-                        if (reponse2=="oui"){
+                        if (Objects.equals(reponse2, "oui")){
                             loupGarou2.setVivant(true);
                             loupGarou.setRole("Villageois");
                         }else {
