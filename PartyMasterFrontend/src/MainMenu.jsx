@@ -7,6 +7,8 @@ import { useEffect, useState } from 'react';
 
 function MainMenu() {
 
+    const host = "http://10.10.2.122"; // window.location.protocol + "//" + window.location.hostname
+
     const [room, setRoom] = useState("");
     let navigate = useNavigate();
 
@@ -40,9 +42,9 @@ function MainMenu() {
                 // if (window.location.protocol) {
                 //     prefix = window.Location.protocol
                 // }
-                console.log(window.location.protocol + "//" + window.location.hostname + ":8080/createlobby");
+                console.log(host + ":8080/createlobby");
                 axios.post(
-                    window.location.protocol + "//" + window.location.hostname + ":8080/createlobby"
+                    host + ":8080/createlobby"
                 ).then(function (response) {
                     if (response.data.code == 0) {
                         navigate("/" + response.data.data.lobby);
