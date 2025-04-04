@@ -63,6 +63,9 @@ public class Lobby {
         lobbies.put(room, this);
         this.game = new LobbyHome();
         this.game.init(this);
+        String blaze=this.room;
+        Long creation=System.currentTimeMillis();
+        // TODO tester que la bd est connecter et faire en sorte que sa enregistre les infos des deux variables en haut dans la table historique game
     }
 
     /**
