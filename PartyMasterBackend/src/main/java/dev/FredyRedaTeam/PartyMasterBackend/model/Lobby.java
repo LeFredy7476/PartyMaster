@@ -2,6 +2,7 @@ package dev.FredyRedaTeam.PartyMasterBackend.model;
 
 import java.util.*;
 
+import dev.FredyRedaTeam.PartyMasterBackend.model.Games.LoupGarou.utils.Sql;
 import org.json.*;
 
 import java.util.regex.Matcher;
@@ -42,7 +43,7 @@ public class Lobby {
         return out;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args)throws Exception {
         init();
     }
 
@@ -56,16 +57,17 @@ public class Lobby {
     private long lastTick = System.currentTimeMillis();
 
 
-    public Lobby() {
+    public Lobby() throws Exception{
         System.out.println("generating room...");
         this.room = generateRoom();
         System.out.println("room generated : " + this.room);
         lobbies.put(room, this);
         this.game = new LobbyHome();
         this.game.init(this);
-        String blaze=this.room;
-        Long creation=System.currentTimeMillis();
-        // TODO tester que la bd est connecter et faire en sorte que sa enregistre les infos des deux variables en haut dans la table historique game
+        String idGame=this.room;
+        Long tempsCreation=System.currentTimeMillis();
+        Sql.InsertGame(idGame,tempsCreation);
+
     }
 
     /**
