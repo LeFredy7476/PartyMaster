@@ -19,7 +19,7 @@ function JoinLobby() {
     useEffect(() => {
         let interval = setInterval(() => {
             axios.get(
-                window.location.protocol + "//" + window.location.hostname + ":8080/" + room + "/ping"
+                "http://" + window.location.hostname + ":8080/" + room + "/ping"
             ).then((response) => {
                 setLobbyStatus(true);
                 setLobbyIcon(response.data.exist ? (response.data.open ? "check_circle" : "lock") : "warning");
@@ -62,7 +62,7 @@ function JoinLobby() {
                 if (name != "") {
                     let uuid = localStorage.getItem("uuid");
                     axios.post(
-                        window.location.protocol + "//" + window.location.hostname + ":8080/" + room + "/send",
+                        "http://" + window.location.hostname + ":8080/" + room + "/send",
                         {
                             uuid: uuid,
                             target: "player:join",

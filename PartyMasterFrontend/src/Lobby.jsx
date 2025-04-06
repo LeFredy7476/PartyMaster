@@ -23,7 +23,7 @@ function Lobby() {
     });
 
     const app = {
-        host: "http://10.10.2.122",
+        host: window.location.hostname == "partymaster.duckdns.org" ? "http://10.10.2.122" : "http://" + window.location.hostname,
         data: data,
         updateData: updateData,
         receiveEvent: function(e) {

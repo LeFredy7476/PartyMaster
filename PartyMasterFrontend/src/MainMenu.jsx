@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 
 function MainMenu() {
 
-    const host = "http://10.10.2.122"; // window.location.protocol + "//" + window.location.hostname
+    const host = window.location.hostname == "partymaster.duckdns.org" ? "http://10.10.2.122" : "http://" + window.location.hostname;
 
     const [room, setRoom] = useState("");
     let navigate = useNavigate();
