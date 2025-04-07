@@ -2,8 +2,6 @@ package dev.FredyRedaTeam.PartyMasterBackend.model;
 
 import org.json.JSONObject;
 
-import java.util.UUID;
-
 public class ChatEvent implements Event {
 
     private final long timestamp;

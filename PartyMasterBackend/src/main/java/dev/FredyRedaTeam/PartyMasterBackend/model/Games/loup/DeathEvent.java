@@ -3,8 +3,6 @@ package dev.FredyRedaTeam.PartyMasterBackend.model.Games.loup;
 import dev.FredyRedaTeam.PartyMasterBackend.model.Event;
 import org.json.JSONObject;
 
-import java.util.UUID;
-
 public class DeathEvent implements Event {
 
 
