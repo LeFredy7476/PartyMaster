@@ -1,7 +1,7 @@
 import get_player_icon from "./playerutils.jsx";
 import empty from '/players/empty.svg'
 
-export default function ChatMessage({app, uuid, content}) {
+export default function ChatMessage({app, uuid, content, shrink}) {
 
     let name = "Utilisateur Inconnu";
     let icon = empty;
@@ -11,7 +11,7 @@ export default function ChatMessage({app, uuid, content}) {
     }
 
     return (
-        <div className="message-box">
+        <div className={shrink ? "message-box shrink" : "message-box"}>
             <div className="message">
                 <img src={icon} alt={"icon#" + icon} className="message-icon" />
                 <div className="message-separator"></div>
