@@ -7,7 +7,7 @@ import axios from 'axios'
 import {useNavigate, useParams} from "react-router-dom";
 import { useEffect } from 'react'
 
-function Lobby() {
+function Lobby({ connected, setconnected }) {
 
     let { room } = useParams();
     const navigate = useNavigate();
@@ -80,6 +80,10 @@ function Lobby() {
             }).then(()=>{
                 console.log("kicked player");
             }).catch(() => {console.error("axios post error")});
+        },
+        quit: function() {
+            setconnected(false);
+            localStorage.removeItem("name");
         }
     }
 

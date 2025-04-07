@@ -305,7 +305,7 @@ public class Lobby {
     }
 
     public Response sendMessage(Action action) {
-        String content = action.getData().getString("content");
+        String content = action.getData().getString("content"); // TODO: Ignore the action if the message is empty
         // put a censor here if needed
         Message message = new Message("user all", action.getUuid(), content);
         // for private message (i.e. werewolves), filter the players here

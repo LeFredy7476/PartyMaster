@@ -5,7 +5,7 @@ import {data, useNavigate, useParams} from "react-router-dom";
 import { useState, useEffect } from 'react';
 import { get_player_icon, icons } from "./playerutils.jsx";
 
-function JoinLobby() {
+function JoinLobby({ connected, setconnected }) {
 
     const {room} = useParams();
     let navigate = useNavigate();
@@ -72,11 +72,26 @@ function JoinLobby() {
                             }
                         }
                     ).then(function (response) {
-                        if (response.data.code == 0) {
+                        if (response.data.code === 0) {
+                            setconnected(true);
                             localStorage.setItem("uuid", response.data.data.uuid)
                             localStorage.setItem("name", response.data.data.name)
-                            navigate("/" + room + "/lobby");
+                            navigate("/" + room);
+                        } else if (response.data.code === 3) {
+                            if (response.data.data.r == "LobbyFull") {
+                                alert("Désolé, le groupe est plein.");
+                                navigate("/");
+                            } else if (response.data.data.r == "LobbyClosed") {
+                                alert("Désolé, le groupe est en milieu de partie ou est fermé.");
+                            }
+                        } else {
+                            console.log(response);
+                            alert("Impossible de joindre le groupe.");
+                            navigate("/");
                         }
+                    }).catch(function (response) {
+                        alert("Erreur serveur");
+                        navigate("/");
                     });
                 }
                 // navigate("/" + room + "/lobby")

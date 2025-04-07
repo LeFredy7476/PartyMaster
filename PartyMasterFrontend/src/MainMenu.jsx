@@ -5,7 +5,9 @@ import axios from 'axios'
 import {useNavigate, useParams} from "react-router-dom";
 import { useEffect, useState } from 'react';
 
-function MainMenu() {
+function MainMenu({ connected, setconnected }) {
+
+    setconnected(false);
 
     const host = window.location.hostname == "partymaster.duckdns.org" ? "http://10.10.2.122" : "http://" + window.location.hostname;
 
