@@ -8,7 +8,7 @@ body {
 
 html {
     --bg: #fff;
-    --black: #101024;
+    --black: #000;
     overflow: hidden;
     color: var(--black);
     background-color: white;
