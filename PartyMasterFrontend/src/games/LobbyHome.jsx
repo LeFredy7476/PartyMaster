@@ -71,7 +71,24 @@ export default class LobbyHome {
 
 
 class Card {
-    constructor (name) {
+    constructor ( src, srcWidth, srcHeight ) {
+        this.src
+        this.height = srcHeight;
+        this.width = srcWidth;
+        this.trueX = 0;
+        this.trueY = 0;
+        this.trueFlip = 1;
+        this.trueRotation = 0;
+        this.ratio = 0.005;
+    }
+
+    _expFollow(deltaTime, current, target) {
+        let diff = target - current;
+        let new_diff = diff * Math.pow( this.ratio, deltaTime / 1000 );
+        return target - new_diff;
+    }
+
+    update(deltaTime) {
         
     }
 }
