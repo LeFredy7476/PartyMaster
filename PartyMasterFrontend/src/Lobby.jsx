@@ -6,6 +6,7 @@ import Chat from './Chat'
 import axios from 'axios'
 import {useNavigate, useParams} from "react-router-dom";
 import { useEffect } from 'react'
+import games from './games/games';
 
 function Lobby({ connected, setconnected }) {
 
@@ -95,13 +96,17 @@ function Lobby({ connected, setconnected }) {
                 window.location.assign(window.location.protocol + "//" + window.location.hostname + "/");
                 // window.location.reload();
             }
+
+            let game = new games.LobbyHome( app, response.data.game );
+            
             updateData((data) => {
                 data.chat = response.data.chat;
-                data.game = response.data.game;
+                data.game = game;
                 data.lobby_master = response.data.lobby_master;
                 data.players = response.data.players;
                 data.room = response.data.room;
-            })
+            });
+            game.init()
         });
         return function(){}
     }, []);

@@ -12,7 +12,6 @@ public class App {
 
 		new Lobby("abcde123");
 
-
 		SpringApplication.run(App.class, args);
 	}
 

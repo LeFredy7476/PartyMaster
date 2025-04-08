@@ -8,7 +8,9 @@ body {
 
 html {
     --bg: #fff;
+    --black: #101024;
     overflow: hidden;
+    color: var(--black);
     background-color: white;
     background-image: 
         linear-gradient(#fff8, #fff8),
@@ -35,9 +37,17 @@ div#game {
     margin: 1rem 0rem;
     border-radius: 1rem;
     box-sizing: border-box;
-    border: 4px solid black;
+    border: 4px solid var(--black);
     flex-grow: 1;
     flex-shrink: 1;
+    position: relative;
+
+}
+
+div#game canvas#mainCanvas {
+    position: absolute;
+    top: 0px;
+    left: 0px;
 }
 
 .micon {

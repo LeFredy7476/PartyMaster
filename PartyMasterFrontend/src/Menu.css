@@ -12,7 +12,7 @@ h2 {
 
 button.form-button {
     height: 3rem;
-    border: 4px solid #000;
+    border: 4px solid var(--black);
     box-sizing: border-box;
     margin: 0px;
     padding: 0rem 2rem;
@@ -21,28 +21,28 @@ button.form-button {
     background-color: #fff;
     font-weight: 600;
     font-size: 1.25rem;
-    color: #000;
+    color: var(--black);
     border-radius: 2rem;
-    box-shadow: 0px 0px 0px 4px var(--bg), 0px 0px 0px 0px #000, 0px 0px 0px 10px transparent;
+    box-shadow: 0px 0px 0px 4px var(--bg), 0px 0px 0px 0px var(--black), 0px 0px 0px 10px transparent;
     flex-grow: 0;
     flex-shrink: 0;
     transition: 0.3s 0s ease;
 }
 
 button.form-button:hover, button.form-button:focus {
-    box-shadow: 0px 0px 0px 4px var(--bg), 0px 0px 0px 8px #000, 0px 0px 0px 10px transparent;
+    box-shadow: 0px 0px 0px 4px var(--bg), 0px 0px 0px 8px var(--black), 0px 0px 0px 10px transparent;
 }
 
 button.form-button:active {
-    box-shadow: 0px 0px 0px 4px var(--bg), 0px 0px 0px 8px #000, 0px 0px 0px 10px transparent;
-    background-color: #000;
+    box-shadow: 0px 0px 0px 4px var(--bg), 0px 0px 0px 8px var(--black), 0px 0px 0px 10px transparent;
+    background-color: var(--black);
     transition: 0s 0s ease;
 }
 
 div#root main {
     flex-grow: 1;
     flex-shrink: 1;
-    border: 4px solid black;
+    border: 4px solid var(--black);
     margin: 1rem 1rem;
     border-radius: calc(1rem + 8px);
     display: flex;
@@ -72,7 +72,7 @@ div#root main.docs .grid {
 
 div#root main section {
     display: flex;
-    border: 4px solid black;
+    border: 4px solid var(--black);
     padding: 1rem 1rem;
     border-radius: 2.5rem;
     flex-direction: column;
@@ -90,13 +90,13 @@ div#root main section.join-section {
 label {
     font-weight: 600;
     font-size: 1.25rem;
-    color: #000;
+    color: var(--black);
     text-align: center;
 }
 
 input[type="text"] {
     height: 3rem;
-    border: 4px solid #000;
+    border: 4px solid var(--black);
     box-sizing: border-box;
     margin: 0px;
     padding: 0.75rem 1.5rem;
@@ -116,23 +116,23 @@ input[type="text"].form::placeholder {
 input[type="text"].form#lobbyCode {
     text-transform: uppercase;
     font-weight: 600;
-    box-shadow: 0px 0px 0px 9px #0000, 0px 0px 0px 4px var(--bg), 0px 0px 0px -1px #000;
+    box-shadow: 0px 0px 0px 9px transparent, 0px 0px 0px 4px var(--bg), 0px 0px 0px -1px var(--black);
 }
 
 input[type="text"].form {
     font-weight: 600;
-    box-shadow: 0px 0px 0px 9px #0000, 0px 0px 0px 4px var(--bg), 0px 0px 0px -1px #000;
+    box-shadow: 0px 0px 0px 9px transparent, 0px 0px 0px 4px var(--bg), 0px 0px 0px -1px var(--black);
 }
 
 input[type="text"].form:focus {
-    box-shadow: 0px 0px 0px 9px #0000, 0px 0px 0px 4px var(--bg), 0px 0px 0px 8px #000;
+    box-shadow: 0px 0px 0px 9px transparent, 0px 0px 0px 4px var(--bg), 0px 0px 0px 8px var(--black);
     background-color: #fff;
 }
 
 #icon-preview {
     width: 12rem;
     height: 12rem;
-    box-shadow: 0px 0px 0px 4px #000;
+    box-shadow: 0px 0px 0px 4px var(--black);
     border-radius: 50%;
 }
 
@@ -151,7 +151,7 @@ button.icon-swap {
     border: none;
     outline: none;
     background-color: transparent;
-    color: #000;
+    color: var(--black);
     font-weight: 600;
     padding: 0.5em;
     
@@ -163,9 +163,9 @@ button.icon-swap span {
     border: none;
     outline: none;
     background-color: transparent;
-    color: #000;
+    color: var(--black);
     font-weight: 600;
-    /* filter: drop-shadow(0px 0px 0px black); */
+    /* filter: drop-shadow(0px 0px 0px var(--black)); */
     transition: 0.3s ease;
     position: relative;
     left: 0px;
@@ -178,7 +178,7 @@ button.icon-swap span::after {
     border: none;
     outline: none;
     background-color: transparent;
-    color: #000;
+    color: var(--black);
     font-weight: 600;
     transition: 0.3s ease;
     top: 0px;
@@ -190,7 +190,7 @@ button.icon-swap span::after {
 }
 
 /* button.icon-swap:hover span {
-    filter: drop-shadow(12px 0px 0px black);
+    filter: drop-shadow(12px 0px 0px var(--black));
 } */
 
 button.icon-swap:hover span::after {
@@ -200,7 +200,7 @@ button.icon-swap:hover span::after {
 }
 
 button.icon-swap:active span {
-    /* filter: drop-shadow(0px 0px 0px black); */
+    /* filter: drop-shadow(0px 0px 0px var(--black)); */
     left: 24px;
     transition: 0.1s ease;
 }
@@ -234,24 +234,24 @@ button.back {
     top: 4px;
     left: 4px;
     border-radius: 1rem;
-    border: 4px solid black;
+    border: 4px solid var(--black);
     display: flex;
     align-items: center;
     gap: 0.5rem;
     font-size: 1rem;
     padding: 0.5rem 1rem;
     transition: 0.3s ease;
-    box-shadow: 0px 0px 0px 4px var(--bg), 0px 0px 0px 0px #000, 0px 0px 0px 10px transparent;
+    box-shadow: 0px 0px 0px 4px var(--bg), 0px 0px 0px 0px var(--black), 0px 0px 0px 10px transparent;
     background-color: #fff;
 }
 
 button.back:hover {
-    box-shadow: 0px 0px 0px 4px var(--bg), 0px 0px 0px 8px #000, 0px 0px 0px 10px transparent;
+    box-shadow: 0px 0px 0px 4px var(--bg), 0px 0px 0px 8px var(--black), 0px 0px 0px 10px transparent;
 }
 
 button.back:active {
     transition: 0s 0s ease;
-    background-color: #000;
+    background-color: var(--black);
 }
 
 button.back span.micon {

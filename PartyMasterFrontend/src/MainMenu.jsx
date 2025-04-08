@@ -30,7 +30,7 @@ function MainMenu({ connected, setconnected }) {
             <h2>Vos jeux favoris, au même endroit.</h2>
             <section className="join-section">
                 <label htmlFor="lobbyCode">Rejoindre un groupe</label>
-                <input type="text" name="lobbyCode" id="lobbyCode" placeholder="Code" className='form' autocomplete="off" value={room} onChange={function(e) {
+                <input type="text" name="lobbyCode" id="lobbyCode" placeholder="Code" className='form' autoComplete="off" value={room} onChange={function(e) {
                     setRoom(e.target.value);
                 }}/>
                 <button id="lobbyJoin" className="form-button" onClick={()=>{
