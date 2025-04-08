@@ -3,7 +3,7 @@
   <defs>
     <style>
       .cls-1 {
-        stroke: #000;
+        stroke: #101024;
         stroke-miterlimit: 10;
         stroke-width: 3px;
       }
@@ -30,6 +30,10 @@
 
       .cls-7 {
         fill: #5050e2;
+      }
+
+      path {
+        fill: #101024;
       }
     </style>
     <linearGradient id="Dégradé_sans_nom_35" data-name="Dégradé sans nom 35" x1="50" y1="9.67" x2="50" y2="140.57" gradientUnits="userSpaceOnUse">

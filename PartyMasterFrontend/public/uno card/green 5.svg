@@ -16,7 +16,7 @@
 
       .cls-2, .cls-4 {
         fill: none;
-        stroke: #000;
+        stroke: #101024;
         stroke-width: 6px;
       }
 
@@ -30,6 +30,10 @@
 
       .cls-4, .cls-5 {
         font-size: 120px;
+      }
+
+      path {
+        fill: #101024;
       }
     </style>
   </defs>

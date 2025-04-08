@@ -8,9 +8,13 @@
 
       .cls-2 {
         fill: #b7297a;
-        stroke: #000;
+        stroke: #101024;
         stroke-linejoin: round;
         stroke-width: 4px;
+      }
+
+      rect {
+        fill: #101024;
       }
     </style>
   </defs>

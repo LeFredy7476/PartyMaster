@@ -13,6 +13,10 @@
       .cls-3 {
         fill: #5050e2;
       }
+
+      path {
+        fill: #101024;
+      }
     </style>
   </defs>
   <g id="Calque_3" data-name="Calque 3">

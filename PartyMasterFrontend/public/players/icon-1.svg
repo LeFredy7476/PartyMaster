@@ -8,7 +8,7 @@
 
       .cls-2 {
         fill: none;
-        stroke: #000;
+        stroke: #101024;
         stroke-linecap: round;
         stroke-miterlimit: 10;
         stroke-width: 4px;
@@ -16,6 +16,10 @@
 
       .cls-3 {
         fill: #4d319b;
+      }
+
+      rect {
+        fill: #101024;
       }
     </style>
   </defs>

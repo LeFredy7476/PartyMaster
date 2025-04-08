@@ -14,12 +14,16 @@
       }
 
       .cls-2 {
-        stroke: #000;
+        stroke: #101024;
         stroke-width: 4px;
       }
 
       .cls-3 {
         fill: #7bbc42;
+      }
+
+      rect {
+        fill: #101024;
       }
     </style>
   </defs>
