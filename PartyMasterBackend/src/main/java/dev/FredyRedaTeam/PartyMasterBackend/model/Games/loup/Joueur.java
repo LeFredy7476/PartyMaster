@@ -7,7 +7,7 @@ public class Joueur {
     private final UUID uuid;
     private Role role;
     private boolean vivant;
-    // private boolean chef;
+
     private UUID amour;
 
     public Joueur(UUID uuid, Role role) {
