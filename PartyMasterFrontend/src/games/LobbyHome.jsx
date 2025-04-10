@@ -70,16 +70,49 @@ export default class LobbyHome {
 }
 
 
-class Card {
-    constructor ( src, srcWidth, srcHeight ) {
+class ExpFollower {
+    constructor ( x, y, flip, rot ) {
         this.src
         this.height = srcHeight;
         this.width = srcWidth;
-        this.trueX = 0;
-        this.trueY = 0;
-        this.trueFlip = 1;
-        this.trueRotation = 0;
+        this.trueX = x;
+        this.targetX = x;
+        this.trueY = y;
+        this.targetY = y;
+        this.trueFlip = flip;
+        this.targetFlip = flip;
+        this.trueRotation = rot;
+        this.targetRotation = rot;
         this.ratio = 0.005;
+    }
+
+    get x() {
+        return this.trueX;
+    }
+    set x( value ) {
+        this.targetX = value;
+    }
+    get y() {
+        return this.trueY;
+    }
+    set y( value ) {
+        this.targetY = value;
+    }
+    get flip() {
+        return this.trueFlip;
+    }
+    set flip( value ) {
+        this.targetFlip = value;
+    }
+    get rotation() {
+        return this.trueRotation;
+    }
+    set rotation( value ) {
+        this.targetRotation = value;
+    }
+
+    get flipped() {
+        return this.flip <= 0;
     }
 
     _expFollow(deltaTime, current, target) {
@@ -88,7 +121,26 @@ class Card {
         return target - new_diff;
     }
 
-    update(deltaTime) {
-        
+    update ( deltaTime ) {
+        this.trueX = this._expFollow(deltaTime, this.trueX, this.targetX);
+        this.trueY = this._expFollow(deltaTime, this.trueY, this.targetY);
+        this.trueFlip = this._expFollow(deltaTime, this.trueFlip, this.targetFtrueFlip);
+        this.trueRotation = this._expFollow(deltaTime, this.trueRotation, this.targettrueRotation);
     }
+
+    transform ( func, ...ctxs ) {
+        let self = this;
+        ctxs.forEach(ctx => {
+            ctx.save();
+            ctx.translate(self.trueX, self.trueY);
+            ctx.rotate(self.trueRotation);
+            ctx.scale(self.trueFlip);
+        });
+        func();
+        ctxs.forEach(ctx => {
+            ctx.restore()
+        });
+    }
+
+    draw () {} // put all the drawing stuff here when implementing as a prototype
 }
