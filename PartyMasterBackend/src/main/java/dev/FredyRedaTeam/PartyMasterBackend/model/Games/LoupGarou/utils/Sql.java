@@ -1,6 +1,7 @@
 package dev.FredyRedaTeam.PartyMasterBackend.model.Games.LoupGarou.utils;
 
 import dev.FredyRedaTeam.PartyMasterBackend.model.Games.JeuxQuestion.Question;
+import dev.FredyRedaTeam.PartyMasterBackend.model.Games.JeuxQuestion.QuestionSpe;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -54,12 +55,47 @@ public class Sql {
                 Question question=new Question();
                 question.setId(rs.getInt(1));
                 question.setQuestion(rs.getString(2));
-                question.setBonneReponse(rs.getString(3));
+                question.setReponse1(rs.getString(3));
                 question.setReponse2(rs.getString(4));
                 question.setReponse3(rs.getString(5));
                 question.setReponse4(rs.getString(6));
                 question.setTypeQuestion(rs.getString(7));
+                question.setBonneReponse(rs.getString(8));
                 questionTout.add(question);
+              //  System.out.println(question.getQuestion());
+            }
+
+
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }finally {
+            con.close();
+            prtm.close();
+
+        }
+        return questionTout;
+    } public static ArrayList<QuestionSpe> DonnerQuestionSpe()throws Exception{
+        Connection con = null;
+        Properties props = new Properties();
+        PreparedStatement prtm= null;
+        ArrayList<QuestionSpe> questionTout=new ArrayList<>();
+
+        props = Connexion.getProps("./PartyMasterBackend/src/main/resources/application.properties");
+        con= DriverManager.getConnection(props.getProperty("spring.datasource.url"),
+                props.getProperty("spring.datasource.username"),
+                props.getProperty("spring.datasource.password"));
+        String sql="select * from questionspecial";
+        prtm=con.prepareStatement(sql);
+        ResultSet rs=prtm.executeQuery();
+        try {
+
+            while (rs.next()){
+                QuestionSpe questionS=new QuestionSpe();
+                questionS.setId(rs.getInt(1));
+                questionS.setQuestion(rs.getString(2));
+                questionS.setReponse1(rs.getString(3));
+                questionS.setNiveauQuestion(rs.getInt(4));
+                questionTout.add(questionS);
               //  System.out.println(question.getQuestion());
             }
 

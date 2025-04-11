@@ -3,11 +3,12 @@ package dev.FredyRedaTeam.PartyMasterBackend.model.Games.JeuxQuestion;
 public class Question {
     private int id;
     private String question;
-    private String bonneReponse;
+    private String reponse1;
     private String reponse2;
     private String reponse3;
     private String reponse4;
     private String TypeQuestion;
+    private String bonneReponse;
 
     public int getId() {
         return id;
@@ -23,6 +24,13 @@ public class Question {
 
     public void setQuestion(String question) {
         this.question = question;
+    }
+    public String getReponse1() {
+        return reponse1;
+    }
+
+    public void setReponse1(String reponse1) {
+        this.reponse1 = reponse1;
     }
 
     public String getBonneReponse() {

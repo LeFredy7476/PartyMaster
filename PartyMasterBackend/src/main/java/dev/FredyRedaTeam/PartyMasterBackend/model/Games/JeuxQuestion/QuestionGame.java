@@ -5,18 +5,50 @@ import dev.FredyRedaTeam.PartyMasterBackend.model.Game;
 import dev.FredyRedaTeam.PartyMasterBackend.model.Games.LoupGarou.utils.Sql;
 import dev.FredyRedaTeam.PartyMasterBackend.model.Lobby;
 import dev.FredyRedaTeam.PartyMasterBackend.model.Response;
-import dev.FredyRedaTeam.PartyMasterBackend.model.Games.LoupGarou.*;
+import org.json.JSONObject;
 
 import java.util.*;
-import java.util.HashMap;
-import java.util.Random;
 
-public class QuestionGame  {
+public class QuestionGame implements Game  {
     private Lobby lobby;
     private final ArrayList<UUID>contenders=new ArrayList<>();
     //demander a reda pourquoi un integer si pas compris
     private Integer lastSpecial=null;
 
+
+
+    @Override
+    public String getType() {
+        return "Question";
+    }
+
+    @Override
+    public JSONObject toJson() {
+        return null;
+    }
+
+    @Override
+    public Response receiveAction(Action action) {
+      return new Response();
+    }
+
+    @Override
+    public void tick() {
+
+    }
+
+    @Override
+    public void init(Lobby lobby) {
+        setListPlayer();
+        try {
+
+            ArrayList<QuestionSpe>qstSpeListe=Sql.DonnerQuestionSpe();
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+
+        this.lobby.queueEventForAllPlayer(new StateEvent(GameStateJ.QUESTION));
+    }
 
     public void setListPlayer(){
         //pas besoin d'utiliser un for, java c'est incroyable des fois vraiment
@@ -35,7 +67,6 @@ public class QuestionGame  {
         return false;
     }
 
-
     public  void  ChoisirRandom(Lobby lobby){
         this.lobby=lobby;
         ;
@@ -49,9 +80,21 @@ public class QuestionGame  {
         }
 
     }
-    public Response question(Action action){
+    public Response question(Action action)throws Exception{
         UUID uuid=action.getUuid();
         if(verifIci(uuid)){
+            ArrayList<Question>qstListe=Sql.DonnerQuestion();
+
+
+
+            int indexQuestion = Lobby.random.nextInt(qstListe.size());
+            Question kassos = qstListe.get(indexQuestion);
+
+
+
+            this.lobby.queueEvent(uuid,new QuestionEvent(kassos.getId(), kassos.getQuestion(), kassos.getReponse1(), kassos.getReponse2(), kassos.getReponse3(), kassos.getReponse4(), kassos.getTypeQuestion()));
+
+
 
         }else {
 
@@ -62,7 +105,7 @@ public class QuestionGame  {
     }
 
     public static void main(String[] args) throws Exception{
-        ArrayList<Question>qst=Sql.DonnerQuestion();
-        System.out.println(qst);
+
+
     }
 }
