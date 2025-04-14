@@ -4,12 +4,13 @@ import java.util.UUID;
 
 public class Joueur {
     private UUID uuid;
-    private int point;
+    private int point=0;
 
     public Joueur(UUID uuid, int point ){
         this.uuid=uuid;
         this.point=point;
     }
+
 
     public UUID getUuid() {
         return uuid;

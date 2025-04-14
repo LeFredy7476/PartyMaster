@@ -67,15 +67,17 @@ public class QuestionGame implements Game  {
         return false;
     }
 
-    public  void  ChoisirRandom(Lobby lobby){
+    public boolean   ChoisirRandom(Lobby lobby){
         this.lobby=lobby;
         ;
         int choisisQS=Lobby.random.nextInt(contenders.size());
         if(lastSpecial==choisisQS){
             ChoisirRandom(lobby);
+            return false;
         }
         else {
             this.lastSpecial=choisisQS;
+            return true;
             //appeler la methode pour la question speciale
         }
 
@@ -101,6 +103,74 @@ public class QuestionGame implements Game  {
             //todo faire le code d'erreur pour dire que le gars est pas la
         }
 
+        return new Response();
+    }
+    public Response questionspe(Action action)throws Exception{
+        UUID uuid=action.getUuid();
+        UUID target = UUID.fromString(action.getData().getString("target"));
+        if (verifIci(uuid) && ChoisirRandom(lobby)){
+            ArrayList<QuestionSpe>qstListe=Sql.DonnerQuestionSpe();
+            ArrayList<QuestionSpe>qstListeChoisis=new ArrayList<>();
+            if(target.equals("1")){
+                for (QuestionSpe questionSpe:qstListe){
+                    if (questionSpe.getNiveauQuestion()==1){
+                         qstListeChoisis.add(questionSpe);
+                    }
+                }
+                int indexQuestion = Lobby.random.nextInt(qstListeChoisis.size());
+                QuestionSpe kassos = qstListeChoisis.get(indexQuestion);
+                this.lobby.queueEvent(uuid,new QuestionSpeEvent(kassos.getId(), kassos.getQuestion(), kassos.getNiveauQuestion()));
+                qstListeChoisis.clear();
+            }
+            if(target.equals("2")){
+                for (QuestionSpe questionSpe:qstListe){
+                    if (questionSpe.getNiveauQuestion()==2){
+                         qstListeChoisis.add(questionSpe);
+                    }
+                }
+                int indexQuestion = Lobby.random.nextInt(qstListeChoisis.size());
+                QuestionSpe kassos = qstListe.get(indexQuestion);
+                this.lobby.queueEvent(uuid,new QuestionSpeEvent(kassos.getId(), kassos.getQuestion(), kassos.getNiveauQuestion()));
+                qstListeChoisis.clear();
+            }
+            if(target.equals("3")){
+                for (QuestionSpe questionSpe:qstListe){
+                    if (questionSpe.getNiveauQuestion()==3){
+                         qstListeChoisis.add(questionSpe);
+                    }
+                }
+                int indexQuestion = Lobby.random.nextInt(qstListeChoisis.size());
+                QuestionSpe kassos = qstListe.get(indexQuestion);
+                this.lobby.queueEvent(uuid,new QuestionSpeEvent(kassos.getId(), kassos.getQuestion(), kassos.getNiveauQuestion()));
+                qstListeChoisis.clear();
+            }
+
+
+
+
+
+
+
+
+        }
+        return new Response();
+    }
+    public Response repeatNbJoueur(Action action)throws Exception{
+        for (int i=0;i<contenders.size();i++){
+        question(action);
+        }
+
+        return new Response();
+    }
+    public Response BonneReponse(Action action,Question question)throws Exception{
+        UUID uuid=action.getUuid();
+        UUID target = UUID.fromString(action.getData().getString("target"));
+        if (verifIci(uuid)){
+            int compteur=0;
+            if (target.equals(question.getBonneReponse())){
+//todo faire en sorte de pouvoir rajouter des points 
+            }
+        }
         return new Response();
     }
 

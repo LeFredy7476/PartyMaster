@@ -8,9 +8,9 @@ import java.util.UUID;
 public class QuestionSpeEvent implements Event {
     private int id;
     private String question;
-    private String niveauQuestion;
+    private int niveauQuestion;
 
-    public QuestionSpeEvent(int id,String question,String niveauQuestion){
+    public QuestionSpeEvent(int id,String question,int niveauQuestion){
         this.id=id;
         this.question=question;
         this.niveauQuestion=niveauQuestion;
@@ -20,7 +20,7 @@ public class QuestionSpeEvent implements Event {
 
     public String getQuestion(){return question;}
 
-    public String getNiveauQuestion(){return niveauQuestion;}
+    public int getNiveauQuestion(){return niveauQuestion;}
 
 
     @Override
