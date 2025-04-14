@@ -13,7 +13,7 @@ export default function ChatMessage({app, uuid, content, shrink}) {
     return (
         <div className={shrink ? "message-box shrink" : "message-box"}>
             <div className="message">
-                <img src={icon} alt={"icon#" + icon} className="message-icon" />
+                <img src={icon} alt={"icon#" + icon} className="message-icon" draggable="false" />
                 <div className="message-separator"></div>
                 <div className="message-name">{name}</div>
                 <div className="message-content">{content}</div>

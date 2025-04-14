@@ -14,10 +14,10 @@ export default function Player({uuid, app}) {
 
         return (
             <div className="player">
-                <img className="player-icon" src={get_player_icon(player.icon)} alt={"icon#" + player.icon} />
+                <img className="player-icon" src={get_player_icon(player.icon)} alt={"icon#" + player.icon} draggable="false" />
                 <div className="player-name">
                     {player.name} 
-                    {app.data.lobby_master == player.uuid ? <img src={pm} width="16" height="16" className="player-master"/> : <></>}
+                    {app.data.lobby_master == player.uuid ? <img src={pm} width="16" height="16" className="player-master" draggable="false"/> : <></>}
                     {
                         app.data.lobby_master == localStorage.getItem("uuid") ?
                         <button className="player-kick" onClick={(e) => {

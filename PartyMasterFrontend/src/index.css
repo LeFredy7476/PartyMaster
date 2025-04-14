@@ -42,6 +42,8 @@ div#game {
     flex-shrink: 1;
     position: relative;
     overflow: hidden;
+    -moz-user-select: none;
+    user-select: none;
 }
 
 div#game canvas#mainCanvas {
@@ -58,6 +60,13 @@ div#game canvas#mainCanvas {
         'opsz' 24;
     font-size: 48px;
     font-weight: 400;
+    -moz-user-select: none;
+    user-select: none;
+}
+
+img {
+    -moz-user-select: none;
+    user-select: none;
 }
 
 button {

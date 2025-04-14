@@ -48,7 +48,7 @@ function JoinLobby({ connected, setconnected }) {
                 <button className="icon-swap" id="icon-last" onClick={function() {
                     setIcon((icon + nbIcon - 1) % nbIcon);
                 }}><span>arrow_forward_ios</span></button>
-                <img src={get_player_icon(icon)} alt="" id="icon-preview"/>
+                <img src={get_player_icon(icon)} alt="" id="icon-preview" draggable="false"/>
                 <button className="icon-swap" id="icon-next" onClick={function() {
                     setIcon((icon + 1) % nbIcon);
                 }}><span>arrow_forward_ios</span></button>
