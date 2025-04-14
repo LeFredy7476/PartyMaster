@@ -33,6 +33,7 @@
 }
 
 .playerlist .player .player-name .player-kick {
+    interpolate-size: allow-keywords;
     float: right;
     transform: scale(0);
     opacity: 0;
@@ -40,6 +41,7 @@
     height: 24px;
     border-radius: 12px;
     background-color: var(--bg);
+    box-sizing: border-box;
     padding: 0px;
     margin: 0px;
     box-shadow: 0px 0px 0px 4px var(--bg), 0px 0px 0px 10px transparent, 0px 0px 0px 0px var(--black);
@@ -47,23 +49,26 @@
     border: none;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
     margin: 1rem;
     color: #0000;
-    padding-left: 1rem;
+    padding-left: 0rem;
     font-weight: 800;
     grid-column: 3;
+    width: 24px;
+    overflow: hidden;
 }
 .playerlist .player .player-name .player-kick span {
     font-size: 24px;
-    padding-left: 0.5em;
+    padding-left: 0em;
     display: block;
     width: 24px;
     color: var(--black);
     font-weight: 800;
+    transition: inherit;
 }
 .playerlist .player:hover .player-name .player-kick {
-    float: right;
+    justify-self: end;
     transform: scale(1);
     opacity: 1;
 }
@@ -71,6 +76,11 @@
     box-shadow: 0px 0px 0px 4px #fc4c4c, 0px 0px 0px 10px transparent, 0px 0px 0px 8px #000f;
     color: var(--black);
     background-color: #fc4c4c;
+    width: auto;
+    padding-left: 1rem;
+}
+.playerlist .player:hover .player-name .player-kick:hover span {
+    padding-left: 0.5rem;
 }
 .playerlist .player .player-name .player-master {
     padding: 0.5rem;
