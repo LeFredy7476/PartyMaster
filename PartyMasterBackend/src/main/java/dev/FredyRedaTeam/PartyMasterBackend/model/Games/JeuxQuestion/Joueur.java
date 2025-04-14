@@ -27,6 +27,8 @@ public class Joueur {
     public void setPoint(int point) {
         this.point = point;
     }
-
+public void addPoint(int ajouter){
+        this.point+=ajouter;
+}
 
 }

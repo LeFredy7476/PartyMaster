@@ -14,6 +14,7 @@ public class QuestionGame implements Game  {
     private final ArrayList<UUID>contenders=new ArrayList<>();
     //demander a reda pourquoi un integer si pas compris
     private Integer lastSpecial=null;
+    private final ArrayList<Joueur>PointEnter=new ArrayList<>();
 
 
 
@@ -53,6 +54,11 @@ public class QuestionGame implements Game  {
     public void setListPlayer(){
         //pas besoin d'utiliser un for, java c'est incroyable des fois vraiment
         this.contenders.addAll(lobby.getPlayers().keySet());
+
+        for (UUID uuid:contenders){
+            Joueur joueur=new Joueur(uuid,0);
+            PointEnter.add(joueur);
+        }
     }
     public boolean verifIci(UUID uuid){
 
@@ -120,6 +126,8 @@ public class QuestionGame implements Game  {
                 int indexQuestion = Lobby.random.nextInt(qstListeChoisis.size());
                 QuestionSpe kassos = qstListeChoisis.get(indexQuestion);
                 this.lobby.queueEvent(uuid,new QuestionSpeEvent(kassos.getId(), kassos.getQuestion(), kassos.getNiveauQuestion()));
+
+                BonneReponseSpe(action,kassos,1);
                 qstListeChoisis.clear();
             }
             if(target.equals("2")){
@@ -131,6 +139,7 @@ public class QuestionGame implements Game  {
                 int indexQuestion = Lobby.random.nextInt(qstListeChoisis.size());
                 QuestionSpe kassos = qstListe.get(indexQuestion);
                 this.lobby.queueEvent(uuid,new QuestionSpeEvent(kassos.getId(), kassos.getQuestion(), kassos.getNiveauQuestion()));
+                BonneReponseSpe(action,kassos,2);
                 qstListeChoisis.clear();
             }
             if(target.equals("3")){
@@ -142,6 +151,7 @@ public class QuestionGame implements Game  {
                 int indexQuestion = Lobby.random.nextInt(qstListeChoisis.size());
                 QuestionSpe kassos = qstListe.get(indexQuestion);
                 this.lobby.queueEvent(uuid,new QuestionSpeEvent(kassos.getId(), kassos.getQuestion(), kassos.getNiveauQuestion()));
+                BonneReponseSpe(action,kassos,3);
                 qstListeChoisis.clear();
             }
 
@@ -162,13 +172,36 @@ public class QuestionGame implements Game  {
 
         return new Response();
     }
+    //verifie que c'est la bonne reponse
     public Response BonneReponse(Action action,Question question)throws Exception{
         UUID uuid=action.getUuid();
         UUID target = UUID.fromString(action.getData().getString("target"));
         if (verifIci(uuid)){
-            int compteur=0;
             if (target.equals(question.getBonneReponse())){
-//todo faire en sorte de pouvoir rajouter des points 
+                for (Joueur joueur:PointEnter){
+                    if (joueur.getUuid().equals(uuid)){
+                        joueur.addPoint(1);
+                        break;
+                    }
+                }
+            }
+        }
+        return new Response();
+    }public Response BonneReponseSpe(Action action,QuestionSpe question,int pointSpe)throws Exception{
+        UUID uuid=action.getUuid();
+        UUID target = UUID.fromString(action.getData().getString("target"));
+        if (verifIci(uuid)){
+            if (target.equals(question.getReponse1())){
+                for (Joueur joueur:PointEnter){
+                    if (joueur.getUuid().equals(uuid)){
+                        joueur.addPoint(pointSpe);
+                        break;
+                    }else {
+                        continue;
+                    }
+                }
+            }else {
+
             }
         }
         return new Response();
