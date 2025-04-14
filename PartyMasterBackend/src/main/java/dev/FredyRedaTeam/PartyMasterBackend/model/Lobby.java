@@ -10,6 +10,8 @@ import java.util.regex.Pattern;
 public class Lobby {
     public static final int MAX_PLAYER_BY_LOBBY = 20;
     public static final int MAX_CHAT_HISTORY = 50;
+    public static final long ROOM_SHUTDOWN_CHRONO = 60000;
+    public static final long PLAYER_SHUTDOWN_CHRONO = 5000;
     private static final HashMap<String, Lobby> lobbies = new HashMap<>();
     public static final Random random = new Random();
 
@@ -42,6 +44,16 @@ public class Lobby {
         return out;
     }
 
+    public static void checkRooms() {
+        long now = System.currentTimeMillis();
+        for (String room : Lobby.lobbies.keySet()) {
+            if (now - lobbies.get(room).lastTick > ROOM_SHUTDOWN_CHRONO) {
+                System.out.println("\u001b[31minactivity detected for room " + room + "\u001b[0m");
+                lobbies.remove(room);
+            }
+        }
+    }
+
     public static void main(String[] args) {
         init();
     }
@@ -66,6 +78,7 @@ public class Lobby {
 
         this.game = new LobbyHome();
         this.game.init(this);
+        this.tick();
     }
 
     /**
@@ -127,9 +140,20 @@ public class Lobby {
 
     public void tick() {
         this.lastTick = System.currentTimeMillis();
+        for (UUID uuid : this.players.keySet()) {
+            if (System.currentTimeMillis() - this.players.get(uuid).lastTick > PLAYER_SHUTDOWN_CHRONO) {
+                System.out.println("\u001b[33minactivity detected for player " + uuid.toString() + "\u001b[0m");
+                if (this.lobbyMaster.equals(uuid)) {
+                    this.players.clear();
+                    this.eventQueues.clear();
+                } else {
+                    this.players.remove(uuid);
+                    this.eventQueues.remove(uuid);
+                    this.queueEventForAllPlayer(new TerminationEvent(uuid));
+                }
+            }
+        }
     }
-
-
 
     /**
      * result code :
@@ -169,8 +193,6 @@ public class Lobby {
                 break;
             case "game" :
                 return game.receiveAction(action);
-            case "tick" :
-                return null; // TODO: handle the event queue flushing
         }
         Response r = new Response(2, new JSONObject());
         r.getData().put("r", "UnknownAction");
@@ -178,7 +200,9 @@ public class Lobby {
     }
 
     public LinkedList<Event> fetchEvents(UUID uuid) {
+        this.tick(); // refresh the room shutdown cooldown
         if (this.players.containsKey(uuid)) {
+            players.get(uuid).lastTick = System.currentTimeMillis();
             return this.eventQueues.replace(uuid, new LinkedList<>());
         } else {
             LinkedList<Event> out = new LinkedList<>();

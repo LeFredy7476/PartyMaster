@@ -14,7 +14,7 @@
 }
 
 .playerlist:hover {
-    width: 40vw;
+    width: 50vw;
 }
 
 .playerlist .player {
@@ -123,6 +123,7 @@
 
 .playerlist:hover .player .player-name {
     width: auto;
+    flex-shrink: 1;
 }
 
 .playerlist:hover .player:hover .player-name {

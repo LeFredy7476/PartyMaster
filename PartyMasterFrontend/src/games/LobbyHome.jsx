@@ -8,37 +8,47 @@ function getRandomInt(max) {
 const backfaceImage = new Image();
 backfaceImage.src = unocards()["backface"];
 
-export default class LobbyHome {
 
+
+class CanvasHandler {
+    
     constructor ( app, data ) {
         this.app = app;
         this.data = data;
-        this.ctx = this.canvas.getContext( "2d" );
+
         this.offscreenCanvas = new OffscreenCanvas( this.width, this.height );
-        this.octx = this.offscreenCanvas.getContext( "2d" );
+
+        this.ctx = this.canvas.getContext( "2d" );
+        this.octx = this.offscreenCanvas.getContext( "2d", { willReadFrequently: true } );
+
         this.lastTime;
         this.deltaTime;
-        this.card1 = new Card( 200, 200, 1, 0, 1, unocards()["red"]["8"], [ 255, 0, 0 ] );
+
         this.mouse = { x: 0, y: 0 }
+
         let self = this;
+
         this.canvas.onclick = function ( e ) {
-            // self.card1.targetX = getRandomInt(self.canvas.width);
-            // self.card1.targetY = getRandomInt(self.canvas.height);
-            self.card1.targetFlip = -self.card1.targetFlip;
-            self.card1.trueSize = self.card1.targetSize - 0.2;
-        }
+            self.onclick( e );
+        };
+
         this.canvas.onmousemove = function ( e ) {
             let rect = self.canvas.getBoundingClientRect();
             self.mouse = {
                 x: e.clientX - rect.left,
                 y: e.clientY - rect.top
             };
-        }
+            self.onmousemove( e );
+        };
     }
 
-    debugDraw() {
+    debugDraw () {
         this.ctx.drawImage(this.offscreenCanvas, 0, 0);
     }
+
+    onclick ( event ) {}
+
+    onmousemove ( event ) {}
 
     get width () {
         return this.canvas.width;
@@ -81,36 +91,10 @@ export default class LobbyHome {
         }
         this.deltaTime = time - this.lastTime;
 
-        
-
+        // clear canvas (remove last frame from display)
         this.clearCanvas();
 
-        this.card1.update(this.deltaTime);
-        this.card1.transform( () => {
-            self.card1.draw( self.ctx, self.octx );
-        }, this.ctx, this.octx );
-
-
-        let imageData = this.octx.getImageData( this.mouse.x, this.mouse.y, 1, 1 );
-        let [ r, g, b ] = imageData.data;
-        // console.log(this.mouse);
-        if ( r == 255 && g == 0 && b == 0 ) {
-            this.card1.size = 1.5;
-        } else {
-            this.card1.size = 1;
-        }
-
-
-        this.card1.x = this.mouse.x;
-        this.card1.y = this.mouse.y;
-
-        this.ctx.font = "50px serif";
-        this.ctx.fillStyle = "#880088";
-        this.ctx.fillText( Math.round( 10000 / this.deltaTime ) / 10 + " fps", 50, 80 );
-        this.ctx.fillText( r + ", " + g + ", " + b, 50, 160 );
-        this.ctx.fillText( this.mouse.x + ", " + this.mouse.y, 50, 240 );
-
-        if (localStorage.getItem("debug") == "true") this.debugDraw();
+        if ( localStorage.getItem( "debug" ) == "true" ) this.debugDraw();
 
         this.animationFrame = window.requestAnimationFrame( function ( t ) {
             self.loop( t );
@@ -130,6 +114,60 @@ export default class LobbyHome {
         } );
     }
 }
+
+
+export default class LobbyHome extends CanvasHandler {
+
+    constructor ( app, data ) {
+        super( app, data );
+        this.card1 = new Card( 200, 200, 1, 0, 1, unocards()["red"]["8"], [ 255, 0, 0 ] );
+    }
+    
+    onclick ( event ) {
+        // create this "flip" animation
+        this.card1.targetFlip = -this.card1.targetFlip;
+        this.card1.trueSize = this.card1.targetSize - 0.2;
+    }
+
+    onmousemove ( event ) {
+        // make card follow mouse pointer
+        this.card1.x = this.mouse.x;
+        this.card1.y = this.mouse.y;
+    }
+
+
+    loop ( time ) {
+        super.loop( time );
+
+        // update card exponential animation
+        this.card1.update( this.deltaTime );
+
+        // draw the card
+        // this.card1.transform( this.card1.draw, this );
+        // another way to do it :
+        this.card1.transform( ( self ) => {
+            self.card1.draw( self );
+        }, this );
+
+        // detect if mouse pointer is hovering something
+        let imageData = this.octx.getImageData( this.mouse.x, this.mouse.y, 1, 1 );
+        let [ r, g, b ] = imageData.data;
+        // console.log(this.mouse);
+        if ( r == 255 && g == 0 && b == 0 ) {
+            this.card1.size = 1.5;
+        } else {
+            this.card1.size = 1;
+        }
+
+        // show debug information
+        this.ctx.font = "50px serif";
+        this.ctx.fillStyle = "#880088";
+        this.ctx.fillText( Math.round( 10000 / this.deltaTime ) / 10 + " fps", 50, 80 );
+        this.ctx.fillText( r + ", " + g + ", " + b, 50, 160 );
+        this.ctx.fillText( this.mouse.x + ", " + this.mouse.y, 50, 240 );
+    }
+}
+
 
 
 class ExpFollower {
@@ -196,21 +234,26 @@ class ExpFollower {
         this.trueSize = this.expFollow( deltaTime, this.trueSize, this.targetSize );
     }
 
-    transform ( func, ...ctxs ) {
-        let self = this;
-        ctxs.forEach( ctx => {
-            ctx.save();
-            ctx.translate( self.trueX, self.trueY );
-            ctx.rotate( self.trueRotation );
-            ctx.scale( self.trueFlip, 1 );
-        } );
-        func();
-        ctxs.forEach( ctx => {
-            ctx.restore()
-        } );
+    transform ( func, canvasHandler ) {
+        // setup transform
+        canvasHandler.ctx.save();
+        canvasHandler.ctx.translate( this.trueX, this.trueY );
+        canvasHandler.ctx.rotate( this.trueRotation );
+        canvasHandler.ctx.scale( this.trueFlip, 1 );
+        canvasHandler.octx.save();
+        canvasHandler.octx.translate( this.trueX, this.trueY );
+        canvasHandler.octx.rotate( this.trueRotation );
+        canvasHandler.octx.scale( this.trueFlip, 1 );
+
+        // execute tasks
+        func( canvasHandler );
+        
+        // reset transform
+        canvasHandler.ctx.restore();
+        canvasHandler.octx.restore();
     }
 
-    draw () {} // put all the drawing stuff here when implementing as a prototype
+    draw ( canvasHandler ) {} // put all the drawing stuff here when implementing as a prototype
 }
 
 
@@ -223,20 +266,20 @@ class Card extends ExpFollower {
         this.color = color;
     }
 
-    draw ( ctx, octx ) {
+    draw ( canvasHandler ) {
 
-        octx.scale( this.size, this.size );
-        octx.translate( -50, -75 );
-        octx.fillStyle = `rgb( ${ this.color[0] }, ${ this.color[1] }, ${ this.color[2] } )`;
-        octx.fillRect( 0, 0, 100, 150 );
+        canvasHandler.octx.scale( this.size, this.size );
+        canvasHandler.octx.translate( -50, -75 );
+        canvasHandler.octx.fillStyle = `rgb( ${ this.color[0] }, ${ this.color[1] }, ${ this.color[2] } )`;
+        canvasHandler.octx.fillRect( 0, 0, 100, 150 );
 
         if ( this.image.complete && backfaceImage.complete ) {
-            ctx.scale( this.size, this.size );
-            ctx.translate( -50, -75 );
+            canvasHandler.ctx.scale( this.size, this.size );
+            canvasHandler.ctx.translate( -50, -75 );
             if ( this.flip > 0 ) {
-                ctx.drawImage( this.image, 0, 0, 100, 150 );
+                canvasHandler.ctx.drawImage( this.image, 0, 0, 100, 150 );
             } else {
-                ctx.drawImage( backfaceImage, 0, 0, 100, 150 );
+                canvasHandler.ctx.drawImage( backfaceImage, 0, 0, 100, 150 );
             }
         }
     }

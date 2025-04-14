@@ -41,7 +41,7 @@ div#game {
     flex-grow: 1;
     flex-shrink: 1;
     position: relative;
-
+    overflow: hidden;
 }
 
 div#game canvas#mainCanvas {

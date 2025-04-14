@@ -59,21 +59,26 @@ function Lobby({ connected, setconnected }) {
             })
         },
         sendMessage: function() {
-            app.packAction(
-                "chat:send",
-                {
-                    "content": app.data.msg,
-                    "flags": "ALL"
-                }
-            ).then((response) => {
-                if (response.data.code != 0) {
-                    console.error("sendMessage returned error code " + response.data.code, response.data);
-                }
-            }).catch(() => {console.error("axios post error")}); // TODO: change this to the actual mapping for the backend
-            // /* debug purpose only */ console.log(value);
-            updateData((data)=>{
-                data.msg = "";
-            })
+            if (app.data.msg != "") {
+                app.packAction(
+                    "chat:send",
+                    {
+                        "content": app.data.msg,
+                        "flags": "ALL"
+                    }
+                ).then((response) => {
+                    if (response.data.code != 0) {
+                        console.error("sendMessage returned error code " + response.data.code, response.data);
+                    }
+                }).catch(() => {console.error("axios post error")}); // TODO: change this to the actual mapping for the backend
+                // /* debug purpose only */ console.log(value);
+                updateData((data)=>{
+                    data.msg = "";
+                })
+                return true;
+            } else {
+                return false;
+            }
         }, 
         kickPlayer: function(uuid) {
             app.packAction("player:kick", {
@@ -112,6 +117,7 @@ function Lobby({ connected, setconnected }) {
     }, []);
 
     useEffect(function(){
+        let attempt = 0;
         let interval = setInterval(()=>{
             axios.get(
                 app.host + ":8080/" + room + "/tick?uuid=" + localStorage.getItem("uuid")
@@ -119,6 +125,14 @@ function Lobby({ connected, setconnected }) {
                 // console.log(response.data.length);
                 // console.log(response.data)
                 response.data.forEach(app.receiveEvent);
+                attempt = 0;
+            }).catch((error) => {
+                attempt++;
+                if (attempt > 5) {
+                    alert("Erreur de serveur.");
+                    clearInterval(interval)
+                    navigate("/");
+                }
             });
         }, 200);
         return function() {
