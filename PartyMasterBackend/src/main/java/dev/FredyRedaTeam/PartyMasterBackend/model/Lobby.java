@@ -39,14 +39,16 @@ public class Lobby {
             for (int i = 0; i < 8; i++) {
                 out = out + String.valueOf(characters.charAt(random.nextInt(36)));
             }
-            System.out.println(out);
         } while (isInstance(out));
         return out;
     }
 
     public static void checkRooms() {
         long now = System.currentTimeMillis();
-        for (String room : Lobby.lobbies.keySet()) {
+        // make copy of keyset in order to avoid ConcurrentModificationException
+        // see: https://www.digitalocean.com/community/tutorials/java-util-concurrentmodificationexception
+        Set<String> rooms = new HashSet<>(Lobby.lobbies.keySet());
+        for (String room : rooms) {
             if (now - lobbies.get(room).lastTick > ROOM_SHUTDOWN_CHRONO) {
                 System.out.println("\u001b[31minactivity detected for room " + room + "\u001b[0m");
                 lobbies.remove(room);
@@ -69,9 +71,8 @@ public class Lobby {
 
 
     public Lobby() {
-        System.out.println("generating room...");
         this.room = generateRoom();
-        System.out.println("room generated : " + this.room);
+        System.out.println("\u001b[35mCreated room " + this.room + "\u001b[0m");
         lobbies.put(room, this);
 
         // TODO: "logger" la création du groupe dans la DB
@@ -140,7 +141,10 @@ public class Lobby {
 
     public void tick() {
         this.lastTick = System.currentTimeMillis();
-        for (UUID uuid : this.players.keySet()) {
+        // make copy of keyset in order to avoid ConcurrentModificationException
+        // see: https://www.digitalocean.com/community/tutorials/java-util-concurrentmodificationexception
+        Set<UUID> uuids = new HashSet<>(this.players.keySet());
+        for (UUID uuid : uuids) {
             if (System.currentTimeMillis() - this.players.get(uuid).lastTick > PLAYER_SHUTDOWN_CHRONO) {
                 System.out.println("\u001b[33minactivity detected for player " + uuid.toString() + "\u001b[0m");
                 if (this.lobbyMaster.equals(uuid)) {
@@ -257,6 +261,7 @@ public class Lobby {
                     if (this.lobbyMaster == null) {
                         this.lobbyMaster = uuid;
                     }
+                    System.out.println("\u001b[32mplayer " + uuid.toString() + " joined room " + this.room + "\u001b[0m");
                     JSONObject out = new JSONObject();
                     out.put("uuid", uuid.toString());
                     out.put("name", name);
@@ -286,6 +291,7 @@ public class Lobby {
                     this.players.remove(kickTarget);
                     this.eventQueues.remove(kickTarget);
                     this.queueEventForAllPlayer(new TerminationEvent(kickTarget));
+                    System.out.println("\u001b[36mplayer " + kickTarget.toString() + " was kicked from room " + this.room + "\u001b[0m");
                     return new Response(); // OK
                 } else {
                     Response r = new Response(2, new JSONObject());
@@ -311,9 +317,12 @@ public class Lobby {
             this.players.remove(action.getUuid());
             this.eventQueues.remove(action.getUuid());
 
+            System.out.println("\u001b[36mplayer " + action.getUuid().toString() + " quitted room " + this.room + "\u001b[0m");
+
             boolean isLobbyMaster = action.getUuid().equals(this.lobbyMaster);
 
             if (isLobbyMaster) {
+                System.out.println("\u001b[31mplayer " + action.getUuid().toString() + " was partymaster in room " + this.room + ", closing room...\u001b[0m");
                 // disconnect all players if the lobby master logs out
                 // force players to receive TerminationEvent upon next tick
                 this.eventQueues.clear();

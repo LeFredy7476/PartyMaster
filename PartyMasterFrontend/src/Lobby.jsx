@@ -88,6 +88,9 @@ function Lobby({ connected, setconnected }) {
             }).catch(() => {console.error("axios post error")});
         },
         quit: function() {
+            app.packAction("player:quit", {}).then(()=>{
+                console.log("quit");
+            }).catch(() => {console.error("axios post error")});
             setconnected(false);
             localStorage.removeItem("name");
         }

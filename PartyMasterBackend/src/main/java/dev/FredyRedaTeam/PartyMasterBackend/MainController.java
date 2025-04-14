@@ -82,7 +82,6 @@ public class MainController {
         JSONObject data = new JSONObject();
         data.put("lobby", lobby.getRoom());
         Response out = new Response(0, data);
-        System.out.println("new room created : " + lobby.getRoom());
         return out.toJson().toString();
     }
 

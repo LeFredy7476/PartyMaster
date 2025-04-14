@@ -75,10 +75,12 @@ class CanvasHandler {
 
     resizeCanvas () {
         // https://stackoverflow.com/questions/4288253/html5-canvas-100-width-height-of-viewport
-        this.canvas.width = this.parentDiv.clientWidth;
-        this.canvas.height = this.parentDiv.clientHeight;
-        this.offscreenCanvas.width = this.parentDiv.clientWidth;
-        this.offscreenCanvas.height = this.parentDiv.clientHeight;
+        let parent = this.parentDiv;
+        // console.log(parent)
+        this.canvas.width = parent.clientWidth;
+        this.canvas.height = parent.clientHeight;
+        this.offscreenCanvas.width = parent.clientWidth;
+        this.offscreenCanvas.height = parent.clientHeight;
     }
 
     loop ( time ) {
@@ -108,7 +110,6 @@ class CanvasHandler {
     
     init () {
         let self = this;
-        this.resizeCanvas();
         this.animationFrame = window.requestAnimationFrame( function ( t ) {
             self.loop( t );
         } );

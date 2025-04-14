@@ -7,9 +7,12 @@ export default function PlayerList({app}) {
     return (
         <div className="sidebar">
             <div className="playeractions">
-                <h1 className="currentroom">{app.data.room}</h1>
+                <button className="micon" id="quit" onClick={function() {
+                    app.quit();
+                }} >home</button>
                 <FullscreenButton />
                 <ShareButton />
+                <h1 className="currentroom">{app.data.room}</h1>
             </div>
             <div className="playerlist">
                 {Object.keys(app.data.players).map((uuid) => 
