@@ -96,8 +96,6 @@ class CanvasHandler {
         // clear canvas (remove last frame from display)
         this.clearCanvas();
 
-        if ( localStorage.getItem( "debug" ) == "true" ) this.debugDraw();
-
         this.animationFrame = window.requestAnimationFrame( function ( t ) {
             self.loop( t );
         } );
@@ -166,6 +164,8 @@ export default class LobbyHome extends CanvasHandler {
         this.ctx.fillText( Math.round( 10000 / this.deltaTime ) / 10 + " fps", 50, 80 );
         this.ctx.fillText( r + ", " + g + ", " + b, 50, 160 );
         this.ctx.fillText( this.mouse.x + ", " + this.mouse.y, 50, 240 );
+        
+        if ( localStorage.getItem( "debug" ) == "true" ) this.debugDraw();
     }
 }
 
