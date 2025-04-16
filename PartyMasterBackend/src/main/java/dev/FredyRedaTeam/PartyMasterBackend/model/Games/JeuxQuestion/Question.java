@@ -1,5 +1,7 @@
 package dev.FredyRedaTeam.PartyMasterBackend.model.Games.JeuxQuestion;
 
+import org.json.JSONObject;
+
 public class Question {
     private int id;
     private String question;
@@ -9,6 +11,7 @@ public class Question {
     private String reponse4;
     private String TypeQuestion;
     private String bonneReponse;
+
 
     public int getId() {
         return id;
@@ -73,6 +76,18 @@ public class Question {
         this.reponse2 = reponse2;
     }
 
+public JSONObject toJson() {
+        JSONObject out=new JSONObject();
+        out.put("id",id);
+        out.put("question",question);
+        out.put("reponse1",reponse1);
+        out.put("reponse2",reponse2);
+        out.put("reponse3",reponse3);
+        out.put("reponse4",reponse4);
+        out.put("TypeQuestion",TypeQuestion);
+        out.put("bonneReponse",bonneReponse);
+        return out;
+}
 
 
 }

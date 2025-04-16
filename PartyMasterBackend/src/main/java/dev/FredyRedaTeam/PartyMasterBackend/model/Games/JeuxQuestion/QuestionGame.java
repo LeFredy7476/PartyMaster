@@ -14,8 +14,14 @@ public class QuestionGame implements Game  {
     private final ArrayList<UUID>contenders=new ArrayList<>();
     //demander a reda pourquoi un integer si pas compris
     private Integer lastSpecial=null;
+    private GameStateJ gameStateJ=GameStateJ.QUESTION;
     private final ArrayList<Joueur>PointEnter=new ArrayList<>();
 
+    private Question currentQuestion;
+    private QuestionSpe currentQuestionSpe;
+    private long sentTimestamp;
+    private HashMap<UUID,Long> tempsrecu=new HashMap<>();
+    private HashMap<UUID,String>reponserecu=new HashMap<>();
 
 
     @Override
@@ -42,13 +48,25 @@ public class QuestionGame implements Game  {
     public void init(Lobby lobby) {
         setListPlayer();
         try {
+            ArrayList<Question>qstListe=Sql.DonnerQuestion();
+            int indexQuestion = Lobby.random.nextInt(qstListe.size());
+            currentQuestion = qstListe.get(indexQuestion);
 
             ArrayList<QuestionSpe>qstSpeListe=Sql.DonnerQuestionSpe();
+            int indexQuestion2=lobby.random.nextInt(qstSpeListe.size());
+            currentQuestionSpe=qstSpeListe.get(indexQuestion2);
+
+
         }catch (Exception e){
             System.out.println(e.getMessage());
         }
 
         this.lobby.queueEventForAllPlayer(new StateEvent(GameStateJ.QUESTION));
+    }
+    public void ReceiveAction(Action action){
+        switch (action.getTarget()[1]){
+
+        }
     }
 
     public void setListPlayer(){
@@ -89,18 +107,21 @@ public class QuestionGame implements Game  {
 
     }
     public Response question(Action action)throws Exception{
+
         UUID uuid=action.getUuid();
         if(verifIci(uuid)){
-            ArrayList<Question>qstListe=Sql.DonnerQuestion();
-
-
-
-            int indexQuestion = Lobby.random.nextInt(qstListe.size());
-            Question kassos = qstListe.get(indexQuestion);
-
-
-
-            this.lobby.queueEvent(uuid,new QuestionEvent(kassos.getId(), kassos.getQuestion(), kassos.getReponse1(), kassos.getReponse2(), kassos.getReponse3(), kassos.getReponse4(), kassos.getTypeQuestion()));
+            this.lobby.queueEvent(
+                    uuid,
+                    new QuestionEvent(
+                            currentQuestion.getId(),
+                            currentQuestion.getQuestion(),
+                            currentQuestion.getReponse1(),
+                            currentQuestion.getReponse2(),
+                            currentQuestion.getReponse3(),
+                            currentQuestion.getReponse4(),
+                            currentQuestion.getTypeQuestion()
+                    )
+            );
 
 
 
@@ -165,17 +186,14 @@ public class QuestionGame implements Game  {
         }
         return new Response();
     }
-    public Response repeatNbJoueur(Action action)throws Exception{
-        for (int i=0;i<contenders.size();i++){
-        question(action);
-        }
 
-        return new Response();
-    }
+
     //verifie que c'est la bonne reponse
     public Response BonneReponse(Action action,Question question)throws Exception{
+        long now = System.currentTimeMillis();
         UUID uuid=action.getUuid();
         UUID target = UUID.fromString(action.getData().getString("target"));
+        tempsrecu.put(uuid,now);
         if (verifIci(uuid)){
             if (target.equals(question.getBonneReponse())){
                 for (Joueur joueur:PointEnter){
@@ -187,7 +205,8 @@ public class QuestionGame implements Game  {
             }
         }
         return new Response();
-    }public Response BonneReponseSpe(Action action,QuestionSpe question,int pointSpe)throws Exception{
+    }
+    public Response BonneReponseSpe(Action action,QuestionSpe question,int pointSpe)throws Exception{
         UUID uuid=action.getUuid();
         UUID target = UUID.fromString(action.getData().getString("target"));
         if (verifIci(uuid)){
@@ -206,7 +225,14 @@ public class QuestionGame implements Game  {
         }
         return new Response();
     }
-
+public JSONObject toJsonMasked(Joueur joueur){
+        JSONObject out=new JSONObject();
+        out.put("gameStateJ",this.gameStateJ);
+        out.put("point",joueur.getPoint());
+        out.put("question",currentQuestion);
+        out.put("questionSpeciale",currentQuestionSpe);
+        return out;
+}
     public static void main(String[] args) throws Exception{
 
 

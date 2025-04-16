@@ -50,7 +50,13 @@ public class QuestionEvent implements Event {
     @Override
     public JSONObject toJson(UUID uuid) {
         JSONObject obj = new JSONObject();
-        obj.put("type", getType());
+        obj.put("id", id);
+        obj.put("question", question);
+        obj.put("reponse1",reponse1);
+        obj.put("reponse2",reponse2);
+        obj.put("reponse3",reponse3);
+        obj.put("reponse4",reponse4);
+        obj.put("typeQuestion",typeQuestion);
         return obj;
     }
 }

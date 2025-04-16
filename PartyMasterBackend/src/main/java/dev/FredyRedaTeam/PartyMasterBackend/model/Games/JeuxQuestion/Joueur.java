@@ -6,6 +6,7 @@ public class Joueur {
     private UUID uuid;
     private int point=0;
 
+
     public Joueur(UUID uuid, int point ){
         this.uuid=uuid;
         this.point=point;
@@ -27,6 +28,7 @@ public class Joueur {
     public void setPoint(int point) {
         this.point = point;
     }
+
 public void addPoint(int ajouter){
         this.point+=ajouter;
 }
