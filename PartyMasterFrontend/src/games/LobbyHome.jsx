@@ -1,12 +1,16 @@
 import unocards from "./unocards";
+import useAssets from "../useAssets";
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
 function getRandomInt(max) {
     return Math.floor(Math.random() * max);
 }
 
+const assets = useAssets();
+
 const backfaceImage = new Image();
-backfaceImage.src = unocards()["backface"];
+backfaceImage.data = assets.unocards["backface"]
+backfaceImage.src = backfaceImage.data.src;
 
 
 
@@ -119,7 +123,7 @@ export default class LobbyHome extends CanvasHandler {
 
     constructor ( app, data ) {
         super( app, data );
-        this.card1 = new Card( 200, 200, 1, 0, 1, unocards()["red"]["8"], [ 255, 0, 0 ] );
+        this.card1 = new Card( 200, 200, 1, 0, 1, assets.unocards["red"]["8"], [ 255, 0, 0 ] );
     }
     
     onclick ( event ) {
@@ -260,27 +264,29 @@ class ExpFollower {
 
 class Card extends ExpFollower {
 
-    constructor ( x, y, flip, rot, size, path, color = [ 0, 0, 0 ] ) {
+    constructor ( x, y, flip, rot, size, img, color = [ 0, 0, 0 ] ) {
         super( x, y, flip, rot, size );
         this.image = new Image();
-        this.image.src = path;
+        this.image.data = img;
+        this.image.src = this.image.data.src;
         this.color = color;
     }
 
     draw ( canvasHandler ) {
 
         canvasHandler.octx.scale( this.size, this.size );
-        canvasHandler.octx.translate( -50, -75 );
+        canvasHandler.octx.translate( -backfaceImage.data.cx, -backfaceImage.data.cy );
         canvasHandler.octx.fillStyle = `rgb( ${ this.color[0] }, ${ this.color[1] }, ${ this.color[2] } )`;
-        canvasHandler.octx.fillRect( 0, 0, 100, 150 );
+        canvasHandler.octx.fillRect( 0, 0, backfaceImage.data.w, backfaceImage.data.h );
 
         if ( this.image.complete && backfaceImage.complete ) {
             canvasHandler.ctx.scale( this.size, this.size );
-            canvasHandler.ctx.translate( -50, -75 );
             if ( this.flip > 0 ) {
-                canvasHandler.ctx.drawImage( this.image, 0, 0, 100, 150 );
+                canvasHandler.ctx.translate( -this.image.data.cx, -this.image.data.cy );
+                canvasHandler.ctx.drawImage( this.image, 0, 0, this.image.data.w, this.image.data.h );
             } else {
-                canvasHandler.ctx.drawImage( backfaceImage, 0, 0, 100, 150 );
+                canvasHandler.ctx.translate( -backfaceImage.data.cx, -backfaceImage.data.cy );
+                canvasHandler.ctx.drawImage( backfaceImage, 0, 0, backfaceImage.data.w, backfaceImage.data.h );
             }
         }
     }

@@ -3,14 +3,16 @@ import './Lobby.css'
 import axios from 'axios'
 import {data, useNavigate, useParams} from "react-router-dom";
 import { useState, useEffect } from 'react';
-import { get_player_icon, icons } from "./playerutils.jsx";
+import useAssets from "./useAssets.jsx";
 
 function JoinLobby({ connected, setconnected }) {
+
+    const assets = useAssets();
 
     const {room} = useParams();
     let navigate = useNavigate();
     const [icon, setIcon] = useState(0);
-    const nbIcon = icons.length;
+    const nbIcon = assets.players.length;
     const [name, setName] = useState("");
     const [lobbyStatus, setLobbyStatus] = useState(false);
     const [lobbyIcon, setLobbyIcon] = useState("sync");
@@ -34,6 +36,7 @@ function JoinLobby({ connected, setconnected }) {
             clearInterval(interval);
         }
     }, [room]);
+    
 
     return (
         <main id="join-main">
@@ -48,7 +51,7 @@ function JoinLobby({ connected, setconnected }) {
                 <button className="icon-swap" id="icon-last" onClick={function() {
                     setIcon((icon + nbIcon - 1) % nbIcon);
                 }}><span>arrow_forward_ios</span></button>
-                <img src={get_player_icon(icon)} alt="" id="icon-preview" draggable="false"/>
+                <img src={assets.players[icon].src} alt="" id="icon-preview" draggable="false"/>
                 <button className="icon-swap" id="icon-next" onClick={function() {
                     setIcon((icon + 1) % nbIcon);
                 }}><span>arrow_forward_ios</span></button>

@@ -1,13 +1,15 @@
-import get_player_icon from "./playerutils.jsx";
+import useAssets from "./useAssets.jsx";
 import empty from '/players/empty.svg'
 
 export default function ChatMessage({app, uuid, content, shrink}) {
+
+    const assets = useAssets();
 
     let name = "Utilisateur Inconnu";
     let icon = empty;
     if (app.data.players[uuid]) {
         name = app.data.players[uuid].name;
-        icon = get_player_icon(app.data.players[uuid].icon);
+        icon = assets.players[app.data.players[uuid].icon].src;
     }
 
     return (
