@@ -16,12 +16,12 @@ public class QuestionGame implements Game  {
     private Integer lastSpecial=null;
     private GameStateJ gameStateJ=GameStateJ.QUESTION;
     private final ArrayList<Joueur>PointEnter=new ArrayList<>();
-
     private Question currentQuestion;
     private QuestionSpe currentQuestionSpe;
     private long sentTimestamp;
+    private UUID gagnant;
     private HashMap<UUID,Long> tempsrecu=new HashMap<>();
-    private HashMap<UUID,String>reponserecu=new HashMap<>();
+    private HashMap<UUID,JSONObject>reponserecu=new HashMap<>();
 
 
     @Override
@@ -91,12 +91,14 @@ public class QuestionGame implements Game  {
         return false;
     }
 
-    public boolean   ChoisirRandom(Lobby lobby){
+
+
+
+    public boolean choisirRandomSpe(Lobby lobby){
         this.lobby=lobby;
-        ;
         int choisisQS=Lobby.random.nextInt(contenders.size());
         if(lastSpecial==choisisQS){
-            ChoisirRandom(lobby);
+            choisirRandomSpe(lobby);
             return false;
         }
         else {
@@ -110,19 +112,25 @@ public class QuestionGame implements Game  {
 
         UUID uuid=action.getUuid();
         if(verifIci(uuid)){
-            this.lobby.queueEvent(
-                    uuid,
-                    new QuestionEvent(
-                            currentQuestion.getId(),
-                            currentQuestion.getQuestion(),
-                            currentQuestion.getReponse1(),
-                            currentQuestion.getReponse2(),
-                            currentQuestion.getReponse3(),
-                            currentQuestion.getReponse4(),
-                            currentQuestion.getTypeQuestion()
-                    )
-            );
+            ArrayList<Question>qstListe=Sql.DonnerQuestion();
+            int indexQuestion = Lobby.random.nextInt(qstListe.size());
+            if(currentQuestion.getId()!=indexQuestion) {
+                Question question = qstListe.get(indexQuestion);
+                this.lobby.queueEvent(uuid,
 
+                        new QuestionEvent(
+                                question.getId(),
+                                question.getQuestion(),
+                                question.getReponse1(),
+                                question.getReponse2(),
+                                question.getReponse3(),
+                                question.getReponse4(),
+                                question.getTypeQuestion()
+                        )
+                );
+            }else {
+                return new Response();
+            }
 
 
         }else {
@@ -134,11 +142,13 @@ public class QuestionGame implements Game  {
     }
     public Response questionspe(Action action)throws Exception{
         UUID uuid=action.getUuid();
-        UUID target = UUID.fromString(action.getData().getString("target"));
-        if (verifIci(uuid) && ChoisirRandom(lobby)){
+        JSONObject ptJoueur=action.getData();
+        int ptint=ptJoueur.getInt("ptint");
+
+        if (verifIci(uuid) && choisirRandomSpe(lobby)){
             ArrayList<QuestionSpe>qstListe=Sql.DonnerQuestionSpe();
             ArrayList<QuestionSpe>qstListeChoisis=new ArrayList<>();
-            if(target.equals("1")){
+            if(ptint==1){
                 for (QuestionSpe questionSpe:qstListe){
                     if (questionSpe.getNiveauQuestion()==1){
                          qstListeChoisis.add(questionSpe);
@@ -148,10 +158,10 @@ public class QuestionGame implements Game  {
                 QuestionSpe kassos = qstListeChoisis.get(indexQuestion);
                 this.lobby.queueEvent(uuid,new QuestionSpeEvent(kassos.getId(), kassos.getQuestion(), kassos.getNiveauQuestion()));
 
-                BonneReponseSpe(action,kassos,1);
+                BonneReponseSpe(action,kassos,ptint);
                 qstListeChoisis.clear();
             }
-            if(target.equals("2")){
+            if(ptint==2){
                 for (QuestionSpe questionSpe:qstListe){
                     if (questionSpe.getNiveauQuestion()==2){
                          qstListeChoisis.add(questionSpe);
@@ -160,10 +170,10 @@ public class QuestionGame implements Game  {
                 int indexQuestion = Lobby.random.nextInt(qstListeChoisis.size());
                 QuestionSpe kassos = qstListe.get(indexQuestion);
                 this.lobby.queueEvent(uuid,new QuestionSpeEvent(kassos.getId(), kassos.getQuestion(), kassos.getNiveauQuestion()));
-                BonneReponseSpe(action,kassos,2);
+                BonneReponseSpe(action,kassos,ptint);
                 qstListeChoisis.clear();
             }
-            if(target.equals("3")){
+            else{
                 for (QuestionSpe questionSpe:qstListe){
                     if (questionSpe.getNiveauQuestion()==3){
                          qstListeChoisis.add(questionSpe);
@@ -172,7 +182,7 @@ public class QuestionGame implements Game  {
                 int indexQuestion = Lobby.random.nextInt(qstListeChoisis.size());
                 QuestionSpe kassos = qstListe.get(indexQuestion);
                 this.lobby.queueEvent(uuid,new QuestionSpeEvent(kassos.getId(), kassos.getQuestion(), kassos.getNiveauQuestion()));
-                BonneReponseSpe(action,kassos,3);
+                BonneReponseSpe(action,kassos,ptint);
                 qstListeChoisis.clear();
             }
 
@@ -192,37 +202,100 @@ public class QuestionGame implements Game  {
     public Response BonneReponse(Action action,Question question)throws Exception{
         long now = System.currentTimeMillis();
         UUID uuid=action.getUuid();
-        UUID target = UUID.fromString(action.getData().getString("target"));
-        tempsrecu.put(uuid,now);
+        //reponseJoueur est la reponse en json et target la transforme en String
+        JSONObject reponseJoueur=action.getData();
+        String target =reponseJoueur.getString("target");
+
+
         if (verifIci(uuid)){
-            if (target.equals(question.getBonneReponse())){
-                for (Joueur joueur:PointEnter){
-                    if (joueur.getUuid().equals(uuid)){
-                        joueur.addPoint(1);
-                        break;
-                    }
-                }
+            if(reponserecu.containsKey(uuid)){
+                return new Response();
             }
-        }
-        return new Response();
-    }
-    public Response BonneReponseSpe(Action action,QuestionSpe question,int pointSpe)throws Exception{
-        UUID uuid=action.getUuid();
-        UUID target = UUID.fromString(action.getData().getString("target"));
-        if (verifIci(uuid)){
-            if (target.equals(question.getReponse1())){
-                for (Joueur joueur:PointEnter){
-                    if (joueur.getUuid().equals(uuid)){
-                        joueur.addPoint(pointSpe);
-                        break;
-                    }else {
-                        continue;
+            tempsrecu.put(uuid,now-sentTimestamp);
+            reponserecu.put(uuid,reponseJoueur);
+
+            if (target.equals(question.getBonneReponse())){
+                if (gagnant!=null){
+                    return new Response();
+                }
+                if (gagnant==null){
+                    gagnant=uuid;
+                    //methode pour boucler avec for trouver sur internet
+                    for (Map.Entry<UUID,JSONObject> truc:reponserecu.entrySet()){
+                        UUID challenger=truc.getKey();
+                        //get la reponse en json et la prochaine c'est comme en haut qui transforme en string
+                        String reponseTruc=truc.getValue().getString("target");
+                        //verifie que sa challenge pas contre lui meme
+                            if (!challenger.equals(uuid)&&reponseTruc.equals(question.getBonneReponse())){
+                                if (tempsrecu.get(challenger)<tempsrecu.get(uuid)){
+                                    gagnant=challenger;
+                                }
+                            }
+                    }
+                    if (uuid.equals(gagnant)){
+                        for (Joueur joueur : PointEnter) {
+                            if (joueur.getUuid().equals(uuid)) {
+                                joueur.addPoint(1);
+                                break;
+
+                            }
+                        }
                     }
                 }
             }else {
-
-            }
+                System.out.println("mauvaise reponse ");
+            }return new Response();
         }
+        gagnant=null;
+        return new Response();
+    }
+    public Response BonneReponseSpe(Action action,QuestionSpe question,int ptint)throws Exception{
+        long now = System.currentTimeMillis();
+        UUID uuid=action.getUuid();
+        //reponseJoueur est la reponse en json et target la transforme en String
+        JSONObject reponseJoueur=action.getData();
+        String target =reponseJoueur.getString("target");
+
+
+        if (verifIci(uuid)){
+            if(reponserecu.containsKey(uuid)){
+                return new Response();
+            }
+            tempsrecu.put(uuid,now-sentTimestamp);
+            reponserecu.put(uuid,reponseJoueur);
+
+            if (target.equals(question.getReponse1())){
+                if (gagnant!=null){
+                    return new Response();
+                }
+                if (gagnant==null){
+                    gagnant=uuid;
+                    //methode pour boucler avec for trouver sur internet
+                    for (Map.Entry<UUID,JSONObject> truc:reponserecu.entrySet()){
+                        UUID challenger=truc.getKey();
+                        //get la reponse en json et la prochaine c'est comme en haut qui transforme en string
+                        String reponseTruc=truc.getValue().getString("target");
+                        //verifie que sa challenge pas contre lui meme
+                        if (!challenger.equals(uuid)&&reponseTruc.equals(question.getReponse1())){
+                            if (tempsrecu.get(challenger)<tempsrecu.get(uuid)){
+                                gagnant=challenger;
+                            }
+                        }
+                    }
+                    if (uuid.equals(gagnant)){
+                        for (Joueur joueur : PointEnter) {
+                            if (joueur.getUuid().equals(uuid)) {
+                                joueur.addPoint(ptint);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }else {
+                System.out.println("mauvaise reponse ");
+            }return new Response();
+        }
+        gagnant=null;
         return new Response();
     }
 public JSONObject toJsonMasked(Joueur joueur){
