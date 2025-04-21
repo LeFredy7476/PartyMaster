@@ -34,8 +34,8 @@ function MainMenu({ connected, setconnected }) {
                     setRoom(e.target.value);
                 }}/>
                 <button id="lobbyJoin" className="form-button" onClick={()=>{
-                    if (room.length == 8){
-                        navigate("/" + room);
+                    if (room.length == 8) {
+                        navigate("/" + room.toLowerCase());
                     }
                 }}>Rejoindre</button>
             </section>

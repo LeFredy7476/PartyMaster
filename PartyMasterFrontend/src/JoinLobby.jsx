@@ -58,7 +58,7 @@ function JoinLobby({ connected, setconnected }) {
                 {/* <input type="number" name="icon" id="icon" style={{display: "none"}} value={icon} max={nbIcon - 1} min={0} /> */}
             </div>
             
-            <input type="text" name="name" id="name" className='form' placeholder="Nom" value={name} onChange={(e)=>{
+            <input type="text" name="name" id="name" className='form' placeholder="Nom" value={name} autoComplete="off" onChange={(e)=>{
                 setName(e.target.value);
             }}/>
             <button className="form-button" id="join" onClick={function() {

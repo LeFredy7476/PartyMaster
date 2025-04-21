@@ -123,7 +123,7 @@ export default class LobbyHome extends CanvasHandler {
 
     constructor ( app, data ) {
         super( app, data );
-        this.card1 = new Card( 200, 200, 1, 0, 1, assets.unocards["red"]["8"], [ 255, 0, 0 ] );
+        this.card1 = new Card( 200, 200, 1, 0, 1, assets.unocards["red"]["pass"], [ 255, 0, 0 ] );
     }
     
     onclick ( event ) {
