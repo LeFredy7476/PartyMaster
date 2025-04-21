@@ -1,9 +1,12 @@
 package dev.FredyRedaTeam.PartyMasterBackend.model.Games.uno;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.HashSet;
 import java.util.UUID;
 
-public class UnoPlayer {
+class UnoPlayer {
 
     public final UUID uuid;
 
@@ -23,5 +26,13 @@ public class UnoPlayer {
 
     public boolean hasWon() {
         return cards.isEmpty();
+    }
+
+    public HashSet<Card> getCards() { return cards; }
+
+    public JSONArray toJson() {
+        JSONArray arr = new JSONArray();
+        this.cards.forEach(card -> arr.put(card.id));
+        return arr;
     }
 }

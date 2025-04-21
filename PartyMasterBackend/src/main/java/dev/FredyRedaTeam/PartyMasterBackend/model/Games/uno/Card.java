@@ -4,7 +4,7 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 
-public class Card {
+class Card {
 
     private static final HashMap<Integer, Card> cards = new HashMap<>();
 

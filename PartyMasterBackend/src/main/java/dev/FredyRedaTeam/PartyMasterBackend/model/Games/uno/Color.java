@@ -1,6 +1,6 @@
 package dev.FredyRedaTeam.PartyMasterBackend.model.Games.uno;
 
-public enum Color {
+enum Color {
     BLUE,
     GREEN,
     RED,

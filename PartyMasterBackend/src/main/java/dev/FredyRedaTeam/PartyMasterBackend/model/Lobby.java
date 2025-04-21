@@ -135,6 +135,14 @@ public class Lobby {
         }
     }
 
+    public void queueEventForAllPlayer(Event event, UUID except) {
+        for (UUID uuid : eventQueues.keySet()) {
+            if (!uuid.equals(except)) {
+                eventQueues.get(uuid).add(event);
+            }
+        }
+    }
+
     public void queueEvent(UUID uuid, Event event) {
         this.eventQueues.get(uuid).add(event);
     }

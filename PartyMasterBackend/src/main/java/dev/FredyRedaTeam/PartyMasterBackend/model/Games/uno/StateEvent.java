@@ -4,41 +4,25 @@ import dev.FredyRedaTeam.PartyMasterBackend.model.Event;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.UUID;
+class StateEvent implements Event {
 
-public class StateEvent implements Event {
+    private final JSONObject state;
 
-    private final List<UUID> table;
-    private final HashSet<Card> cards;
-
-    public HashSet<Card> getCards() {
-        return cards;
+    public StateEvent(JSONObject state) {
+        this.state = state;
     }
 
-    public List<UUID> getTable() {
-        return table;
-    }
-
-    public StateEvent(List<UUID> table, HashSet<Card> cards) {
-        this.table = table;
-        this.cards = cards;
+    public JSONObject getJSONObject() {
+        return state;
     }
 
     @Override
-    public String getType() { return "Games.loup.StateEvent"; }
+    public String getType() { return "Games.uno.StateEvent"; }
 
     @Override
     public JSONObject toJson() {
-        JSONObject obj = new JSONObject();
+        JSONObject obj = this.state;
         obj.put("type", getType());
-        JSONArray table = new JSONArray();
-        this.table.forEach(uuid -> table.put(uuid.toString()));
-        obj.put("table", table);
-        JSONArray cards = new JSONArray();
-        this.cards.forEach(card -> cards.put(card.id));
-        obj.put("cards", cards);
         return obj;
     }
 }
