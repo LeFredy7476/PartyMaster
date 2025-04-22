@@ -24,8 +24,8 @@ class UnoPlayer {
         return cards.contains(card);
     }
 
-    public boolean removeCard(Card card) {
-        return cards.remove(card);
+    public void removeCard(Card card) {
+        cards.remove(card);
     }
 
     public boolean hasWon() {

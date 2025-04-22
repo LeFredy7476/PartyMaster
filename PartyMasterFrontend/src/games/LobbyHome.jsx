@@ -128,14 +128,14 @@ export default class LobbyHome extends CanvasHandler {
         super( app, data );
         this.games = [
             new Button("Uno", 0, [10, 0, 0], "UNO", false),
-            new Button("Loup", 0, [20, 0, 0], "LOUP-GAROU", false),
-            new Button("Question", 0, [30, 0, 0], "QUESTIONS", false)
+            new Button("Loup", 1, [20, 0, 0], "LOUP-GAROU", false),
+            new Button("Question", 2, [30, 0, 0], "QUESTIONS", false)
         ];
     }
     
     onclick ( event ) {
         for (let i = 0; i < this.games.length; i++) {
-            let game = games[i];
+            let game = this.games[i];
             if (game.hovered) {
                 console.log(game.value)
             }
@@ -143,23 +143,21 @@ export default class LobbyHome extends CanvasHandler {
     }
 
     onmousemove ( event ) {
-        // make card follow mouse pointer
-        this.card1.x = this.mouse.x;
-        this.card1.y = this.mouse.y;
+        
     }
 
 
     loop ( time ) {
+        let imageData = this.octx.getImageData( this.mouse.x, this.mouse.y, 1, 1 );
+        let [ r, g, b ] = imageData.data;
+
         super.loop( time );
 
         // detect if mouse pointer is hovering something
-        let imageData = this.octx.getImageData( this.mouse.x, this.mouse.y, 1, 1 );
-        let [ r, g, b ] = imageData.data;
-        // console.log(this.mouse);
         for (let i = 0; i < this.games.length; i++) {
-            let game = games[i];
+            let game = this.games[i];
             game.hovered = ( r == game.color[0] && g == game.color[1] && b == game.color[2] );
-            this.drawTitles(this.verticalPlace(game.index, games.length), game.hovered, game.color, game.label);
+            this.drawTitles(this.verticalPlace(game.index, this.games.length), game.hovered, game.color, game.label);
         }
         
         if ( localStorage.getItem( "debug" ) == "true" ) this.debugDraw();
@@ -167,14 +165,15 @@ export default class LobbyHome extends CanvasHandler {
 
     drawTitles(pos, hovered, hitbox_color, text) {
         this.ctx.font = "64px Lexend";
+        this.ctx.textAlign = "center";
         if (hovered) {
             this.ctx.fillStyle = "#aaaaaa";
-            this.ctx.fillRect(pos[0] - 200, pos[1] - 80, pos[0] + 200, pos[1] + 80);
+            this.ctx.fillRect(pos[0] - 300, pos[1] - 80, 600, 160);
         }
         this.octx.fillStyle = `rgb( ${ hitbox_color[0] }, ${ hitbox_color[1] }, ${ hitbox_color[2] } )`;
-        this.octx.fillRect(pos[0] - 200, pos[1] - 80, pos[0] + 200, pos[1] + 80);
+        this.octx.fillRect(pos[0] - 300, pos[1] - 80, 600, 160);
         this.ctx.fillStyle = "#000000";
-        this.ctx.fillText( text, pos[0], pos[1] - 32 );
+        this.ctx.fillText( text, pos[0], pos[1] + 24 );
 
     }
 
