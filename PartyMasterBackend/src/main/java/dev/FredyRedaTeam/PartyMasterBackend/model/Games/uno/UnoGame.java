@@ -87,13 +87,14 @@ public class UnoGame implements Game {
 
     // actions
 
-    public Response actionPlayNormal(Action action) {
+    public void actionPlayNormal(Action action) { // TODO: should return Response
         /* {
             "card": <int>
         } */
         assert action.getUuid().equals(currentPlayer);
+        //action.
         Card card = Card.get(action.getData().getInt("card"));
-        assert 
+        //assert
     }
 
     // interface implementation
