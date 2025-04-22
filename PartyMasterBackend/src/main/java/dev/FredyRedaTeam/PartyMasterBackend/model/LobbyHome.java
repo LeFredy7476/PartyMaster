@@ -3,6 +3,7 @@ package dev.FredyRedaTeam.PartyMasterBackend.model;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.UUID;
 
 public class LobbyHome implements Game {
@@ -81,7 +82,7 @@ public class LobbyHome implements Game {
 
     private Lobby lobby;
 
-    private int selectedGame;
+    private Integer selectedGame;
     private final HashMap<UUID, Integer> suggestion = new HashMap<>();
 
     public Lobby getLobby() {
@@ -118,10 +119,16 @@ public class LobbyHome implements Game {
 
     public Response apply(Action action) {
         if (lobby.getLobbyMaster().equals(action.getUuid())) {
+            if (selectedGame != null) {
 
-            // TODO: signal lobby that a game change is needed
+                this.lobby.startGame(selectedGame);
 
-            return new Response();
+                return new Response();
+            } else {
+                Response r = new Response(3, new JSONObject());
+                r.getData().put("r", "NoGameSelected");
+                return r; // REFUSED
+            }
         } else {
             Response r = new Response(3, new JSONObject());
             r.getData().put("r", "NoPermission");
@@ -139,7 +146,6 @@ public class LobbyHome implements Game {
         this.lobby = lobby;
     }
 
-
     @Override
     public String getType() {
         return "LobbyHome";
@@ -149,7 +155,7 @@ public class LobbyHome implements Game {
     public JSONObject toJson() {
         JSONObject obj = new JSONObject();
         obj.put("type", getType());
-        obj.put("selected_game", this.selectedGame);
+        obj.put("selected_game", Objects.requireNonNullElse(selectedGame, JSONObject.NULL));
         obj.put("suggestion", this.suggestion);
         return obj;
     }

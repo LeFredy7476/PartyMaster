@@ -89,6 +89,11 @@ public class UnoGame implements Game {
         this.currentColor = color;
     }
 
+    private void winner(UnoPlayer player) {
+        this.lobby.queueEventForAllPlayer(new WinEvent(player.uuid));
+        this.lobby.exitGame();
+    }
+
     // -------------------------------------
     //  actions
     // -------------------------------------
@@ -106,7 +111,7 @@ public class UnoGame implements Game {
         play(player, card);
 
         if (player.hasWon()) {
-            // TODO: win condition
+            winner(player);
         }
         return new Response();
     }
@@ -127,7 +132,7 @@ public class UnoGame implements Game {
         play(player, card, color);
 
         if (player.hasWon()) {
-            // TODO: win condition
+            winner(player);
         }
         return new Response();
     }
@@ -227,7 +232,8 @@ public class UnoGame implements Game {
         } while (flush.getFirst().getColor() == Color.MULTI);
         this.currentPlayer = table.get(turn);
 
-        this.lobby.queueEventForAllPlayer(new StateEvent(toJson()));
+        // init method should not throw any events, they will be handled in Lobby
+        // this.lobby.queueEventForAllPlayer(new StateEvent(toJson()));
     }
 
     @Override
@@ -235,24 +241,33 @@ public class UnoGame implements Game {
 
     @Override
     public JSONObject toJson() {
+
         JSONObject obj = new JSONObject();
+
         JSONArray table = new JSONArray();
         this.table.forEach(uuid -> table.put(uuid.toString()));
         obj.put("table", table);
+
         JSONObject players = new JSONObject();
         this.players.forEach((uuid, player) -> {
             players.put(uuid.toString(), player.toJson());
         });
         obj.put("players", players);
+
         JSONArray deck = new JSONArray();
         this.deck.forEach(card -> deck.put(card.id));
         obj.put("deck", deck);
+
         JSONArray flush = new JSONArray();
         this.flush.forEach(card -> flush.put(card.id));
         obj.put("flush", flush);
+
         obj.put("currentPlayer", this.currentPlayer);
+
         obj.put("currentColor", this.currentColor.toString());
+
         obj.put("currentCard", this.currentCard.id);
+
         return obj;
     }
 }
