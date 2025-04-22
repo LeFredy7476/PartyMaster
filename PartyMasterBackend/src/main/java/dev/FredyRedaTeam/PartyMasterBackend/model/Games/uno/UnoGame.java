@@ -166,13 +166,17 @@ public class UnoGame implements Game {
                 case "play" -> switch (action.getTarget(2)) {
                     case "normal" -> actionPlayNormal(action);
                     case "color" -> actionPlayColor(action);
-                    case null, default -> null;
+                    case null, default -> {
+                        throw new AssertionError();
+                    }
                 };
                 case "state" -> {
                     JSONObject state = toJson();
                     yield new Response(0, state);
                 }
-                case null, default -> null;
+                case null, default -> {
+                    throw new AssertionError();
+                }
             };
         } catch (AssertionError e) {
             JSONObject out = new JSONObject();
