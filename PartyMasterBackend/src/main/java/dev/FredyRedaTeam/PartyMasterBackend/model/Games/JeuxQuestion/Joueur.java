@@ -33,4 +33,7 @@ public void addPoint(int ajouter){
         this.point+=ajouter;
 }
 
+public void removePoint(int ajouter){
+        this.point-=ajouter;
+    }
 }

@@ -5,6 +5,7 @@ import dev.FredyRedaTeam.PartyMasterBackend.model.Game;
 import dev.FredyRedaTeam.PartyMasterBackend.model.Games.LoupGarou.utils.Sql;
 import dev.FredyRedaTeam.PartyMasterBackend.model.Lobby;
 import dev.FredyRedaTeam.PartyMasterBackend.model.Response;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.*;
@@ -15,13 +16,13 @@ public class QuestionGame implements Game  {
     //demander a reda pourquoi un integer si pas compris
     private Integer lastSpecial=null;
     private GameStateJ gameStateJ=GameStateJ.QUESTION;
-    private final ArrayList<Joueur>PointEnter=new ArrayList<>();
+    private final HashMap<UUID,Joueur>pointEnter=new HashMap<>();
     private Question currentQuestion;
     private QuestionSpe currentQuestionSpe;
-    private long sentTimestamp;
-    private UUID gagnant;
+    private UUID gagnant=null;
     private HashMap<UUID,Long> tempsrecu=new HashMap<>();
     private HashMap<UUID,JSONObject>reponserecu=new HashMap<>();
+    private Joueur getJoueur(UUID uuid) {return this.pointEnter.get(uuid);}
 
 
     @Override
@@ -31,7 +32,12 @@ public class QuestionGame implements Game  {
 
     @Override
     public JSONObject toJson() {
-        return null;
+    JSONObject obj=new JSONObject();
+
+    JSONObject point=new JSONObject();
+    //this.pointEnter.forEach((uuid, joueur) -> point.put(uuid.toString()));
+
+    return obj;
     }
 
     @Override
@@ -47,21 +53,20 @@ public class QuestionGame implements Game  {
     @Override
     public void init(Lobby lobby) {
         setListPlayer();
+
         try {
             ArrayList<Question>qstListe=Sql.DonnerQuestion();
             int indexQuestion = Lobby.random.nextInt(qstListe.size());
             currentQuestion = qstListe.get(indexQuestion);
 
-            ArrayList<QuestionSpe>qstSpeListe=Sql.DonnerQuestionSpe();
-            int indexQuestion2=lobby.random.nextInt(qstSpeListe.size());
-            currentQuestionSpe=qstSpeListe.get(indexQuestion2);
+
 
 
         }catch (Exception e){
             System.out.println(e.getMessage());
         }
 
-        this.lobby.queueEventForAllPlayer(new StateEvent(GameStateJ.QUESTION));
+
     }
     public void ReceiveAction(Action action){
         switch (action.getTarget()[1]){
@@ -75,8 +80,9 @@ public class QuestionGame implements Game  {
 
         for (UUID uuid:contenders){
             Joueur joueur=new Joueur(uuid,0);
-            PointEnter.add(joueur);
+            pointEnter.put(uuid,joueur);
         }
+
     }
     public boolean verifIci(UUID uuid){
 
@@ -85,6 +91,7 @@ public class QuestionGame implements Game  {
                 return true;
             }
             else {
+                System.out.println("player not found: "+uuid);
                 continue;
             }
         }
@@ -110,6 +117,8 @@ public class QuestionGame implements Game  {
     }
     public Response question(Action action)throws Exception{
 
+
+
         UUID uuid=action.getUuid();
         if(verifIci(uuid)){
             ArrayList<Question>qstListe=Sql.DonnerQuestion();
@@ -128,6 +137,8 @@ public class QuestionGame implements Game  {
                                 question.getTypeQuestion()
                         )
                 );
+                currentQuestion = qstListe.get(question.getId());
+                this.lobby.queueEventForAllPlayer(new StateEvent(GameStateJ.QUESTION));
             }else {
                 return new Response();
             }
@@ -143,56 +154,18 @@ public class QuestionGame implements Game  {
     public Response questionspe(Action action)throws Exception{
         UUID uuid=action.getUuid();
         JSONObject ptJoueur=action.getData();
-        int ptint=ptJoueur.getInt("ptint");
+        int ptint=ptJoueur.getInt("niveau");
 
         if (verifIci(uuid) && choisirRandomSpe(lobby)){
-            ArrayList<QuestionSpe>qstListe=Sql.DonnerQuestionSpe();
-            ArrayList<QuestionSpe>qstListeChoisis=new ArrayList<>();
-            if(ptint==1){
-                for (QuestionSpe questionSpe:qstListe){
-                    if (questionSpe.getNiveauQuestion()==1){
-                         qstListeChoisis.add(questionSpe);
-                    }
-                }
-                int indexQuestion = Lobby.random.nextInt(qstListeChoisis.size());
-                QuestionSpe kassos = qstListeChoisis.get(indexQuestion);
-                this.lobby.queueEvent(uuid,new QuestionSpeEvent(kassos.getId(), kassos.getQuestion(), kassos.getNiveauQuestion()));
+            ArrayList<QuestionSpe>qstListe=Sql.DonnerQuestionSpe(ptint);
 
-                BonneReponseSpe(action,kassos,ptint);
-                qstListeChoisis.clear();
-            }
-            if(ptint==2){
-                for (QuestionSpe questionSpe:qstListe){
-                    if (questionSpe.getNiveauQuestion()==2){
-                         qstListeChoisis.add(questionSpe);
-                    }
-                }
-                int indexQuestion = Lobby.random.nextInt(qstListeChoisis.size());
+
+                int indexQuestion = Lobby.random.nextInt(qstListe.size());
                 QuestionSpe kassos = qstListe.get(indexQuestion);
                 this.lobby.queueEvent(uuid,new QuestionSpeEvent(kassos.getId(), kassos.getQuestion(), kassos.getNiveauQuestion()));
+
                 BonneReponseSpe(action,kassos,ptint);
-                qstListeChoisis.clear();
-            }
-            else{
-                for (QuestionSpe questionSpe:qstListe){
-                    if (questionSpe.getNiveauQuestion()==3){
-                         qstListeChoisis.add(questionSpe);
-                    }
-                }
-                int indexQuestion = Lobby.random.nextInt(qstListeChoisis.size());
-                QuestionSpe kassos = qstListe.get(indexQuestion);
-                this.lobby.queueEvent(uuid,new QuestionSpeEvent(kassos.getId(), kassos.getQuestion(), kassos.getNiveauQuestion()));
-                BonneReponseSpe(action,kassos,ptint);
-                qstListeChoisis.clear();
-            }
-
-
-
-
-
-
-
-
+                qstListe.clear();
         }
         return new Response();
     }
@@ -211,14 +184,14 @@ public class QuestionGame implements Game  {
             if(reponserecu.containsKey(uuid)){
                 return new Response();
             }
-            tempsrecu.put(uuid,now-sentTimestamp);
+            tempsrecu.put(uuid,now);
             reponserecu.put(uuid,reponseJoueur);
 
             if (target.equals(question.getBonneReponse())){
                 if (gagnant!=null){
                     return new Response();
                 }
-                if (gagnant==null){
+                else if (gagnant==null){
                     gagnant=uuid;
                     //methode pour boucler avec for trouver sur internet
                     for (Map.Entry<UUID,JSONObject> truc:reponserecu.entrySet()){
@@ -233,22 +206,23 @@ public class QuestionGame implements Game  {
                             }
                     }
                     if (uuid.equals(gagnant)){
-                        for (Joueur joueur : PointEnter) {
-                            if (joueur.getUuid().equals(uuid)) {
+                            Joueur joueur=getJoueur(uuid);
                                 joueur.addPoint(1);
-                                break;
-
                             }
-                        }
-                    }
+
                 }
-            }else {
-                System.out.println("mauvaise reponse ");
-            }return new Response();
+            }
         }
+        else {
+                System.out.println("mauvaise reponse ");
+            }
         gagnant=null;
+        tempsrecu.clear();
+        reponserecu.clear();
         return new Response();
-    }
+        }
+
+
     public Response BonneReponseSpe(Action action,QuestionSpe question,int ptint)throws Exception{
         long now = System.currentTimeMillis();
         UUID uuid=action.getUuid();
@@ -261,14 +235,14 @@ public class QuestionGame implements Game  {
             if(reponserecu.containsKey(uuid)){
                 return new Response();
             }
-            tempsrecu.put(uuid,now-sentTimestamp);
+            tempsrecu.put(uuid,now);
             reponserecu.put(uuid,reponseJoueur);
 
             if (target.equals(question.getReponse1())){
                 if (gagnant!=null){
                     return new Response();
                 }
-                if (gagnant==null){
+               else if (gagnant==null){
                     gagnant=uuid;
                     //methode pour boucler avec for trouver sur internet
                     for (Map.Entry<UUID,JSONObject> truc:reponserecu.entrySet()){
@@ -282,20 +256,33 @@ public class QuestionGame implements Game  {
                             }
                         }
                     }
-                    if (uuid.equals(gagnant)){
-                        for (Joueur joueur : PointEnter) {
-                            if (joueur.getUuid().equals(uuid)) {
-                                joueur.addPoint(ptint);
-                                break;
+
+                        if (uuid.equals(gagnant)){
+                            Joueur joueur=getJoueur(uuid);
+                            joueur.addPoint(ptint);
+                        }
+                        else {
+                            for (Map.Entry<UUID,JSONObject> truc:reponserecu.entrySet()) {
+                                String reponseTruc=truc.getValue().getString("target");
+                                UUID challenger=truc.getKey();
+                                if (!challenger.equals(gagnant) && reponseTruc!= null) {
+                                    Joueur joueur=getJoueur(challenger);
+                                    joueur.removePoint(ptint);
+                                }
+                                else {
+                                    continue;
+                                }
                             }
                         }
-                    }
+
                 }
             }else {
                 System.out.println("mauvaise reponse ");
             }return new Response();
         }
         gagnant=null;
+        tempsrecu.clear();
+        reponserecu.clear();
         return new Response();
     }
 public JSONObject toJsonMasked(Joueur joueur){

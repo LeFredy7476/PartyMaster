@@ -74,7 +74,9 @@ public class Sql {
 
         }
         return questionTout;
-    } public static ArrayList<QuestionSpe> DonnerQuestionSpe()throws Exception{
+    }
+
+    public static ArrayList<QuestionSpe> DonnerQuestionSpe(int numero)throws Exception{
         Connection con = null;
         Properties props = new Properties();
         PreparedStatement prtm= null;
@@ -84,11 +86,11 @@ public class Sql {
         con= DriverManager.getConnection(props.getProperty("spring.datasource.url"),
                 props.getProperty("spring.datasource.username"),
                 props.getProperty("spring.datasource.password"));
-        String sql="select * from questionspecial";
+        String sql="select * from questionspecial where NiveauReponse=?";
         prtm=con.prepareStatement(sql);
+        prtm.setInt(1,numero);
         ResultSet rs=prtm.executeQuery();
         try {
-
             while (rs.next()){
                 QuestionSpe questionS=new QuestionSpe();
                 questionS.setId(rs.getInt(1));
@@ -109,5 +111,7 @@ public class Sql {
         }
         return questionTout;
     }
+
+
 
 }
