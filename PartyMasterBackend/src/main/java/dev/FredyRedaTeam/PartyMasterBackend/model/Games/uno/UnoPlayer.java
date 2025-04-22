@@ -20,6 +20,10 @@ class UnoPlayer {
         cards.add(card);
     }
 
+    public boolean hasCard(Card card) {
+        return cards.contains(card);
+    }
+
     public boolean removeCard(Card card) {
         return cards.remove(card);
     }

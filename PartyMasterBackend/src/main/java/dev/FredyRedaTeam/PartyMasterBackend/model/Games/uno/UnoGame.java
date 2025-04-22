@@ -14,7 +14,9 @@ import java.util.UUID;
 
 public class UnoGame implements Game {
 
-    // state
+    // -------------------------------------
+    //  state
+    // -------------------------------------
 
     private Lobby lobby;
 
@@ -30,7 +32,9 @@ public class UnoGame implements Game {
     private Color currentColor;
     private Card currentCard;
 
-    // utility function
+    // -------------------------------------
+    //  utility function
+    // -------------------------------------
 
     public void reshuffle() {
         for (int i = 0; i < flush.size() - 1; i++) {
@@ -77,7 +81,7 @@ public class UnoGame implements Game {
             this.lobby.queueEventForAllPlayer(new SkipEvent(currentPlayer));
             applyRotation();
         }
-
+        this.lobby.queueEventForAllPlayer(new TurnEvent(currentPlayer, direction));
     }
 
     private void play(UnoPlayer player, Card card, Color color) {
@@ -85,19 +89,65 @@ public class UnoGame implements Game {
         this.currentColor = color;
     }
 
-    // actions
+    // -------------------------------------
+    //  actions
+    // -------------------------------------
 
-    public void actionPlayNormal(Action action) { // TODO: should return Response
-        /* {
-            "card": <int>
-        } */
+    public Response actionPlayNormal(Action action) {
+        // data: {
+        //    "card": <int>
+        // }
         assert action.getUuid().equals(currentPlayer);
-        //action.
+        UnoPlayer player = getPlayer(action.getUuid());
         Card card = Card.get(action.getData().getInt("card"));
-        //assert
+        assert player.hasCard(card);
+        assert card.canBePlayed(currentCard, currentColor);
+
+        play(player, card);
+
+        if (player.hasWon()) {
+            // TODO: win condition
+        }
+        return new Response();
     }
 
-    // interface implementation
+    public Response actionPlayColor(Action action) {
+        // data: {
+        //    "card": <int>,
+        //    "color": <String>
+        // }
+        assert action.getUuid().equals(currentPlayer);
+        UnoPlayer player = getPlayer(action.getUuid());
+        Card card = Card.get(action.getData().getInt("card"));
+        Color color = Color.valueOf(action.getData().getString("color").toUpperCase());
+        assert player.hasCard(card);
+        assert card.canBePlayed(currentCard, currentColor);
+        assert !color.equals(Color.MULTI);
+
+        play(player, card, color);
+
+        if (player.hasWon()) {
+            // TODO: win condition
+        }
+        return new Response();
+    }
+
+    public Response actionDraw(Action action) {
+        // data: {}
+        assert action.getUuid().equals(currentPlayer);
+        UnoPlayer player = getPlayer(action.getUuid());
+
+        draw(player, 1);
+        applyRotation();
+
+        this.lobby.queueEventForAllPlayer(new TurnEvent(currentPlayer, direction));
+
+        return new Response();
+    }
+
+    // -------------------------------------
+    //  interface implementation
+    // -------------------------------------
 
     /**
      * game:draw
@@ -112,10 +162,10 @@ public class UnoGame implements Game {
     public Response receiveAction(Action action) {
         try {
             return switch (action.getTarget(1)) {
-                case "draw" -> null;
+                case "draw" -> actionDraw(action);
                 case "play" -> switch (action.getTarget(2)) {
-                    case "normal" -> null;
-                    case "color" -> null;
+                    case "normal" -> actionPlayNormal(action);
+                    case "color" -> actionPlayColor(action);
                     case null, default -> null;
                 };
                 case "state" -> {
