@@ -9,7 +9,7 @@ public class DeathEvent implements Event {
 
     @Override
     public String getType() {
-        return "Games.loup.StateEvent";
+        return "Games.loup.DeathEvent";
     }
 
     @Override

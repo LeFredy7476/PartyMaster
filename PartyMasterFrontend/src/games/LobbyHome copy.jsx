@@ -1,3 +1,4 @@
+import unocards from "./unocards";
 import useAssets from "../useAssets";
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
@@ -6,6 +7,12 @@ function getRandomInt(max) {
 }
 
 const assets = useAssets();
+
+const backfaceImage = new Image();
+backfaceImage.data = assets.unocards["backface"]
+backfaceImage.src = backfaceImage.data.src;
+
+
 
 class CanvasHandler {
     
@@ -111,78 +118,61 @@ class CanvasHandler {
     }
 }
 
-class Button {
-    constructor ( value, index, color, label, hovered ) {
-        this.value = value;
-        this.index = index;
-        this.color = color;
-        this.label = label;
-        this.hovered = hovered
-    }
-}
 
 export default class LobbyHome extends CanvasHandler {
 
-
     constructor ( app, data ) {
         super( app, data );
-        this.games = [
-            new Button("Uno", 0, [10, 0, 0], "UNO", false),
-            new Button("Loup", 1, [20, 0, 0], "LOUP-GAROU", false),
-            new Button("Question", 2, [30, 0, 0], "QUESTIONS", false)
-        ];
+        this.card1 = new Card( 200, 200, 1, 0, 1, assets.unocards["red"]["pass"], [ 255, 0, 0 ] );
     }
     
     onclick ( event ) {
-        for (let i = 0; i < this.games.length; i++) {
-            let game = this.games[i];
-            if (game.hovered) {
-                console.log(game.value)
-            }
-        }
+        // create this "flip" animation
+        this.card1.targetFlip = -this.card1.targetFlip;
+        this.card1.trueSize = this.card1.targetSize - 0.2;
     }
 
     onmousemove ( event ) {
-        
+        // make card follow mouse pointer
+        this.card1.x = this.mouse.x;
+        this.card1.y = this.mouse.y;
     }
 
 
     loop ( time ) {
-        let imageData = this.octx.getImageData( this.mouse.x, this.mouse.y, 1, 1 );
-        let [ r, g, b ] = imageData.data;
-
         super.loop( time );
 
+        // update card exponential animation
+        this.card1.update( this.deltaTime );
+
+        // draw the card
+        // this.card1.transform( this.card1.draw, this );
+        // another way to do it :
+        this.card1.transform( ( self ) => {
+            self.card1.draw( self );
+        }, this );
+
         // detect if mouse pointer is hovering something
-        for (let i = 0; i < this.games.length; i++) {
-            let game = this.games[i];
-            game.hovered = ( r == game.color[0] && g == game.color[1] && b == game.color[2] );
-            this.drawTitles(this.verticalPlace(game.index, this.games.length), game.hovered, game.color, game.label);
+        let imageData = this.octx.getImageData( this.mouse.x, this.mouse.y, 1, 1 );
+        let [ r, g, b ] = imageData.data;
+        // console.log(this.mouse);
+        if ( r == 255 && g == 0 && b == 0 ) {
+            this.card1.size = 1.5;
+        } else {
+            this.card1.size = 1;
         }
+
+        // show debug information
+        this.ctx.font = "50px serif";
+        this.ctx.fillStyle = "#880088";
+        this.ctx.fillText( Math.round( 10000 / this.deltaTime ) / 10 + " fps", 50, 80 );
+        this.ctx.fillText( r + ", " + g + ", " + b, 50, 160 );
+        this.ctx.fillText( this.mouse.x + ", " + this.mouse.y, 50, 240 );
         
         if ( localStorage.getItem( "debug" ) == "true" ) this.debugDraw();
     }
-
-    drawTitles(pos, hovered, hitbox_color, text) {
-        this.ctx.font = "64px Lexend";
-        this.ctx.textAlign = "center";
-        if (hovered) {
-            this.ctx.fillStyle = "#aaaaaa";
-            this.ctx.fillRect(pos[0] - 300, pos[1] - 80, 600, 160);
-        }
-        this.octx.fillStyle = `rgb( ${ hitbox_color[0] }, ${ hitbox_color[1] }, ${ hitbox_color[2] } )`;
-        this.octx.fillRect(pos[0] - 300, pos[1] - 80, 600, 160);
-        this.ctx.fillStyle = "#000000";
-        this.ctx.fillText( text, pos[0], pos[1] + 24 );
-
-    }
-
-    verticalPlace (i, size) {
-        let x = Math.round(this.width / 2);
-        let y = Math.round((i * 2 + 1) * this.height / (size * 2));
-        return [ x, y ];
-    }
 }
+
 
 
 class ExpFollower {

@@ -2,6 +2,8 @@ package dev.FredyRedaTeam.PartyMasterBackend.model;
 
 import java.util.*;
 
+import dev.FredyRedaTeam.PartyMasterBackend.model.Games.loup.LoupGame;
+import dev.FredyRedaTeam.PartyMasterBackend.model.Games.uno.UnoGame;
 import org.json.*;
 
 import java.util.regex.Matcher;
@@ -132,6 +134,14 @@ public class Lobby {
     public void queueEventForAllPlayer(Event event) {
         for (LinkedList<Event> eventQueue : eventQueues.values()) {
             eventQueue.add(event);
+        }
+    }
+
+    public void queueEventForAllPlayer(Event event, UUID except) {
+        for (UUID uuid : eventQueues.keySet()) {
+            if (!uuid.equals(except)) {
+                eventQueues.get(uuid).add(event);
+            }
         }
     }
 
@@ -336,6 +346,28 @@ public class Lobby {
             return new Response(2); // IGNORED
         }
     }
+
+    public void exitGame() {
+        this.game = new LobbyHome();
+        this.game.init(this);
+        this.queueEventForAllPlayer(new GameChangeEvent(this.game.toJson()));
+    }
+
+    public static final String[] games = {"Uno", "Loup", "Question"};
+    public void startGame(int i) {
+        startGame(games[i]);
+    }
+    public void startGame(String gameName) {
+        this.game = switch (gameName) {
+            case "Uno" -> new UnoGame();
+            case "Loup" -> new LoupGame();
+            case "Question" -> new LobbyHome(); // TODO: merge le jeu de Reda
+            case null, default -> new LobbyHome(); // fallback
+        };
+        this.game.init(this);
+        this.queueEventForAllPlayer(new GameChangeEvent(this.game.toJson()));
+    }
+
 
     public Response sendMessage(Action action) {
         String content = action.getData().getString("content"); // TODO: Ignore the action if the message is empty
