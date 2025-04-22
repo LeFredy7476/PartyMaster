@@ -23,6 +23,8 @@ public class LoupGame implements Game {
     private UUID protege=null;
     private UUID connaisseur = null;
     private UUID loupBlanc;
+    private UUID amoureuxA;
+    private UUID amoureuxB;
 
     private boolean isVoyanteAlive() {
         for (UUID uuid : vivants) {
@@ -358,7 +360,9 @@ public class LoupGame implements Game {
             UUID targetA= UUID.fromString(action.getData().getString("targetA"));
             UUID targetB = UUID.fromString(action.getData().getString("targetB"));
             joueurs.get(targetA).setAmour(targetB);
+            amoureuxA=targetA;
             joueurs.get(targetB).setAmour(targetA);
+            amoureuxB=targetB;
             
             this.gameState = GameState.VOYANTE_CHOIX;
             this.nextGameState = GameState.VOYANTE_REVELATION;
@@ -634,8 +638,26 @@ public class LoupGame implements Game {
         });
         object.put("joueurs",joueurs);
 
+        JSONObject vote =new JSONObject();
+        this.vote.forEach((uuid, uuid2) -> {vote.put(uuid.toString(),uuid2.toString());
+        });
+        object.put("vote",vote);
 
+        JSONArray vivant=new JSONArray();
+        this.vivants.forEach(uuid -> {vivant.put(uuid.toString()); });
+        object.put("vivant",vivant);
 
+        JSONArray loup=new JSONArray();
+        this.loups.forEach(uuid -> {loup.put(uuid.toString()); });
+        object.put("loup",loup);
+
+        object.put("connaisseur",this.connaisseur);
+
+        object.put("loupBlanc",this.loupBlanc);
+
+        object.put("amoureuxA",this.amoureuxA);
+
+        object.put("amoureuxB",this.amoureuxB);
 
         return object;
     }
@@ -650,11 +672,12 @@ public class LoupGame implements Game {
         }
         out.put("alive", joueur.isVivant());
         if (joueur.getAmour() == null) {
-                                                    //si célibataire sa l'inscrit comme null sinon sa met son amoureux
+            //si célibataire sa l'inscrit comme null sinon sa met son amoureux
             out.put("amour", JSONObject.NULL);
         } else {
             out.put("amour", joueur.getAmour());
         }
+
         return out;
     }
 }

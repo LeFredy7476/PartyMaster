@@ -111,6 +111,40 @@ public class Sql {
         }
         return questionTout;
     }
+    public static ArrayList<QuestionSpe> DonnerQuestionSpeInit()throws Exception{
+        Connection con = null;
+        Properties props = new Properties();
+        PreparedStatement prtm= null;
+        ArrayList<QuestionSpe> questionTout=new ArrayList<>();
+
+        props = Connexion.getProps("./PartyMasterBackend/src/main/resources/application.properties");
+        con= DriverManager.getConnection(props.getProperty("spring.datasource.url"),
+                props.getProperty("spring.datasource.username"),
+                props.getProperty("spring.datasource.password"));
+        String sql="select * from questionspecial ";
+        prtm=con.prepareStatement(sql);
+        ResultSet rs=prtm.executeQuery();
+        try {
+            while (rs.next()){
+                QuestionSpe questionS=new QuestionSpe();
+                questionS.setId(rs.getInt(1));
+                questionS.setQuestion(rs.getString(2));
+                questionS.setReponse1(rs.getString(3));
+                questionS.setNiveauQuestion(rs.getInt(4));
+                questionTout.add(questionS);
+
+            }
+
+
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }finally {
+            con.close();
+            prtm.close();
+
+        }
+        return questionTout;
+    }
 
 
 

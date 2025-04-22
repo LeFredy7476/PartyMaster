@@ -59,6 +59,9 @@ public class QuestionGame implements Game  {
             int indexQuestion = Lobby.random.nextInt(qstListe.size());
             currentQuestion = qstListe.get(indexQuestion);
 
+            ArrayList<QuestionSpe>qstSpeListe=Sql.DonnerQuestionSpeInit();
+            int indexQuestion2=lobby.random.nextInt(qstSpeListe.size());
+            currentQuestionSpe=qstSpeListe.get(indexQuestion2);
 
 
 
@@ -139,6 +142,7 @@ public class QuestionGame implements Game  {
                 );
                 currentQuestion = qstListe.get(question.getId());
                 this.lobby.queueEventForAllPlayer(new StateEvent(GameStateJ.QUESTION));
+                BonneReponse(action,question);
             }else {
                 return new Response();
             }
@@ -163,7 +167,7 @@ public class QuestionGame implements Game  {
                 int indexQuestion = Lobby.random.nextInt(qstListe.size());
                 QuestionSpe kassos = qstListe.get(indexQuestion);
                 this.lobby.queueEvent(uuid,new QuestionSpeEvent(kassos.getId(), kassos.getQuestion(), kassos.getNiveauQuestion()));
-
+                currentQuestionSpe=kassos;
                 BonneReponseSpe(action,kassos,ptint);
                 qstListe.clear();
         }
