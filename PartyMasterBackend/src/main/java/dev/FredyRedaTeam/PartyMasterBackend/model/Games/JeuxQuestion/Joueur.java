@@ -1,5 +1,7 @@
 package dev.FredyRedaTeam.PartyMasterBackend.model.Games.JeuxQuestion;
 
+import org.json.JSONObject;
+
 import java.util.UUID;
 
 public class Joueur {
@@ -10,6 +12,12 @@ public class Joueur {
     public Joueur(UUID uuid, int point ){
         this.uuid=uuid;
         this.point=point;
+    }
+    public JSONObject toJson(){
+        JSONObject object=new JSONObject();
+        object.put("point",this.point);
+        return object;
+
     }
 
 

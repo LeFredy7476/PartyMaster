@@ -5,7 +5,6 @@ import dev.FredyRedaTeam.PartyMasterBackend.model.Game;
 import dev.FredyRedaTeam.PartyMasterBackend.model.Games.LoupGarou.utils.Sql;
 import dev.FredyRedaTeam.PartyMasterBackend.model.Lobby;
 import dev.FredyRedaTeam.PartyMasterBackend.model.Response;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.*;
@@ -13,8 +12,6 @@ import java.util.*;
 public class QuestionGame implements Game  {
     private Lobby lobby;
     private final ArrayList<UUID>contenders=new ArrayList<>();
-    //demander a reda pourquoi un integer si pas compris
-    private Integer lastSpecial=null;
     private GameStateJ gameStateJ=GameStateJ.QUESTION;
     private final HashMap<UUID,Joueur>pointEnter=new HashMap<>();
     private Question currentQuestion;
@@ -23,6 +20,9 @@ public class QuestionGame implements Game  {
     private HashMap<UUID,Long> tempsrecu=new HashMap<>();
     private HashMap<UUID,JSONObject>reponserecu=new HashMap<>();
     private Joueur getJoueur(UUID uuid) {return this.pointEnter.get(uuid);}
+    private final ArrayList<Question>QuestionUsed=new ArrayList<>();
+
+    private final ArrayList<QuestionSpe>QuestionSpeUsed=new ArrayList<>();
 
 
     @Override
@@ -35,8 +35,15 @@ public class QuestionGame implements Game  {
     JSONObject obj=new JSONObject();
 
     JSONObject point=new JSONObject();
-    //this.pointEnter.forEach((uuid, joueur) -> point.put(uuid.toString()));
+    this.pointEnter.forEach((uuid, joueur) -> {point.put(uuid.toString(),joueur.toJson());
+    });
+    obj.put("point",point);
 
+    obj.put("currentQuestion",this.currentQuestion);
+
+    obj.put("currentQuestionSpe",this.currentQuestionSpe);
+
+    obj.put("gagnant",this.gagnant);
     return obj;
     }
 
@@ -58,10 +65,12 @@ public class QuestionGame implements Game  {
             ArrayList<Question>qstListe=Sql.DonnerQuestion();
             int indexQuestion = Lobby.random.nextInt(qstListe.size());
             currentQuestion = qstListe.get(indexQuestion);
+            QuestionUsed.add(currentQuestion);
 
             ArrayList<QuestionSpe>qstSpeListe=Sql.DonnerQuestionSpeInit();
             int indexQuestion2=lobby.random.nextInt(qstSpeListe.size());
             currentQuestionSpe=qstSpeListe.get(indexQuestion2);
+            QuestionSpeUsed.add(currentQuestionSpe);
 
 
 
@@ -69,12 +78,26 @@ public class QuestionGame implements Game  {
             System.out.println(e.getMessage());
         }
 
-
     }
-    public void ReceiveAction(Action action){
+    public Response ReceiveAction(Action action) throws Exception{
         switch (action.getTarget()[1]){
+            case "state":
+                return new Response(0,this.toJsonMasked(pointEnter.get(action.getUuid())));
+
+            case "question":
+                switch (action.getTarget(2)){
+                    case "receiveResponse":
+                        return BonneReponse(action,currentQuestion);
+
+                }
+            case "special":
+                switch (action.getTarget(2)){
+                    case "receiveResponseSpe":
+                        return BonneReponseSpe(action,currentQuestionSpe);
+                }
 
         }
+        return new Response();
     }
 
     public void setListPlayer(){
@@ -102,31 +125,24 @@ public class QuestionGame implements Game  {
     }
 
 
+public boolean verifQuestionUsed(int chiffre){
+        for (Question question:QuestionUsed){
+            if (question.getId()==chiffre){
+                return false;
 
-
-    public boolean choisirRandomSpe(Lobby lobby){
-        this.lobby=lobby;
-        int choisisQS=Lobby.random.nextInt(contenders.size());
-        if(lastSpecial==choisisQS){
-            choisirRandomSpe(lobby);
-            return false;
+            }
         }
-        else {
-            this.lastSpecial=choisisQS;
-            return true;
-            //appeler la methode pour la question speciale
-        }
+        return true;
+}
 
-    }
+
     public Response question(Action action)throws Exception{
-
-
-
         UUID uuid=action.getUuid();
         if(verifIci(uuid)){
             ArrayList<Question>qstListe=Sql.DonnerQuestion();
             int indexQuestion = Lobby.random.nextInt(qstListe.size());
-            if(currentQuestion.getId()!=indexQuestion) {
+
+            if(verifQuestionUsed(indexQuestion)) {
                 Question question = qstListe.get(indexQuestion);
                 this.lobby.queueEvent(uuid,
 
@@ -143,8 +159,9 @@ public class QuestionGame implements Game  {
                 currentQuestion = qstListe.get(question.getId());
                 this.lobby.queueEventForAllPlayer(new StateEvent(GameStateJ.QUESTION));
                 BonneReponse(action,question);
+                QuestionUsed.add(currentQuestion);
             }else {
-                return new Response();
+                question(action);
             }
 
 
@@ -157,19 +174,19 @@ public class QuestionGame implements Game  {
     }
     public Response questionspe(Action action)throws Exception{
         UUID uuid=action.getUuid();
-        JSONObject ptJoueur=action.getData();
-        int ptint=ptJoueur.getInt("niveau");
-
-        if (verifIci(uuid) && choisirRandomSpe(lobby)){
-            ArrayList<QuestionSpe>qstListe=Sql.DonnerQuestionSpe(ptint);
-
-
-                int indexQuestion = Lobby.random.nextInt(qstListe.size());
+        int ptint=Lobby.random.nextInt(3);
+        ArrayList<QuestionSpe>qstListe=Sql.DonnerQuestionSpe(ptint);
+        int indexQuestion = Lobby.random.nextInt(qstListe.size());
+        if (verifIci(uuid)){
+            if (currentQuestionSpe.getId()!=indexQuestion) {
                 QuestionSpe kassos = qstListe.get(indexQuestion);
-                this.lobby.queueEvent(uuid,new QuestionSpeEvent(kassos.getId(), kassos.getQuestion(), kassos.getNiveauQuestion()));
-                currentQuestionSpe=kassos;
-                BonneReponseSpe(action,kassos,ptint);
+                this.lobby.queueEvent(uuid, new QuestionSpeEvent(kassos.getId(), kassos.getQuestion(), kassos.getNiveauQuestion()));
+                currentQuestionSpe = kassos;
+                BonneReponseSpe(action, kassos);
                 qstListe.clear();
+            }else {
+                questionspe(action);
+            }
         }
         return new Response();
     }
@@ -227,8 +244,8 @@ public class QuestionGame implements Game  {
         }
 
 
-    public Response BonneReponseSpe(Action action,QuestionSpe question,int ptint)throws Exception{
-        long now = System.currentTimeMillis();
+    public Response BonneReponseSpe(Action action,QuestionSpe question)throws Exception{
+
         UUID uuid=action.getUuid();
         //reponseJoueur est la reponse en json et target la transforme en String
         JSONObject reponseJoueur=action.getData();
@@ -239,7 +256,7 @@ public class QuestionGame implements Game  {
             if(reponserecu.containsKey(uuid)){
                 return new Response();
             }
-            tempsrecu.put(uuid,now);
+
             reponserecu.put(uuid,reponseJoueur);
 
             if (target.equals(question.getReponse1())){
@@ -263,7 +280,7 @@ public class QuestionGame implements Game  {
 
                         if (uuid.equals(gagnant)){
                             Joueur joueur=getJoueur(uuid);
-                            joueur.addPoint(ptint);
+                            joueur.addPoint(question.getNiveauQuestion());
                         }
                         else {
                             for (Map.Entry<UUID,JSONObject> truc:reponserecu.entrySet()) {
@@ -271,7 +288,7 @@ public class QuestionGame implements Game  {
                                 UUID challenger=truc.getKey();
                                 if (!challenger.equals(gagnant) && reponseTruc!= null) {
                                     Joueur joueur=getJoueur(challenger);
-                                    joueur.removePoint(ptint);
+                                    joueur.removePoint(question.getNiveauQuestion());
                                 }
                                 else {
                                     continue;
@@ -297,8 +314,5 @@ public JSONObject toJsonMasked(Joueur joueur){
         out.put("questionSpeciale",currentQuestionSpe);
         return out;
 }
-    public static void main(String[] args) throws Exception{
 
-
-    }
 }

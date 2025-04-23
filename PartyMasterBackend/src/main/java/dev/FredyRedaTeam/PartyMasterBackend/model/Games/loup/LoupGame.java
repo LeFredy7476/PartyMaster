@@ -282,7 +282,8 @@ public class LoupGame implements Game {
                 if (endVoteVerif) {
                     UUID chosenOne = resolveVote();
                     if (chosenOne != null) {
-
+                        this.lobby.queueEvent(connaisseur, new RevelationEvent(target, joueurs.get(target).getRole(), "traitre"));
+                        this.lobby.queueEventForAllPlayer( new DeathEvent(chosenOne,System.currentTimeMillis()));
                         // TODO: faire en sorte que la mise à mort se fasse au lever du jour
 
                         if (killJoueur(chosenOne)) {

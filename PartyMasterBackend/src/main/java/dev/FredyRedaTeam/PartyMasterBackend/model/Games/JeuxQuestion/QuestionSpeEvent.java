@@ -30,6 +30,11 @@ public class QuestionSpeEvent implements Event {
 
     @Override
     public JSONObject toJson(UUID uuid) {
-        return null;
+        JSONObject object=new JSONObject();
+        object.put("id",this.id);
+        object.put("question",this.question);
+        object.put("niveauQuestion",this.niveauQuestion);
+        object.put("type",getType());
+        return object;
     }
 }
