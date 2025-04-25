@@ -64,12 +64,12 @@ public class QuestionGame implements Game  {
         try {
             ArrayList<Question>qstListe=Sql.DonnerQuestion();
             int indexQuestion = Lobby.random.nextInt(qstListe.size());
-            currentQuestion = qstListe.get(indexQuestion);
+            this.currentQuestion = qstListe.get(indexQuestion);
             QuestionUsed.add(currentQuestion);
 
             ArrayList<QuestionSpe>qstSpeListe=Sql.DonnerQuestionSpeInit();
             int indexQuestion2=lobby.random.nextInt(qstSpeListe.size());
-            currentQuestionSpe=qstSpeListe.get(indexQuestion2);
+            this.currentQuestionSpe=qstSpeListe.get(indexQuestion2);
             QuestionSpeUsed.add(currentQuestionSpe);
 
 
@@ -127,13 +127,22 @@ public class QuestionGame implements Game  {
 
 public boolean verifQuestionUsed(int chiffre){
         for (Question question:QuestionUsed){
-            if (question.getId()==chiffre){
+            if (question.getId()==chiffre&&chiffre==currentQuestion.getId()){
                 return false;
 
             }
         }
         return true;
 }
+    public boolean verifQuestionSpeUsed(int chiffre){
+        for (QuestionSpe question:QuestionSpeUsed){
+            if (question.getId()==chiffre&&chiffre==currentQuestionSpe.getId()){
+                return false;
+
+            }
+        }
+        return true;
+    }
 
 
     public Response question(Action action)throws Exception{
@@ -156,7 +165,7 @@ public boolean verifQuestionUsed(int chiffre){
                                 question.getTypeQuestion()
                         )
                 );
-                currentQuestion = qstListe.get(question.getId());
+                this.currentQuestion = qstListe.get(question.getId());
                 this.lobby.queueEventForAllPlayer(new StateEvent(GameStateJ.QUESTION));
                 BonneReponse(action,question);
                 QuestionUsed.add(currentQuestion);
@@ -178,12 +187,12 @@ public boolean verifQuestionUsed(int chiffre){
         ArrayList<QuestionSpe>qstListe=Sql.DonnerQuestionSpe(ptint);
         int indexQuestion = Lobby.random.nextInt(qstListe.size());
         if (verifIci(uuid)){
-            if (currentQuestionSpe.getId()!=indexQuestion) {
+            if (verifQuestionUsed(indexQuestion)) {
                 QuestionSpe kassos = qstListe.get(indexQuestion);
                 this.lobby.queueEvent(uuid, new QuestionSpeEvent(kassos.getId(), kassos.getQuestion(), kassos.getNiveauQuestion()));
-                currentQuestionSpe = kassos;
+                this.currentQuestionSpe = kassos;
                 BonneReponseSpe(action, kassos);
-                qstListe.clear();
+                this.lobby.queueEventForAllPlayer(new StateEvent(GameStateJ.QUESTION_SPECIAL));
             }else {
                 questionspe(action);
             }
@@ -209,11 +218,11 @@ public boolean verifQuestionUsed(int chiffre){
             reponserecu.put(uuid,reponseJoueur);
 
             if (target.equals(question.getBonneReponse())){
-                if (gagnant!=null){
+                if ( this.gagnant!=null){
                     return new Response();
                 }
-                else if (gagnant==null){
-                    gagnant=uuid;
+                else if (this.gagnant==null){
+                    this.gagnant=uuid;
                     //methode pour boucler avec for trouver sur internet
                     for (Map.Entry<UUID,JSONObject> truc:reponserecu.entrySet()){
                         UUID challenger=truc.getKey();
@@ -222,13 +231,14 @@ public boolean verifQuestionUsed(int chiffre){
                         //verifie que sa challenge pas contre lui meme
                             if (!challenger.equals(uuid)&&reponseTruc.equals(question.getBonneReponse())){
                                 if (tempsrecu.get(challenger)<tempsrecu.get(uuid)){
-                                    gagnant=challenger;
+                                    this.gagnant=challenger;
                                 }
                             }
                     }
                     if (uuid.equals(gagnant)){
                             Joueur joueur=getJoueur(uuid);
                                 joueur.addPoint(1);
+                        lobby.queueEvent(uuid,new StateEvent(GameStateJ.REVELATIONBM));
                             }
 
                 }
@@ -237,9 +247,10 @@ public boolean verifQuestionUsed(int chiffre){
         else {
                 System.out.println("mauvaise reponse ");
             }
-        gagnant=null;
+        this.gagnant=null;
         tempsrecu.clear();
         reponserecu.clear();
+
         return new Response();
         }
 
@@ -260,11 +271,11 @@ public boolean verifQuestionUsed(int chiffre){
             reponserecu.put(uuid,reponseJoueur);
 
             if (target.equals(question.getReponse1())){
-                if (gagnant!=null){
+                if ( this.gagnant!=null){
                     return new Response();
                 }
-               else if (gagnant==null){
-                    gagnant=uuid;
+               else if ( this.gagnant==null){
+                    this.gagnant=uuid;
                     //methode pour boucler avec for trouver sur internet
                     for (Map.Entry<UUID,JSONObject> truc:reponserecu.entrySet()){
                         UUID challenger=truc.getKey();
@@ -273,22 +284,25 @@ public boolean verifQuestionUsed(int chiffre){
                         //verifie que sa challenge pas contre lui meme
                         if (!challenger.equals(uuid)&&reponseTruc.equals(question.getReponse1())){
                             if (tempsrecu.get(challenger)<tempsrecu.get(uuid)){
-                                gagnant=challenger;
+                                this.gagnant=challenger;
+
                             }
                         }
                     }
 
-                        if (uuid.equals(gagnant)){
+                        if (uuid.equals( this.gagnant)){
                             Joueur joueur=getJoueur(uuid);
                             joueur.addPoint(question.getNiveauQuestion());
+                            lobby.queueEvent(uuid,new StateEvent(GameStateJ.REVELATIONQSBM));
                         }
                         else {
                             for (Map.Entry<UUID,JSONObject> truc:reponserecu.entrySet()) {
                                 String reponseTruc=truc.getValue().getString("target");
                                 UUID challenger=truc.getKey();
-                                if (!challenger.equals(gagnant) && reponseTruc!= null) {
+                                if (!challenger.equals( this.gagnant) && reponseTruc!= null) {
                                     Joueur joueur=getJoueur(challenger);
                                     joueur.removePoint(question.getNiveauQuestion());
+                                    lobby.queueEvent(uuid,new StateEvent(GameStateJ.REVELATIONQSBM));
                                 }
                                 else {
                                     continue;
@@ -301,7 +315,7 @@ public boolean verifQuestionUsed(int chiffre){
                 System.out.println("mauvaise reponse ");
             }return new Response();
         }
-        gagnant=null;
+        this.gagnant=null;
         tempsrecu.clear();
         reponserecu.clear();
         return new Response();

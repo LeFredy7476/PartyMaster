@@ -283,7 +283,7 @@ public class LoupGame implements Game {
                     UUID chosenOne = resolveVote();
                     if (chosenOne != null) {
                         this.lobby.queueEvent(connaisseur, new RevelationEvent(target, joueurs.get(target).getRole(), "traitre"));
-                        this.lobby.queueEventForAllPlayer( new DeathEvent(chosenOne,System.currentTimeMillis()));
+
                         // TODO: faire en sorte que la mise à mort se fasse au lever du jour
 
                         if (killJoueur(chosenOne)) {
@@ -518,12 +518,15 @@ public class LoupGame implements Game {
 
         joueurs.get(uuid).setVivant(false);
         vivants.remove(uuid);
+        this.lobby.queueEventForAllPlayer( new DeathEvent(uuid,System.currentTimeMillis()));
         boolean _continue = true;
+        DecideWinner();
 
         if (joueurs.get(uuid).getRole().equals(Role.CHASSEUR)) {
             this.gameState = GameState.CHASSEUR_CHOIX;
             lobby.queueEventForAllPlayer(new StateEvent(GameState.CHASSEUR_CHOIX));
             _continue = false;
+            DecideWinner();
         }
 
         if(joueurs.get(uuid).getAmour() != null) {
@@ -532,9 +535,12 @@ public class LoupGame implements Game {
 
             joueurs.get(uuid).setVivant(false);
             vivants.remove(uuid);
+            DecideWinner();
+            this.lobby.queueEventForAllPlayer( new DeathEvent(uuid,System.currentTimeMillis()));
 
             if (joueurs.get(uuid).getRole().equals(Role.CHASSEUR)) {
                 this.gameState = GameState.CHASSEUR_CHOIX;
+                DecideWinner();
                 lobby.queueEventForAllPlayer(new StateEvent(GameState.CHASSEUR_CHOIX));
                 _continue = false;
             }
@@ -567,10 +573,7 @@ public class LoupGame implements Game {
         }
     }
 
-    public Response DecideWinner(Action action){
-
-
-
+    public Response DecideWinner(){
 
            if(VillageWinner()){
                this.gameState = GameState.RESULTAT;
@@ -587,7 +590,7 @@ public class LoupGame implements Game {
            if (LoupBlancWinner()) {
                this.gameState = GameState.RESULTAT;
                lobby.queueEventForAllPlayer(new StateEvent(GameState.RESULTAT));
-               this.lobby.queueEventForAllPlayer( new WinnerEvent("Loup Blanc",System.currentTimeMillis()));
+               this.lobby.queueEventForAllPlayer( new WinnerEvent("loupBlanc",System.currentTimeMillis()));
            }
            else {
                this.gameState=GameState.VILLAGE_EXECUTION;
@@ -610,7 +613,7 @@ public class LoupGame implements Game {
         for (UUID uuid1:vivants){
             if(joueurs.get(uuid1).getRole().equals(Role.LOUPGAROUX)
                     && !joueurs.get(uuid1).getRole().equals(Role.LOUPBLANC)
-                    && loups.size()>=vivants.size()/loups.size()
+                    && loups.size() > (vivants.size() - loups.size())
 
             ){
                 return true;
