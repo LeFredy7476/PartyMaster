@@ -65,7 +65,7 @@ export default class LobbyHome extends CanvasHandler {
         for (let i = 0; i < this.games.length; i++) {
             let game = this.games[i];
             game.hovered = ( r == game.color[0] && g == game.color[1] && b == game.color[2] );
-            // console.log(this.data == this.app.gameData == this.app.data.game.data != this.app.data);
+            // console.log(this.data == this.app.gameData == this.app.data.game.data != this.app.data); // this log true
             this.drawTitles(this.verticalPlace(game.index, this.games.length), game.hovered, game.color, game.label, game.index == this.data.selected_game);
         }
 
