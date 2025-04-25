@@ -575,16 +575,19 @@ public class LoupGame implements Game {
            if(VillageWinner()){
                this.gameState = GameState.RESULTAT;
                lobby.queueEventForAllPlayer(new StateEvent(GameState.RESULTAT));
+               this.lobby.queueEventForAllPlayer( new WinnerEvent("Village",System.currentTimeMillis()));
            }
 
            if (LoupGarouWinner()){
                this.gameState = GameState.RESULTAT;
                lobby.queueEventForAllPlayer(new StateEvent(GameState.RESULTAT));
+               this.lobby.queueEventForAllPlayer( new WinnerEvent("loups",System.currentTimeMillis()));
            }
 
            if (LoupBlancWinner()) {
                this.gameState = GameState.RESULTAT;
                lobby.queueEventForAllPlayer(new StateEvent(GameState.RESULTAT));
+               this.lobby.queueEventForAllPlayer( new WinnerEvent("Loup Blanc",System.currentTimeMillis()));
            }
            else {
                this.gameState=GameState.VILLAGE_EXECUTION;
