@@ -18,7 +18,8 @@ function Lobby({ connected, setconnected }) {
         "timestamp": 0,
         "lobby_master": null,
         "players": {},
-        "game": {},
+        "game": null,
+        "gameData": null,
         "chat": [],
         "msg": ""
     });
@@ -48,6 +49,11 @@ function Lobby({ connected, setconnected }) {
                         delete data.players[e.target];
                     });
                 }
+            } else if (e.type == "LobbyHome.HighlightEvent") {
+                console.log("game got selected: " + e.game);
+                app.updateData((data) => {
+                    data.gameData.selected_game = e.game;
+                });
             }
             // app.updateData((data) => {});
         },
@@ -97,27 +103,35 @@ function Lobby({ connected, setconnected }) {
     }
 
     useEffect(function(){
-        axios.get(
-            app.host + ":8080/" + room + "/state?uuid=" + localStorage.getItem("uuid")
-        ).then((response) => {
-            if (response.data.room == "") {
-                window.location.assign(window.location.protocol + "//" + window.location.hostname + "/");
-                // window.location.reload();
-            }
+        if (app.data.gameData == null) {
+            axios.get(
+                app.host + ":8080/" + room + "/state?uuid=" + localStorage.getItem("uuid")
+            ).then((response) => {
+                if (response.data.room == "") {
+                    window.location.assign(window.location.protocol + "//" + window.location.hostname + "/");
+                    // window.location.reload();
+                }
 
-            let game = new games.LobbyHome( app, response.data.game );
-            
-            updateData((data) => {
-                data.chat = response.data.chat;
-                data.game = game;
-                data.lobby_master = response.data.lobby_master;
-                data.players = response.data.players;
-                data.room = response.data.room;
+                let _game = new games.LobbyHome( app, response.data.game );
+                updateData((data) => {
+                    data.chat = response.data.chat;
+                    data.game = _game;
+                    data.gameData = response.data.game;
+                    data.lobby_master = response.data.lobby_master;
+                    data.players = response.data.players;
+                    data.room = response.data.room;
+                });
+                _game.init();
             });
-            game.init()
-        });
-        return function(){}
-    }, []);
+        } else {
+            app.data.game.update(app, app.data.gameData);
+        }
+        return function(){
+            // if (app.data.game) {
+            //     app.data.game.stop();
+            // }
+        }
+    }, [app.data]);
 
     useEffect(function(){
         let attempt = 0;
