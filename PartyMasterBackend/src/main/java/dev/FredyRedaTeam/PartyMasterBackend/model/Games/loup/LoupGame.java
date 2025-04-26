@@ -658,6 +658,8 @@ public class LoupGame implements Game {
         this.loups.forEach(uuid -> {loup.put(uuid.toString()); });
         object.put("loup",loup);
 
+        object.put("manche",this.manche);
+
         object.put("connaisseur",this.connaisseur);
 
         object.put("loupBlanc",this.loupBlanc);

@@ -6,9 +6,9 @@ import org.json.JSONObject;
 import java.util.UUID;
 
 public class QuestionSpeEvent implements Event {
-    private int id;
-    private String question;
-    private int niveauQuestion;
+    private final int  id;
+    private final String question;
+    private final  int niveauQuestion;
 
     public QuestionSpeEvent(int id,String question,int niveauQuestion){
         this.id=id;

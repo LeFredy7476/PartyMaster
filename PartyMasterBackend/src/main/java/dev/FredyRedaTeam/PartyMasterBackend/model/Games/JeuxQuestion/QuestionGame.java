@@ -21,8 +21,8 @@ public class QuestionGame implements Game  {
     private HashMap<UUID,JSONObject>reponserecu=new HashMap<>();
     private Joueur getJoueur(UUID uuid) {return this.pointEnter.get(uuid);}
     private final ArrayList<Question>QuestionUsed=new ArrayList<>();
-
     private final ArrayList<QuestionSpe>QuestionSpeUsed=new ArrayList<>();
+    private int nbrQuestion=0 ;
 
 
     @Override
@@ -87,13 +87,21 @@ public class QuestionGame implements Game  {
             case "question":
                 switch (action.getTarget(2)){
                     case "receiveResponse":
-                        return BonneReponse(action,currentQuestion);
+                        if(nbrQuestion<=5){
+                            return question(action);
+
+                        }else {
+                            return questionspe(action);
+                        }
+
+
 
                 }
             case "special":
                 switch (action.getTarget(2)){
                     case "receiveResponseSpe":
-                        return BonneReponseSpe(action,currentQuestionSpe);
+                        return questionspe(action);
+
                 }
 
         }
@@ -125,9 +133,9 @@ public class QuestionGame implements Game  {
     }
 
 
-public boolean verifQuestionUsed(int chiffre){
+public  boolean verifQuestionUsed(int chiffre){
         for (Question question:QuestionUsed){
-            if (question.getId()==chiffre&&chiffre==currentQuestion.getId()){
+            if (question.getId()==chiffre||chiffre==currentQuestion.getId()&&currentQuestion!=null){
                 return false;
 
             }
@@ -136,7 +144,7 @@ public boolean verifQuestionUsed(int chiffre){
 }
     public boolean verifQuestionSpeUsed(int chiffre){
         for (QuestionSpe question:QuestionSpeUsed){
-            if (question.getId()==chiffre&&chiffre==currentQuestionSpe.getId()){
+            if (question.getId()==chiffre||chiffre==currentQuestionSpe.getId()&&currentQuestionSpe!=null){
                 return false;
 
             }
@@ -147,13 +155,14 @@ public boolean verifQuestionUsed(int chiffre){
 
     public Response question(Action action)throws Exception{
         UUID uuid=action.getUuid();
-        if(verifIci(uuid)){
-            ArrayList<Question>qstListe=Sql.DonnerQuestion();
+        ArrayList<Question>qstListe=Sql.DonnerQuestion();
+        if(verifIci(uuid)&&!qstListe.isEmpty()){
+
             int indexQuestion = Lobby.random.nextInt(qstListe.size());
 
             if(verifQuestionUsed(indexQuestion)) {
                 Question question = qstListe.get(indexQuestion);
-                this.lobby.queueEvent(uuid,
+                this.lobby.queueEventForAllPlayer(
 
                         new QuestionEvent(
                                 question.getId(),
@@ -187,9 +196,9 @@ public boolean verifQuestionUsed(int chiffre){
         ArrayList<QuestionSpe>qstListe=Sql.DonnerQuestionSpe(ptint);
         int indexQuestion = Lobby.random.nextInt(qstListe.size());
         if (verifIci(uuid)){
-            if (verifQuestionUsed(indexQuestion)) {
+            if (verifQuestionSpeUsed(indexQuestion)) {
                 QuestionSpe kassos = qstListe.get(indexQuestion);
-                this.lobby.queueEvent(uuid, new QuestionSpeEvent(kassos.getId(), kassos.getQuestion(), kassos.getNiveauQuestion()));
+                this.lobby.queueEventForAllPlayer( new QuestionSpeEvent(kassos.getId(), kassos.getQuestion(), kassos.getNiveauQuestion()));
                 this.currentQuestionSpe = kassos;
                 BonneReponseSpe(action, kassos);
                 this.lobby.queueEventForAllPlayer(new StateEvent(GameStateJ.QUESTION_SPECIAL));
@@ -238,7 +247,7 @@ public boolean verifQuestionUsed(int chiffre){
                     if (uuid.equals(gagnant)){
                             Joueur joueur=getJoueur(uuid);
                                 joueur.addPoint(1);
-                        lobby.queueEvent(uuid,new StateEvent(GameStateJ.REVELATIONBM));
+                        lobby.queueEventForAllPlayer(new StateEvent(GameStateJ.REVELATIONBM));
                             }
 
                 }
@@ -293,7 +302,7 @@ public boolean verifQuestionUsed(int chiffre){
                         if (uuid.equals( this.gagnant)){
                             Joueur joueur=getJoueur(uuid);
                             joueur.addPoint(question.getNiveauQuestion());
-                            lobby.queueEvent(uuid,new StateEvent(GameStateJ.REVELATIONQSBM));
+                            lobby.queueEventForAllPlayer(new StateEvent(GameStateJ.REVELATIONQSBM));
                         }
                         else {
                             for (Map.Entry<UUID,JSONObject> truc:reponserecu.entrySet()) {
@@ -302,7 +311,7 @@ public boolean verifQuestionUsed(int chiffre){
                                 if (!challenger.equals( this.gagnant) && reponseTruc!= null) {
                                     Joueur joueur=getJoueur(challenger);
                                     joueur.removePoint(question.getNiveauQuestion());
-                                    lobby.queueEvent(uuid,new StateEvent(GameStateJ.REVELATIONQSBM));
+                                    lobby.queueEventForAllPlayer(new StateEvent(GameStateJ.REVELATIONQSBM));
                                 }
                                 else {
                                     continue;
