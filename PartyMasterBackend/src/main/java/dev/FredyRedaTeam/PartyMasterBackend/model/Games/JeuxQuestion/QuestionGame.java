@@ -178,6 +178,7 @@ public  boolean verifQuestionUsed(int chiffre){
                 this.lobby.queueEventForAllPlayer(new StateEvent(GameStateJ.QUESTION));
                 BonneReponse(action,question);
                 QuestionUsed.add(currentQuestion);
+                this.nbrQuestion++;
             }else {
                 question(action);
             }
@@ -202,6 +203,7 @@ public  boolean verifQuestionUsed(int chiffre){
                 this.currentQuestionSpe = kassos;
                 BonneReponseSpe(action, kassos);
                 this.lobby.queueEventForAllPlayer(new StateEvent(GameStateJ.QUESTION_SPECIAL));
+                this.nbrQuestion=0;
             }else {
                 questionspe(action);
             }
