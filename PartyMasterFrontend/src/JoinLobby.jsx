@@ -63,7 +63,7 @@ function JoinLobby({ connected, setconnected }) {
             }}/>
             <button className="form-button" id="join" onClick={function() {
                 if (name != "") {
-                    let uuid = localStorage.getItem("uuid");
+                    let uuid = sessionStorage.getItem("uuid");
                     axios.post(
                         "http://" + window.location.hostname + ":8080/" + room + "/send",
                         {
@@ -77,8 +77,8 @@ function JoinLobby({ connected, setconnected }) {
                     ).then(function (response) {
                         if (response.data.code === 0) {
                             setconnected(true);
-                            localStorage.setItem("uuid", response.data.data.uuid)
-                            localStorage.setItem("name", response.data.data.name)
+                            sessionStorage.setItem("uuid", response.data.data.uuid)
+                            sessionStorage.setItem("name", response.data.data.name)
                             navigate("/" + room);
                         } else if (response.data.code === 3) {
                             if (response.data.data.r == "LobbyFull") {

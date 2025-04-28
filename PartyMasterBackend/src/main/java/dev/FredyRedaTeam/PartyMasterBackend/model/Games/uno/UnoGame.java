@@ -243,6 +243,7 @@ public class UnoGame implements Game {
     public JSONObject toJson() {
 
         JSONObject obj = new JSONObject();
+        obj.put("type", getType());
 
         JSONArray table = new JSONArray();
         this.table.forEach(uuid -> table.put(uuid.toString()));

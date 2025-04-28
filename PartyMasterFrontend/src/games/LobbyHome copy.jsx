@@ -169,7 +169,7 @@ export default class LobbyHome extends CanvasHandler {
         this.ctx.fillText( r + ", " + g + ", " + b, 50, 160 );
         this.ctx.fillText( this.mouse.x + ", " + this.mouse.y, 50, 240 );
         
-        if ( localStorage.getItem( "debug" ) == "true" ) this.debugDraw();
+        if ( sessionStorage.getItem( "debug" ) == "true" ) this.debugDraw();
     }
 }
 

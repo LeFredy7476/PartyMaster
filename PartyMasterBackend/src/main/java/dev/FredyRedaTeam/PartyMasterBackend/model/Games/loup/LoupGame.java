@@ -609,6 +609,7 @@ public class LoupGame implements Game {
 
     public JSONObject toJsonMasked( Joueur joueur ) {
         JSONObject out = new JSONObject();
+        out.put("type", getType());
         out.put("gameState", this.gameState);
         out.put("manche", this.manche);
         out.put("role", joueur.getRole());

@@ -22,14 +22,17 @@ class Button {
 
 export default class LobbyHome extends CanvasHandler {
 
-
     constructor ( app, data ) {
         super( app, data );
         this.games = [
-            new Button("Uno", 0, [10, 0, 0], "UNO", false),
-            new Button("Loup", 1, [20, 0, 0], "LOUP-GAROU", false),
-            new Button("Question", 2, [30, 0, 0], "QUESTIONS", false)
+            new Button("Uno", 0, [50, 0, 0], "UNO", false),
+            new Button("Loup", 1, [100, 0, 0], "LOUP-GAROU", false),
+            new Button("Question", 2, [150, 0, 0], "QUESTIONS", false)
         ];
+    }
+
+    getType() {
+        return "LobbyHome"
     }
     
     onclick ( event ) {
@@ -48,6 +51,17 @@ export default class LobbyHome extends CanvasHandler {
                 break;
             }
         }
+
+        if (this.isHovered([ 0, 0, 255 ])) {
+            this.app.packAction(
+                "game:apply",
+                {}
+            ).then((response) => {
+                if (response.data.code != 0) {
+                    ErrorHandler(response);
+                }
+            }).catch(ErrorHandler);
+        }
     }
 
     onmousemove ( event ) {
@@ -56,42 +70,48 @@ export default class LobbyHome extends CanvasHandler {
 
 
     loop ( time ) {
-        let imageData = this.octx.getImageData( this.mouse.x, this.mouse.y, 1, 1 );
-        let [ r, g, b ] = imageData.data;
 
         super.loop( time );
 
         // detect if mouse pointer is hovering something
         for (let i = 0; i < this.games.length; i++) {
             let game = this.games[i];
-            game.hovered = ( r == game.color[0] && g == game.color[1] && b == game.color[2] );
+            game.hovered = this.isHovered( game.color );
             // console.log(this.data == this.app.gameData == this.app.data.game.data != this.app.data); // this log true
             this.drawTitles(this.verticalPlace(game.index, this.games.length), game.hovered, game.color, game.label, game.index == this.data.selected_game);
         }
 
-        this.ctx.textAlign = "right";
-        this.ctx.font = "48px Lexend";
-        let jouerMesure = this.ctx.measureText("JOUER");
-        this.ctx.fillStyle = "#ffc639";
-        this.ctx.lineJoin = "round";
-        this.ctx.lineWidth = 8;
-        this.ctx.strokeStyle = "#ffc639";
-        this.ctx.strokeRect(this.width - 12, this.height - 12, -jouerMesure.width, -34);
-        this.ctx.fillRect(this.width - 12, this.height - 12, -jouerMesure.width, -34);
-        this.ctx.fillStyle = "#000000";
-        this.ctx.fillText("JOUER", this.width - 12, this.height - 12);
-
+        // bouton JOUER
+        if (this.app.isLobbyMaster()) {
+            this.ctx.textAlign = "right";
+            this.ctx.font = "48px Lexend";
+            let jouerMesure = this.ctx.measureText("JOUER");
+            this.ctx.fillStyle = this.isHovered([0,0,255]) ? "#fc4c4c" : this.toRGB(255, 198, 57);
+            this.ctx.lineJoin = "round";
+            this.ctx.lineWidth = 8;
+            this.ctx.strokeStyle = this.isHovered([0,0,255]) ? "#fc4c4c" : this.toRGB(255, 198, 57);
+            this.ctx.fillRect(this.width - 12, this.height - 12, -jouerMesure.width - 32, -68);
+            this.ctx.strokeRect(this.width - 12, this.height - 12, -jouerMesure.width - 32, -68);
+            this.octx.lineJoin = "round";
+            this.octx.lineWidth = 8;
+            this.octx.fillStyle = this.toRGB(0, 0, 255);
+            this.octx.strokeStyle = this.toRGB(0, 0, 255);
+            this.octx.fillRect(this.width - 12, this.height - 12, -jouerMesure.width - 32, -68);
+            this.octx.strokeRect(this.width - 12, this.height - 12, -jouerMesure.width - 32, -68);
+            this.ctx.fillStyle = this.toRGB(0, 0, 0);
+            this.ctx.fillText("JOUER", this.width - 28, this.height - 28);
+        }
         // console.log(this.app)
         // this.ctx.fillText(this.app.data.msg, 50, 50);
         // show debug information
         this.ctx.textAlign = "left"
         this.ctx.font = "50px serif";
-        this.ctx.fillStyle = "#880088";
+        this.ctx.fillStyle = this.toRGB(127, 127, 127);
         this.ctx.fillText( Math.round( 10000 / this.deltaTime ) / 10 + " fps", 50, 80 );
-        this.ctx.fillText( r + ", " + g + ", " + b, 50, 160 );
+        this.ctx.fillText( this.hover[0] + ", " + this.hover[1] + ", " + this.hover[2], 50, 160 );
         this.ctx.fillText( this.mouse.x + ", " + this.mouse.y, 50, 240 );
         
-        if ( localStorage.getItem( "debug" ) == "true" ) this.debugDraw();
+        if ( sessionStorage.getItem( "debug" ) == "true" ) this.debugDraw();
     }
 
     drawTitles(pos, hovered, hitbox_color, text, selected) {

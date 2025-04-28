@@ -12,7 +12,7 @@ export default function Player({uuid, app}) {
 
         let player = app.data.players[uuid];
         // console.log(app.data.lobby_master);
-        // console.log(localStorage.getItem("uuid"));
+        // console.log(sessionStorage.getItem("uuid"));
 
         return (
             <div className="player">
@@ -21,7 +21,7 @@ export default function Player({uuid, app}) {
                     {player.name} 
                     {app.data.lobby_master == player.uuid ? <img src={pm} width="16" height="16" className="player-master" draggable="false"/> : <></>}
                     {
-                        app.data.lobby_master == localStorage.getItem("uuid") ?
+                        app.data.lobby_master == sessionStorage.getItem("uuid") ?
                         <button className="player-kick" onClick={(e) => {
                             app.kickPlayer(uuid);
                         }}>retirer <span className="micon">block</span></button> :
