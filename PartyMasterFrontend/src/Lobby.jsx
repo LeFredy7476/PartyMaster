@@ -109,7 +109,7 @@ function Lobby({ connected, setconnected }) {
         },
         TerminationEvent(event) {
             if (event.target == sessionStorage.getItem("uuid")) {
-                app.data.game.stop();
+                // app.data.game.stop();
                 navigate("/");
             } else {
                 app.updateData((data) => {
@@ -120,6 +120,9 @@ function Lobby({ connected, setconnected }) {
         GameChangeEvent(event) {
             console.log("A new game has began: " + event.game.type);
             // let gameType = games[event.game.type];
+            console.log(app);
+            if (app.data.game) app.data.game.stop();
+            if (app.data.game) app.data.game.update( app, app.data.gameData );
             console.log("game updating");
             let game;
             if (event.game.type == "LobbyHome") {
@@ -165,7 +168,7 @@ function Lobby({ connected, setconnected }) {
                     window.location.assign(window.location.protocol + "//" + window.location.hostname + "/");
                     // window.location.reload();
                 }
-
+                if (app.data.game) app.data.game.stop();
                 let _game = new games.LobbyHome( app, response.data.game );
                 updateData((data) => {
                     data.chat = response.data.chat;
@@ -198,6 +201,7 @@ function Lobby({ connected, setconnected }) {
                 response.data.forEach(app.receiveEvent);
                 attempt = 0;
             }).catch((error) => {
+                console.error(error);
                 attempt++;
                 if (attempt > 5) {
                     alert("Erreur de serveur.");
@@ -209,7 +213,7 @@ function Lobby({ connected, setconnected }) {
         return function() {
             clearInterval(interval);
         }
-    }, []);
+    }, [app.data]);
 
     return (
         <>

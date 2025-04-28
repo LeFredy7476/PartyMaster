@@ -73,6 +73,8 @@ export default class LobbyHome extends CanvasHandler {
 
         super.loop( time );
 
+        // console.log("LobbyHome loop");
+
         // detect if mouse pointer is hovering something
         for (let i = 0; i < this.games.length; i++) {
             let game = this.games[i];
@@ -107,7 +109,7 @@ export default class LobbyHome extends CanvasHandler {
         this.ctx.textAlign = "left"
         this.ctx.font = "50px serif";
         this.ctx.fillStyle = this.toRGB(127, 127, 127);
-        this.ctx.fillText( Math.round( 10000 / this.deltaTime ) / 10 + " fps", 50, 80 );
+        this.ctx.fillText( Math.round( 10000 / this.deltaTime ) / 10 + " FPS", 50, 80 );
         this.ctx.fillText( this.hover[0] + ", " + this.hover[1] + ", " + this.hover[2], 50, 160 );
         this.ctx.fillText( this.mouse.x + ", " + this.mouse.y, 50, 240 );
         

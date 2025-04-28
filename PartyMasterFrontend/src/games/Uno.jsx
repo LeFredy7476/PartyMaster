@@ -95,11 +95,11 @@ export class ExpFollower {
     draw ( canvasHandler ) {} // put all the drawing stuff here when implementing as a prototype
 }
 
-const backfaceImage = {
-    image: new Image(),
-    asset: assets.unocards.backface
-};
-backfaceImage.image.src = backfaceImage.asset.src;
+// const backfaceImage = {
+//     image: new Image(),
+//     asset: assets.unocards.backface
+// };
+// backfaceImage.image.src = backfaceImage.asset.src;
 
 class Card extends ExpFollower {
 
@@ -112,25 +112,31 @@ class Card extends ExpFollower {
         this.color = color;
         this.number = number;
         this.hitbox = hitbox;
+        this.backfaceImage = {
+            image: new Image(),
+            asset: assets.unocards.backface
+        };
+        this.backfaceImage.image.src = this.backfaceImage.asset.src;
+
     }
 
     draw ( canvasHandler ) {
-
         canvasHandler.octx.scale( this.size, this.size );
-        canvasHandler.octx.translate( -backfaceImage.asset.cx, -backfaceImage.asset.cy );
+        canvasHandler.octx.translate( -this.backfaceImage.asset.cx, -this.backfaceImage.asset.cy );
         canvasHandler.octx.fillStyle = `rgb( ${ this.hitbox[0] }, ${ this.hitbox[1] }, ${ this.hitbox[2] } )`;
-        canvasHandler.octx.fillRect( 0, 0, backfaceImage.asset.w, backfaceImage.asset.h );
+        canvasHandler.octx.fillRect( 0, 0, this.backfaceImage.asset.w, this.backfaceImage.asset.h );
 
-        if ( this.image.complete && backfaceImage.complete ) {
+        if ( this.image.complete && this.backfaceImage.image.complete ) {
             canvasHandler.ctx.scale( this.size, this.size );
             if ( this.flip > 0 ) {
                 canvasHandler.ctx.translate( -this.asset.cx, -this.asset.cy );
                 canvasHandler.ctx.drawImage( this.image, 0, 0, this.asset.w, this.asset.h );
             } else {
-                canvasHandler.ctx.translate( -backfaceImage.asset.cx, -backfaceImage.asset.cy );
-                canvasHandler.ctx.drawImage( backfaceImage, 0, 0, backfaceImage.asset.w, backfaceImage.asset.h );
+                canvasHandler.ctx.translate( -this.backfaceImage.asset.cx, -this.backfaceImage.asset.cy );
+                canvasHandler.ctx.drawImage( this.backfaceImage.image, 0, 0, this.backfaceImage.asset.w, this.backfaceImage.asset.h );
             }
         }
+        
     }
 }
 
@@ -192,10 +198,14 @@ export default class Uno extends CanvasHandler {
         return "Uno";
     }
 
+    onclick( event ) {
+        
+    }
+
     loop ( time ) {
         super.loop(time);
 
-        // console.log(this);
+        // console.log("Uno loop");
 
         for (let id = 0; id < this.allCards.length; id++) {
             let card = this.allCards[id];

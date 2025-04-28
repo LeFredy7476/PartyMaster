@@ -85,8 +85,10 @@ export default class CanvasHandler {
 
     loop ( time ) {
         let self = this;
+        // console.log(this.getType());
+        // console.log(this.app.data);
 
-        if (this.getType() == this.app.data.gameData.type) {
+        if (true || this.getType() == this.app.data.gameData.type) {
 
             this.hover = this.getMousePointerHover();
             this.resizeCanvas();
@@ -112,7 +114,9 @@ export default class CanvasHandler {
     }
     
     init () {
+        console.log(this);
         let self = this;
+        window.cancelAnimationFrame( this.animationFrame );
         this.animationFrame = window.requestAnimationFrame( function ( t ) {
             self.loop( t );
         } );
