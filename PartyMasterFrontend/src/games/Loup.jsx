@@ -9,7 +9,7 @@ function getRandomInt(max) {
 
 const assets = useAssets();
 
-export class ExpFollower {
+class ExpFollower {
     constructor ( x, y, rot, size, opacity ) {
         this.trueX = x;
         this.targetX = x;
@@ -89,14 +89,18 @@ export class ExpFollower {
 
 
 
-class Joueurs {
-    constructor ( name, images, icon ) {
+class Joueur {
+    constructor ( uuid, name, images, icon, role, amour, vivant, known ) {
+        this.uuid = uuid;
         this.name = name;
         this.expFollower = new ExpFollower(0, 0, 0, 1, 0);
         this.icon = icon;
-        this.role = null;
+        this.role = role;
+        this.amour = amour;
+        this.vivant = vivant;
         this.images = images;
         this._hover = false;
+        this._known = known;
     }
 
     get hover() {
@@ -106,6 +110,15 @@ class Joueurs {
     set hover(value) {
         this.expFollower.size = value ? 1.25 : 1;
         this._hover = value;
+    }
+
+    get known() {
+        return this._hover;
+    }
+
+    set known(value) {
+        this.expFollower.size = value ? Math.PI * 2 : 0;
+        this._known = value;
     }
 
     place(x, y) {
@@ -132,11 +145,49 @@ export default class Loup extends CanvasHandler {
     constructor ( app, data ) {
         super( app, data );
 
-        this.players = [];
+        this.images = {
+            players: [],
+            roles: {}
+        };
+        this.joueurs = {};
 
         for (let i = 0; i < assets.players.length; i++) {
             let player = assets.players[i];
-            
+            let img = new Image();
+            img.src = player.src;
+            this.images.players.push({
+                ...player,
+                image: img
+            });
+        }
+
+        for (const key in assets.loupgaroux) {
+            if (Object.prototype.hasOwnProperty.call(assets.loupgaroux, key)) {
+                let role = assets.loupgaroux[key];
+                let img = new Image();
+                img.src = role.src;
+                this.images.roles[key] = {
+                    ...role,
+                    image: img
+                };
+            }
+        }
+
+        for (const uuid in this.app.data.players) {
+            if (Object.prototype.hasOwnProperty.call(this.app.data.players, uuid)) {
+                let player = this.app.data.players[uuid];
+                let joueur = this.data.joueurs[uuid];
+                this.joueurs[uuid] = new Joueur(
+                    uuid, 
+                    player.name, 
+                    this.images, 
+                    player.icon, 
+                    joueur.role, 
+                    joueur.amour, 
+                    joueur.vivant, 
+                    uuid == sessionStorage.getItem("uuid")
+                );
+            }
         }
 
 
