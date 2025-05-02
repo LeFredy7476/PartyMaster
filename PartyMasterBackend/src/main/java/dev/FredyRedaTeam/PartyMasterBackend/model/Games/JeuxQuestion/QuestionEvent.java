@@ -7,19 +7,19 @@ import dev.FredyRedaTeam.PartyMasterBackend.model.Games.JeuxQuestion.Question;
 import java.util.UUID;
 
 public class QuestionEvent implements Event {
-    private final long timestamp;
-    private int id;
-    private String question;
-    private String reponse1;
-    private String reponse2;
-    private String reponse3;
-    private String reponse4;
-    private String typeQuestion;
+
+    private final int id;
+    private  final String question;
+    private  final String reponse1;
+    private  final String reponse2;
+    private  final String reponse3;
+    private  final String reponse4;
+    private  final String typeQuestion;
 
 
 
     public QuestionEvent(int id,String question,String reponse1,String reponse2,String reponse3,String reponse4,String typeQuestion) {
-        this.timestamp = System.currentTimeMillis();
+
         this.id=id;
         this.question=question;
         this.reponse1=reponse1;
