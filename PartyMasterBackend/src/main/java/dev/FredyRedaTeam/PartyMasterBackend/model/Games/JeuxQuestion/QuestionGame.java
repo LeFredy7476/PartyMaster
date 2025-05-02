@@ -147,15 +147,15 @@ public class QuestionGame implements Game  {
                 if (verifQuestionUsed(indexQuestion)) {
                     Question question = qstListe.get(indexQuestion);
                     this.lobby.queueEventForAllPlayer(
-                            new QuestionEvent(
-                                    question.getId(),
-                                    question.getQuestion(),
-                                    question.getReponse1(),
-                                    question.getReponse2(),
-                                    question.getReponse3(),
-                                    question.getReponse4(),
-                                    question.getTypeQuestion()
-                            )
+                        new QuestionEvent(
+                            question.getId(),
+                            question.getQuestion(),
+                            question.getReponse1(),
+                            question.getReponse2(),
+                            question.getReponse3(),
+                            question.getReponse4(),
+                            question.getTypeQuestion()
+                        )
                     );
                     this.currentQuestion = qstListe.get(question.getId());
                     this.lobby.queueEventForAllPlayer(new StateEvent(GameStateJ.QUESTION));
