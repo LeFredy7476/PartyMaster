@@ -2,7 +2,7 @@ package dev.FredyRedaTeam.PartyMasterBackend.model;
 
 import java.util.*;
 
-import dev.FredyRedaTeam.PartyMasterBackend.model.Games.LoupGarou.utils.Sql;
+import dev.FredyRedaTeam.PartyMasterBackend.model.Games.utils.Sql;
 import org.json.*;
 
 import java.util.regex.Matcher;

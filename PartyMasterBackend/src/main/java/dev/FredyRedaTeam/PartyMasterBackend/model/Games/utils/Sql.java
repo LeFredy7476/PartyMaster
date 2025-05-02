@@ -1,4 +1,4 @@
-package dev.FredyRedaTeam.PartyMasterBackend.model.Games.LoupGarou.utils;
+package dev.FredyRedaTeam.PartyMasterBackend.model.Games.utils;
 
 import dev.FredyRedaTeam.PartyMasterBackend.model.Games.JeuxQuestion.Question;
 import dev.FredyRedaTeam.PartyMasterBackend.model.Games.JeuxQuestion.QuestionSpe;
@@ -9,7 +9,6 @@ import java.sql.PreparedStatement;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 public class Sql {

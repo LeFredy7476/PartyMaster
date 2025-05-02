@@ -1,4 +1,4 @@
-package dev.FredyRedaTeam.PartyMasterBackend.model.Games.LoupGarou.utils;
+package dev.FredyRedaTeam.PartyMasterBackend.model.Games.utils;
 
 import java.io.FileInputStream;
 import java.util.Properties;

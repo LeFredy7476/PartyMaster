@@ -2,7 +2,7 @@ package dev.FredyRedaTeam.PartyMasterBackend.model.Games.JeuxQuestion;
 
 import dev.FredyRedaTeam.PartyMasterBackend.model.Action;
 import dev.FredyRedaTeam.PartyMasterBackend.model.Game;
-import dev.FredyRedaTeam.PartyMasterBackend.model.Games.LoupGarou.utils.Sql;
+import dev.FredyRedaTeam.PartyMasterBackend.model.Games.utils.Sql;
 import dev.FredyRedaTeam.PartyMasterBackend.model.Lobby;
 import dev.FredyRedaTeam.PartyMasterBackend.model.Response;
 import org.json.JSONObject;
