@@ -22,9 +22,9 @@ public class QuestionGame implements Game  {
     private Joueur getJoueur(UUID uuid) { return this.pointEnter.get(uuid); }
     private final ArrayList<Question> QuestionUsed = new ArrayList<>();
     private final ArrayList<QuestionSpe> QuestionSpeUsed = new ArrayList<>();
-    private int nbrQuestion = 0 ;
-    private boolean readyNextQuestion=false;
-    private long nextQuestionTimer=System.currentTimeMillis();
+    private int nbrQuestion = 0;
+    private boolean readyNextQuestion = false;
+    private long nextQuestionTimer = System.currentTimeMillis();
 
 
     @Override
@@ -57,7 +57,7 @@ public class QuestionGame implements Game  {
                 case "question":
                     switch (action.getTarget(2)) {
                         case "receiveResponse":
-                            if (nbrQuestion <= 5) { return question(action); }
+                            if (nbrQuestion <= 5) { return recevoirReponse(action); }
                             else { return questionspe(action); }
                         
                     }
@@ -77,7 +77,11 @@ public class QuestionGame implements Game  {
 
     @Override
     public void tick() {
-
+        if (readyNextQuestion) {
+            if (System.currentTimeMillis() > (nextQuestionTimer + 5000)) {
+                // envoyerQuestion();
+            }
+        }
     }
 
     @Override
@@ -132,34 +136,40 @@ public class QuestionGame implements Game  {
         return true;
     }
 
-    public Response question(Action action) throws Exception {
+    public Response recevoirReponse(Action action) throws Exception {
         UUID uuid = action.getUuid();
         ArrayList<Question> qstListe = Sql.DonnerQuestion();
-        if (verifIci(uuid) && !qstListe.isEmpty()) {
+        if (verifIci(uuid)) {
+            if (!qstListe.isEmpty()) {
 
-            int indexQuestion = Lobby.random.nextInt(qstListe.size());
+                int indexQuestion = Lobby.random.nextInt(qstListe.size());
 
-            if (verifQuestionUsed(indexQuestion)) {
-                Question question = qstListe.get(indexQuestion);
-                this.lobby.queueEventForAllPlayer(
-                    new QuestionEvent(
-                        question.getId(),
-                        question.getQuestion(),
-                        question.getReponse1(),
-                        question.getReponse2(),
-                        question.getReponse3(),
-                        question.getReponse4(),
-                        question.getTypeQuestion()
-                    )
-                );
-                this.currentQuestion = qstListe.get(question.getId());
-                this.lobby.queueEventForAllPlayer(new StateEvent(GameStateJ.QUESTION));
-                BonneReponse(action,question);
-                QuestionUsed.add(currentQuestion);
-                this.nbrQuestion++;
-                return new Response();
+                if (verifQuestionUsed(indexQuestion)) {
+                    Question question = qstListe.get(indexQuestion);
+                    this.lobby.queueEventForAllPlayer(
+                            new QuestionEvent(
+                                    question.getId(),
+                                    question.getQuestion(),
+                                    question.getReponse1(),
+                                    question.getReponse2(),
+                                    question.getReponse3(),
+                                    question.getReponse4(),
+                                    question.getTypeQuestion()
+                            )
+                    );
+                    this.currentQuestion = qstListe.get(question.getId());
+                    this.lobby.queueEventForAllPlayer(new StateEvent(GameStateJ.QUESTION));
+                    BonneReponse(action, question);
+                    QuestionUsed.add(currentQuestion);
+                    this.nbrQuestion++;
+                    return new Response();
+                } else {
+                    return recevoirReponse(action);
+                }
             } else {
-                return question(action);
+                Response r = new Response(3, new JSONObject());
+                r.getData().put("r", "UnknownPlayer");
+                return r; // IGNORED
             }
         } else {
             Response r = new Response(3, new JSONObject());
