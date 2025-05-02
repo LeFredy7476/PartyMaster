@@ -225,6 +225,7 @@ public class QuestionGame implements Game  {
                         Joueur joueur=getJoueur(uuid);
                         joueur.addPoint(1);
                         lobby.queueEventForAllPlayer(new StateEvent(GameStateJ.REVELATIONBM));
+                        lobby.queueEventForAllPlayer(new QuestionResultatEvent(question.getId(),question.getBonneReponse()));
                     }
                 }
             }
@@ -283,6 +284,7 @@ public class QuestionGame implements Game  {
                                 Joueur joueur = getJoueur(challenger);
                                 joueur.removePoint(question.getNiveauQuestion());
                                 lobby.queueEventForAllPlayer(new StateEvent(GameStateJ.REVELATIONQSBM));
+                                lobby.queueEventForAllPlayer(new QuestionResultatEvent(question.getId(),question.getReponse1()));
                             }
                         }
                     }
