@@ -61,6 +61,11 @@ public class QuestionGame implements Game  {
 
 
                     }
+                case "questionSpe":
+                    switch (action.getTarget(2)){
+                        case "receiveResponse":
+                            return recevoirquestionspe(action);
+                    }
 //            case "special":
 //                switch (action.getTarget(2)){
 //                    case "receiveResponseSpe":
