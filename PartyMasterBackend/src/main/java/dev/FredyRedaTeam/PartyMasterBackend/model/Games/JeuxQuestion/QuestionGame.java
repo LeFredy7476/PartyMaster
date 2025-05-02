@@ -217,7 +217,7 @@ public class QuestionGame implements Game  {
                         // verifie que sa challenge pas contre lui meme
                         if (!challenger.equals(uuid)&&reponseTruc.equals(question.getBonneReponse())) {
                             if (tempsrecu.get(challenger) < tempsrecu.get(uuid)) {
-                                this.gagnant=challenger;
+                                this.gagnant = challenger;
                             }
                         }
                     }
