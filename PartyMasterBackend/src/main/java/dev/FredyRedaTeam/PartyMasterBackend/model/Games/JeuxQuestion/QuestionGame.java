@@ -23,6 +23,8 @@ public class QuestionGame implements Game  {
     private final ArrayList<Question> QuestionUsed = new ArrayList<>();
     private final ArrayList<QuestionSpe> QuestionSpeUsed = new ArrayList<>();
     private int nbrQuestion = 0 ;
+    private boolean readyNextQuestion=false;
+    private long nextQuestionTimer=System.currentTimeMillis();
 
 
     @Override
@@ -48,6 +50,28 @@ public class QuestionGame implements Game  {
 
     @Override
     public Response receiveAction(Action action) {
+        try {
+            switch (action.getTarget()[1]) {
+                case "state":
+                    return new Response(0, this.toJsonMasked(pointEnter.get(action.getUuid())));
+                case "question":
+                    switch (action.getTarget(2)) {
+                        case "receiveResponse":
+                            if (nbrQuestion <= 5) { return question(action); }
+                            else { return questionspe(action); }
+                        
+                    }
+//            case "special":
+//                switch (action.getTarget(2)){
+//                    case "receiveResponseSpe":
+//                        return questionspe(action);
+//
+//                }
+            }
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+
         return new Response();
     }
 
@@ -74,25 +98,7 @@ public class QuestionGame implements Game  {
         }
     }
 
-    public Response ReceiveAction(Action action) throws Exception{
-        switch (action.getTarget()[1]) {
-            case "state":
-                return new Response(0, this.toJsonMasked(pointEnter.get(action.getUuid())));
-            case "question":
-                switch (action.getTarget(2)) {
-                    case "receiveResponse":
-                        if (nbrQuestion <= 5) { return question(action); }
-                        else { return questionspe(action); }
-                }
-//            case "special":
-//                switch (action.getTarget(2)){
-//                    case "receiveResponseSpe":
-//                        return questionspe(action);
-//
-//                }
-        }
-        return new Response();
-    }
+
 
     public void setListPlayer() {
         //pas besoin d'utiliser un for, java c'est incroyable des fois vraiment
