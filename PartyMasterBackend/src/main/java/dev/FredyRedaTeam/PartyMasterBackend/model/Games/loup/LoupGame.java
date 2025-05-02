@@ -222,8 +222,8 @@ public class LoupGame implements Game {
         else {
             if (this.isVoyanteAlive()) { this.nextGameState = GameState.VOYANTE_CHOIX; }
             else {
-                if (this.isGuardianAlive()) { this.nextGameState=GameState.GUARDIEN_CHOIX; }
-                else { this.nextGameState=GameState.LOUPGAROUX_CHOIX; }
+                if (this.isGuardianAlive()) { this.nextGameState = GameState.GUARDIEN_CHOIX; }
+                else { this.nextGameState = GameState.LOUPGAROUX_CHOIX; }
             }
         }
     }
