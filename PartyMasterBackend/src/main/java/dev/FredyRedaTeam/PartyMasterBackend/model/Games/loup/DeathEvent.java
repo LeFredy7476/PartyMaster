@@ -3,8 +3,6 @@ package dev.FredyRedaTeam.PartyMasterBackend.model.Games.loup;
 import dev.FredyRedaTeam.PartyMasterBackend.model.Event;
 import org.json.JSONObject;
 
-import java.util.UUID;
-
 public class DeathEvent implements Event {
     private final UUID defunt;
     private final long timestamp;
@@ -25,7 +23,7 @@ public class DeathEvent implements Event {
     }
 
     @Override
-    public JSONObject toJson(UUID uuid) {
+    public JSONObject toJson() {
         JSONObject obj = new JSONObject();
         obj.put("defunt",this.defunt);
         obj.put("timestamp",this.timestamp);

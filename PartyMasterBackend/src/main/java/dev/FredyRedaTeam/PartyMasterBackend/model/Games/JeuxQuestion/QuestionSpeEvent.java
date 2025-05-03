@@ -29,8 +29,8 @@ public class QuestionSpeEvent implements Event {
     }
 
     @Override
-    public JSONObject toJson(UUID uuid) {
-        JSONObject object=new JSONObject();
+    public JSONObject toJson() {
+        JSONObject object = new JSONObject();
         object.put("id",this.id);
         object.put("question",this.question);
         object.put("niveauQuestion",this.niveauQuestion);

@@ -556,7 +556,7 @@ public class LoupGame implements Game {
     @Override
     public JSONObject toJson() {
         JSONObject object=new JSONObject();
-
+        object.put("type", getType());
         JSONObject jsonJoueurs = new JSONObject();
         this.joueurs.forEach((uuid, joueur) -> jsonJoueurs.put(uuid.toString(), joueur.toJson()));
         object.put("joueurs", jsonJoueurs);

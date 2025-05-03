@@ -29,7 +29,7 @@ public class VoteEvent implements Event {
     }
 
     @Override
-    public JSONObject toJson(UUID uuid) {
+    public JSONObject toJson() {
         JSONObject json = new JSONObject();
         json.put("uuid", uuid.toString());
         json.put("target", target.toString());

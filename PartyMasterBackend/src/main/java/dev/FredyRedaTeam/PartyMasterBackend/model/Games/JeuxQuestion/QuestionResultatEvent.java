@@ -21,7 +21,7 @@ public class QuestionResultatEvent implements Event {
     public String getType() {return "Games.JeuxQuestion.QuestionResultatEvent";}
 
     @Override
-    public JSONObject toJson(UUID uuid) {
+    public JSONObject toJson() {
         JSONObject object=new JSONObject();
         object.put("id",id);
         object.put("bonneReponse",bonneReponse);

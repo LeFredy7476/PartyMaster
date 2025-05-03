@@ -33,11 +33,11 @@ public class ScoreEvent implements Event {
     }
 
     @Override
-    public JSONObject toJson(UUID uuid) {
+    public JSONObject toJson() {
         JSONObject obj = new JSONObject();
         obj.put("type", getType());
         JSONObject scores = new JSONObject();
-        for (Joueur joueur:score){
+        for (Joueur joueur : score) {
             scores.put(joueur.getUuid().toString(), joueur.getPoint());
         }
         obj.put("scores", scores);

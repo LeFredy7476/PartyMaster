@@ -5,9 +5,11 @@ import axios from 'axios'
 import {useNavigate, useParams} from "react-router-dom";
 import { useEffect, useState } from 'react';
 
-function MainMenu() {
+function MainMenu({ connected, setconnected }) {
 
-    const host = "http://10.10.2.122"; // window.location.protocol + "//" + window.location.hostname
+    setconnected(false);
+
+    const host = window.location.hostname == "partymaster.duckdns.org" ? "http://10.10.2.122" : "http://" + window.location.hostname;
 
     const [room, setRoom] = useState("");
     let navigate = useNavigate();
@@ -28,12 +30,12 @@ function MainMenu() {
             <h2>Vos jeux favoris, au même endroit.</h2>
             <section className="join-section">
                 <label htmlFor="lobbyCode">Rejoindre un groupe</label>
-                <input type="text" name="lobbyCode" id="lobbyCode" placeholder="Code" className='form' autocomplete="off" value={room} onChange={function(e) {
+                <input type="text" name="lobbyCode" id="lobbyCode" placeholder="Code" className='form' autoComplete="off" value={room} onChange={function(e) {
                     setRoom(e.target.value);
                 }}/>
                 <button id="lobbyJoin" className="form-button" onClick={()=>{
-                    if (room.length == 8){
-                        navigate("/" + room);
+                    if (room.length == 8) {
+                        navigate("/" + room.toLowerCase());
                     }
                 }}>Rejoindre</button>
             </section>
