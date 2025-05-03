@@ -6,17 +6,29 @@ import org.json.JSONObject;
 import java.util.UUID;
 
 public class DeathEvent implements Event {
+    private final UUID defunt;
+    private final long timestamp;
 
+    public DeathEvent(UUID defunt,long timestamp){
+        this.defunt=defunt;
+        this.timestamp=System.currentTimeMillis();
+    }
+    public UUID getDefunt(){return defunt;}
 
-
-    @Override
-    public String getType() {
-        return "Games.loup.StateEvent";
+    public long getTimestamp() {
+        return timestamp;
     }
 
     @Override
-    public JSONObject toJson(UUID uuid) {
+    public String getType() {
+        return "Games.loup.DeathEvent";
+    }
+
+    @Override
+    public JSONObject toJson() {
         JSONObject obj = new JSONObject();
+        obj.put("defunt",this.defunt);
+        obj.put("timestamp",this.timestamp);
         obj.put("type", getType());
         return obj;
     }

@@ -55,6 +55,17 @@ function DocLoupgaroux() {
         </>
     )
 }
+function DocQuestion(){
+    return(
+    <>
+        <h1>Aide pour le questionnaire</h1>
+        <h2>Le jeux consiste a ce que chaque personne repond a une question de culture generale sur les sujets suivant: question de culture generale,
+       question sur la geographie et question sur la programmation. A la fin de chaque tour une question bonus ayant plusieurs de diffuclte pouvant aller jusqu'a trois seras atribuer a un joueur aleatoire dans la partie.
+        Il peut choisir de prendre la question ou de l'ignorer, dans le cas ou la personne repond bien a la question, il recevras un nombre de point correspondant au numero de diffuclte de cette derniere,
+        par contre, si il a le malheur de ne pas bien repondre il perdrat ce nombre de point associer a la question.</h2>
+    </>
+    )
+}
 
 export default function Docs() {
     const { game } = useParams();
@@ -63,6 +74,9 @@ export default function Docs() {
     var doc = <></>;
     if (game == "loupgaroux") {
         doc = <DocLoupgaroux />
+    if(game =="question"){
+        doc = <DocQuestion/>
+    }
     }
 
 

@@ -2,6 +2,9 @@ package dev.FredyRedaTeam.PartyMasterBackend.model;
 
 import java.util.*;
 
+import dev.FredyRedaTeam.PartyMasterBackend.model.Games.utils.Sql;
+import dev.FredyRedaTeam.PartyMasterBackend.model.Games.loup.LoupGame;
+import dev.FredyRedaTeam.PartyMasterBackend.model.Games.uno.UnoGame;
 import org.json.*;
 
 import java.util.regex.Matcher;
@@ -10,6 +13,8 @@ import java.util.regex.Pattern;
 public class Lobby {
     public static final int MAX_PLAYER_BY_LOBBY = 20;
     public static final int MAX_CHAT_HISTORY = 50;
+    public static final long ROOM_SHUTDOWN_CHRONO = 60000;
+    public static final long PLAYER_SHUTDOWN_CHRONO = 5000;
     private static final HashMap<String, Lobby> lobbies = new HashMap<>();
     public static final Random random = new Random();
 
@@ -37,12 +42,24 @@ public class Lobby {
             for (int i = 0; i < 8; i++) {
                 out = out + String.valueOf(characters.charAt(random.nextInt(36)));
             }
-            System.out.println(out);
         } while (isInstance(out));
         return out;
     }
 
-    public static void main(String[] args) {
+    public static void checkRooms() {
+        long now = System.currentTimeMillis();
+        // make copy of keyset in order to avoid ConcurrentModificationException
+        // see: https://www.digitalocean.com/community/tutorials/java-util-concurrentmodificationexception
+        Set<String> rooms = new HashSet<>(Lobby.lobbies.keySet());
+        for (String room : rooms) {
+            if (now - lobbies.get(room).lastTick > ROOM_SHUTDOWN_CHRONO) {
+                System.out.println("\u001b[31minactivity detected for room " + room + "\u001b[0m");
+                lobbies.remove(room);
+            }
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
         init();
     }
 
@@ -56,24 +73,38 @@ public class Lobby {
     private long lastTick = System.currentTimeMillis();
 
 
-    public Lobby() {
-        System.out.println("generating room...");
+    public Lobby() throws Exception {
         this.room = generateRoom();
-        System.out.println("room generated : " + this.room);
+        System.out.println("\u001b[35mCreated room " + this.room + "\u001b[0m");
         lobbies.put(room, this);
+
+        // TODO: "logger" la création du groupe dans la DB
+
         this.game = new LobbyHome();
         this.game.init(this);
+
+        String idGame = this.room;
+        Long tempsCreation = System.currentTimeMillis();
+        Sql.InsertGame(idGame, tempsCreation);
+
+        this.tick();
     }
 
     /**
      * UNSAFE! Use only for debug purpose
      * @param room : the code the Lobby
      */
-    public Lobby(String room) {
+    public Lobby(String room) throws Exception {
         this.room = room;
         lobbies.put(room, this);
         this.game = new LobbyHome();
         this.game.init(this);
+        
+        String idGame = this.room;
+        Long tempsCreation = System.currentTimeMillis();
+        Sql.InsertGame(idGame, tempsCreation);
+
+        this.tick();
     }
 
     public HashMap<UUID, Player> getPlayers() {
@@ -118,15 +149,37 @@ public class Lobby {
         }
     }
 
+    public void queueEventForAllPlayer(Event event, UUID except) {
+        for (UUID uuid : eventQueues.keySet()) {
+            if (!uuid.equals(except)) {
+                eventQueues.get(uuid).add(event);
+            }
+        }
+    }
+
     public void queueEvent(UUID uuid, Event event) {
         this.eventQueues.get(uuid).add(event);
     }
 
     public void tick() {
         this.lastTick = System.currentTimeMillis();
+        // make copy of keyset in order to avoid ConcurrentModificationException
+        // see: https://www.digitalocean.com/community/tutorials/java-util-concurrentmodificationexception
+        Set<UUID> uuids = new HashSet<>(this.players.keySet());
+        for (UUID uuid : uuids) {
+            if (System.currentTimeMillis() - this.players.get(uuid).lastTick > PLAYER_SHUTDOWN_CHRONO) {
+                System.out.println("\u001b[33minactivity detected for player " + uuid.toString() + "\u001b[0m");
+                if (this.lobbyMaster.equals(uuid)) {
+                    this.players.clear();
+                    this.eventQueues.clear();
+                } else {
+                    this.players.remove(uuid);
+                    this.eventQueues.remove(uuid);
+                    this.queueEventForAllPlayer(new TerminationEvent(uuid));
+                }
+            }
+        }
     }
-
-
 
     /**
      * result code :
@@ -166,8 +219,6 @@ public class Lobby {
                 break;
             case "game" :
                 return game.receiveAction(action);
-            case "tick" :
-                return null; // TODO: handle the event queue flushing
         }
         Response r = new Response(2, new JSONObject());
         r.getData().put("r", "UnknownAction");
@@ -175,7 +226,9 @@ public class Lobby {
     }
 
     public LinkedList<Event> fetchEvents(UUID uuid) {
+        this.tick(); // refresh the room shutdown cooldown
         if (this.players.containsKey(uuid)) {
+            players.get(uuid).lastTick = System.currentTimeMillis();
             return this.eventQueues.replace(uuid, new LinkedList<>());
         } else {
             LinkedList<Event> out = new LinkedList<>();
@@ -224,11 +277,13 @@ public class Lobby {
                     name = this.assignName(name);
                     int icon = action.getData().getInt("icon");
                     Player player = new Player(uuid, name, icon);
+                    this.queueEventForAllPlayer(new JoinEvent(player));
                     this.players.put(player.getUuid(), player);
                     this.eventQueues.put(player.getUuid(), new LinkedList<>());
                     if (this.lobbyMaster == null) {
                         this.lobbyMaster = uuid;
                     }
+                    System.out.println("\u001b[32mplayer " + uuid.toString() + " joined room " + this.room + "\u001b[0m");
                     JSONObject out = new JSONObject();
                     out.put("uuid", uuid.toString());
                     out.put("name", name);
@@ -258,6 +313,7 @@ public class Lobby {
                     this.players.remove(kickTarget);
                     this.eventQueues.remove(kickTarget);
                     this.queueEventForAllPlayer(new TerminationEvent(kickTarget));
+                    System.out.println("\u001b[36mplayer " + kickTarget.toString() + " was kicked from room " + this.room + "\u001b[0m");
                     return new Response(); // OK
                 } else {
                     Response r = new Response(2, new JSONObject());
@@ -283,9 +339,12 @@ public class Lobby {
             this.players.remove(action.getUuid());
             this.eventQueues.remove(action.getUuid());
 
+            System.out.println("\u001b[36mplayer " + action.getUuid().toString() + " quitted room " + this.room + "\u001b[0m");
+
             boolean isLobbyMaster = action.getUuid().equals(this.lobbyMaster);
 
             if (isLobbyMaster) {
+                System.out.println("\u001b[31mplayer " + action.getUuid().toString() + " was partymaster in room " + this.room + ", closing room...\u001b[0m");
                 // disconnect all players if the lobby master logs out
                 // force players to receive TerminationEvent upon next tick
                 this.eventQueues.clear();
@@ -300,8 +359,30 @@ public class Lobby {
         }
     }
 
+    public void exitGame() {
+        this.game = new LobbyHome();
+        this.game.init(this);
+        this.queueEventForAllPlayer(new GameChangeEvent(this.game.toJson()));
+    }
+
+    public static final String[] games = {"Uno", "Loup", "Question"};
+    public void startGame(int i) {
+        startGame(games[i]);
+    }
+    public void startGame(String gameName) {
+        this.game = switch (gameName) {
+            case "Uno" -> new UnoGame();
+            case "Loup" -> new LoupGame();
+            case "Question" -> new LobbyHome(); // TODO: merge le jeu de Reda
+            case null, default -> new LobbyHome(); // fallback
+        };
+        this.game.init(this);
+        this.queueEventForAllPlayer(new GameChangeEvent(this.game.toJson()));
+    }
+
+
     public Response sendMessage(Action action) {
-        String content = action.getData().getString("content");
+        String content = action.getData().getString("content"); // TODO: Ignore the action if the message is empty
         // put a censor here if needed
         Message message = new Message("user all", action.getUuid(), content);
         // for private message (i.e. werewolves), filter the players here
