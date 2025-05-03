@@ -45,6 +45,10 @@ public class RevelationEvent implements Event {
     @Override
     public JSONObject toJson(UUID uuid) {
         JSONObject obj = new JSONObject();
+        obj.put("timestamp",this.timestamp);
+        obj.put("uuid",this.uuid.toString());
+        obj.put("role",this.role);
+        obj.put("sender",this.sender);
         obj.put("type", getType());
         return obj;
     }

@@ -5,15 +5,15 @@ import org.json.JSONObject;
 
 import java.util.UUID;
 
-public class DeathEvent implements Event {
-    private final UUID defunt;
+public class WinnerEvent implements Event {
+    private final String winner;
     private final long timestamp;
 
-    public DeathEvent(UUID defunt,long timestamp){
-        this.defunt=defunt;
+    public WinnerEvent(String winner, long timestamp){
+        this.winner=winner;
         this.timestamp=System.currentTimeMillis();
     }
-    public UUID getDefunt(){return defunt;}
+    public String getWinner(){return winner;}
 
     public long getTimestamp() {
         return timestamp;
@@ -21,13 +21,13 @@ public class DeathEvent implements Event {
 
     @Override
     public String getType() {
-        return "Games.loup.DeathEvent";
+        return "Games.loup.WinnerEvent";
     }
 
     @Override
     public JSONObject toJson(UUID uuid) {
         JSONObject obj = new JSONObject();
-        obj.put("defunt",this.defunt);
+        obj.put("winner",this.winner);
         obj.put("timestamp",this.timestamp);
         obj.put("type", getType());
         return obj;

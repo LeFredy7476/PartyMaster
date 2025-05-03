@@ -70,7 +70,7 @@ public class MainController {
     }
 
     @PostMapping(value = "/createlobby")
-    public String createLobby(HttpServletRequest request) {
+    public String createLobby(HttpServletRequest request) throws Exception{
         Lobby lobby = new Lobby();
         JSONObject data = new JSONObject();
         data.put("lobby", lobby.getRoom());
