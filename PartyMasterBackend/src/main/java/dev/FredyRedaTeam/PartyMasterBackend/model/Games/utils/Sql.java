@@ -16,7 +16,7 @@ public class Sql {
         Connection con = null;
         Properties props = new Properties();
         PreparedStatement prtm=null;
-        props = Connexion.getProps("./PartyMasterBackend/src/main/resources/application.properties");
+        props = Connexion.getProps("src/main/resources/application.properties");
         con= DriverManager.getConnection(props.getProperty("spring.datasource.url"),
              props.getProperty("spring.datasource.username"),
              props.getProperty("spring.datasource.password"));
