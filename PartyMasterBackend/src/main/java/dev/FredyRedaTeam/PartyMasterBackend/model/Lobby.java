@@ -14,7 +14,7 @@ public class Lobby {
     public static final int MAX_PLAYER_BY_LOBBY = 20;
     public static final int MAX_CHAT_HISTORY = 50;
     public static final long ROOM_SHUTDOWN_CHRONO = 60000;
-    public static final long PLAYER_SHUTDOWN_CHRONO = 5000;
+    public static final long PLAYER_SHUTDOWN_CHRONO = 15000;
     private static final HashMap<String, Lobby> lobbies = new HashMap<>();
     public static final Random random = new Random();
 

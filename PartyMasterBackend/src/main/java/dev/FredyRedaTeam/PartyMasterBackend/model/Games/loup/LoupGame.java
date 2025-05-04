@@ -194,7 +194,7 @@ public class LoupGame implements Game {
             if (nbLoups == 4) {
                 roles.add(Role.LOUPBLANC);
             } else {
-                roles.add(Role.LOUPGAROUX);
+                roles.add(Role.LOUP);
             }
             nbLoups--; nbJoueurs--;
         }
@@ -212,7 +212,7 @@ public class LoupGame implements Game {
             Joueur joueur = new Joueur(uuid, role);
             joueurs.put(uuid, joueur);
             if (role.equals(Role.LOUPBLANC)) { loups.add(uuid); }
-            else if (role.equals(Role.LOUPGAROUX)) { loups.add(uuid); }
+            else if (role.equals(Role.LOUP)) { loups.add(uuid); }
         }
 
         this.lobby.queueEventForAllPlayer(new StateEvent(GameState.DISTRIBUTION_ROLE));
@@ -576,7 +576,7 @@ public class LoupGame implements Game {
         out.put("gameState", this.gameState);
         out.put("manche", this.manche);
         out.put("role", joueur.getRole());
-        if (joueur.getRole().equals(Role.LOUPGAROUX)) {
+        if (joueur.getRole().equals(Role.LOUP)) {
             JSONArray jsonLoups = new JSONArray();
             this.loups.forEach(loup -> jsonLoups.put(loup.toString()));
             out.put("loups", jsonLoups);
