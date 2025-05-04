@@ -10,18 +10,126 @@ function getRandomInt(max) {
 const assets = useAssets();
 
 const statesNames = {
-    DISTRIBUTION_ROLE: "",
-    CUPIDON_CHOIX: "CUPIDON_CHOIX",
-    AMOUREUX_REVELATION: "AMOUREUX_REVELATION",
-    GUARDIEN_CHOIX: "GUARDIEN_CHOIX",
-    VOYANTE_CHOIX: "VOYANTE_CHOIX",
-    VOYANTE_REVELATION: "VOYANTE_REVELATION",
-    LOUP_CHOIX: "LOUP_CHOIX",
-    TRAITRE_CHOIX: "TRAITRE_CHOIX",
-    TRAITRE_REVELATION: "TRAITRE_REVELATION",
-    VILLAGE_EXECUTION: "VILLAGE_EXECUTION",
-    CHASSEUR_CHOIX: "CHASSEUR_CHOIX",
-    RESULTAT: "RESULTAT",
+    DISTRIBUTION_ROLE: {
+        titre: "Distributions des Rôles",
+        description: "Veuillez patienter, le jeu va bientôt commencer.",
+        instruction: "How did u get here?", // unused
+        concerned: [],
+        selection: 0,
+        confirm: false,
+        confirmText: "",
+        showVotes: false
+    },
+    CUPIDON_CHOIX: {
+        titre: "Cupidon",
+        description: "Le cupidon choisis les joueurs qui vont tomber amoureux.",
+        instruction: "Choisissez deux joueurs qui vont tomber amoureux l'un de l'autre.",
+        concerned: ["CUPIDON"],
+        selection: 2,
+        confirm: true,
+        confirmText: "Coup de foudre",
+        showVotes: false
+    },
+    AMOUREUX_REVELATION: {
+        titre: "Amoureux",
+        description: "Les deux joueurs amoureux se reconnaissent.",
+        instruction: "Vous êtes tombé amoureux!",
+        concerned: ["amoureux"],
+        selection: 0,
+        confirm: true,
+        confirmText: "Je l'aime",
+        showVotes: false
+    },
+    GUARDIEN_CHOIX: {
+        titre: "Guardien",
+        description: "Le guardien s'apprête à protéger un joueur cette nuit.",
+        instruction: "Choisissez un joueur à protéger.",
+        concerned: ["GUARDIEN"],
+        selection: 1,
+        confirm: false,
+        confirmText: "",
+        showVotes: false
+    },
+    VOYANTE_CHOIX: {
+        titre: "Voyante",
+        description: "La voyante choisir un joueur à observer.",
+        instruction: "Choisissez un joueur pour voir son rôle.",
+        concerned: ["VOYANTE"],
+        selection: 1,
+        confirm: false,
+        confirmText: "",
+        showVotes: false
+    },
+    VOYANTE_REVELATION: {
+        titre: "Voyante",
+        description: "La voyante prend connaissance du rôle du joueur observé.",
+        instruction: "Vous avez eu une révélation du rôle du joueur observé.",
+        concerned: ["VOYANTE"],
+        selection: 0,
+        confirm: true,
+        confirmText: "Je vois",
+        showVotes: false
+    },
+    LOUP_CHOIX: {
+        titre: "Loup Garoux",
+        description: "Les Loups s'entendent sur la victime à dévorer!",
+        instruction: "Votez pour dévorer un joueur.",
+        concerned: ["LOUP", "LOUPBLANC"],
+        selection: 1,
+        confirm: false,
+        confirmText: "",
+        showVotes: true
+    },
+    TRAITRE_CHOIX: {
+        titre: "Traitre",
+        description: "Le traitre s'apprête à trahir l'identité d'un joueur à un bénificiaire.",
+        instruction: "Choisissez un joueurs dont vous souhaitez trahir l'identité.",
+        concerned: ["TRAITRE"],
+        selection: 1,
+        confirm: false,
+        confirmText: "",
+        showVotes: false
+    },
+    TRAITRE_REVELATION: {
+        titre: "Traitre",
+        description: "Le bénificiaire prend connaissance de l'identité du joueur trahi.",
+        instruction: "On vous à anonymement révélé le rôle d'un joueur.",
+        concerned: ["beneficiaire"],
+        selection: 0,
+        confirm: true,
+        confirmText: "J'ai compris",
+        showVotes: false
+    },
+    VILLAGE_EXECUTION: {
+        titre: "Jour",
+        description: "How did u get here?", // unused
+        instruction: "Le village à souffert des pertes. Votez pour exécuter un coupable.",
+        concerned: ["VILLAGEOIS", "LOUP", "VOYANTE", "TRAITRE", "CUPIDON", "GUARDIEN", "CHASSEUR", "LOUPBLANC"],
+        selection: 1,
+        confirm: false,
+        confirmText: "",
+        showVotes: true
+    },
+    CHASSEUR_CHOIX: {
+        titre: "Chasseur",
+        description: "Le chasseur choisis le joueur qu'il va emporter avec lui dans la mort.",
+        instruction: "Tirez un des joueurs.",
+        concerned: ["CHASSEUR"],
+        selection: 1,
+        confirm: false,
+        confirmText: "",
+        showVotes: false
+    },
+    RESULTAT: {
+        titre: "Fin de partie",
+        description: "",
+        instruction: "",
+        concerned: [],
+        selection: 0,
+        confirm: false,
+        confirmText: "",
+        showVotes: false
+    }
 }
 
 class ExpFollower {
