@@ -25,7 +25,7 @@ class DrawEvent implements Event {
 
 
     @Override
-    public String getType() { return "Games.uno.DrawEvent"; }
+    public String getType() { return "Uno.DrawEvent"; }
 
     @Override
     public JSONObject toJson() {

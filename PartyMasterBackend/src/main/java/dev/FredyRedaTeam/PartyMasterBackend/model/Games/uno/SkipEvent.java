@@ -19,7 +19,7 @@ class SkipEvent implements Event {
 
     @Override
     public String getType() {
-        return "Games.uno.SkipEvent";
+        return "Uno.SkipEvent";
     }
 
     @Override

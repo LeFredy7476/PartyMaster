@@ -25,7 +25,7 @@ class TurnEvent implements Event {
 
     @Override
     public String getType() {
-        return "Games.uno.TurnEvent";
+        return "Uno.TurnEvent";
     }
 
     @Override

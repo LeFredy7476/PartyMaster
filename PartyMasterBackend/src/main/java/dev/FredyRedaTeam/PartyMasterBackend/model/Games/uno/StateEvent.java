@@ -17,7 +17,7 @@ class StateEvent implements Event {
     }
 
     @Override
-    public String getType() { return "Games.uno.StateEvent"; }
+    public String getType() { return "Uno.StateEvent"; }
 
     @Override
     public JSONObject toJson() {

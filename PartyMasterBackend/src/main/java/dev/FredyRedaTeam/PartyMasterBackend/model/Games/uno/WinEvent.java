@@ -19,7 +19,7 @@ public class WinEvent implements Event {
 
     @Override
     public String getType() {
-        return "Games.uno.WinEvent";
+        return "Uno.WinEvent";
     }
 
     @Override

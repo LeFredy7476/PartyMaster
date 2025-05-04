@@ -18,10 +18,12 @@ public class LoupGame implements Game {
     private final ArrayList<UUID> loups = new ArrayList<>();
     private final HashMap<UUID, UUID> votes = new HashMap<>();
     private final ArrayList<UUID> vivants = new ArrayList<>();
+    private final HashSet<UUID> readyCheck = new HashSet<>();
     private Lobby lobby;
     private int confirmAmoureux = 0;
     private UUID protege = null;
     private UUID connaisseur = null;
+    private int nbJoueurs;
 
     private boolean isVoyanteAlive() {
         for (UUID uuid : vivants) {
@@ -79,7 +81,27 @@ public class LoupGame implements Game {
     public Response receiveAction(Action action) {
         switch (action.getTarget()[1]) {
             case "state":
+                // probably unused
                 return new Response(0, this.toJsonMasked(joueurs.get(action.getUuid())));
+            case "ready":
+                this.readyCheck.add(action.getUuid());
+                if (readyCheck.size() == nbJoueurs) {
+                    if (isCupidonAlive()) {
+                        this.gameState = GameState.CUPIDON_CHOIX;
+                        this.nextGameState = GameState.AMOUREUX_REVELATION;
+                    } else if (isVoyanteAlive()) {
+                        this.gameState = GameState.VOYANTE_CHOIX;
+                        this.nextGameState = GameState.VOYANTE_REVELATION;
+                    } else if (isGuardianAlive()) {
+                        this.gameState = GameState.GUARDIEN_CHOIX;
+                        this.nextGameState = GameState.LOUPGAROUX_CHOIX;
+                    } else {
+                        this.gameState = GameState.LOUPGAROUX_CHOIX;
+                        if (isTraitreAlive()) { this.nextGameState = GameState.TRAITRE_CHOIX; }
+                        else { this.nextGameState = GameState.VILLAGE_EXECUTION; }
+                    }
+                    lobby.queueEventForAllPlayer(new StateEvent(gameState));
+                }
             case "loupgaroux":
                 switch (action.getTarget()[2]) {
                     case "vote":
@@ -187,7 +209,7 @@ public class LoupGame implements Game {
     public void init(Lobby lobby) {
         this.lobby = lobby;
         ArrayList<Role> roles = new ArrayList<>();
-        int nbJoueurs = lobby.getPlayers().size();
+        this.nbJoueurs = lobby.getPlayers().size();
         int nbLoups = Math.min(Math.max((int) Math.round((double) nbJoueurs / 4.0), 1), 4);
 
         while (nbLoups != 0) {
@@ -215,7 +237,7 @@ public class LoupGame implements Game {
             else if (role.equals(Role.LOUP)) { loups.add(uuid); }
         }
 
-        this.lobby.queueEventForAllPlayer(new StateEvent(GameState.DISTRIBUTION_ROLE));
+        // this.lobby.queueEventForAllPlayer(new StateEvent(GameState.DISTRIBUTION_ROLE));
         this.gameState = GameState.DISTRIBUTION_ROLE;
 
         if (this.isCupidonAlive()) { this.nextGameState = GameState.CUPIDON_CHOIX; }
@@ -566,14 +588,14 @@ public class LoupGame implements Game {
         object.put("votes", jsonVotes);
 
         object.put("manche", this.manche);
-        object.put("gameState", this.gameState);
+        object.put("state", this.gameState);
 
         return object;
     }
 
     public JSONObject toJsonMasked( Joueur joueur ) {
         JSONObject out = new JSONObject();
-        out.put("gameState", this.gameState);
+        out.put("state", this.gameState);
         out.put("manche", this.manche);
         out.put("role", joueur.getRole());
         if (joueur.getRole().equals(Role.LOUP)) {

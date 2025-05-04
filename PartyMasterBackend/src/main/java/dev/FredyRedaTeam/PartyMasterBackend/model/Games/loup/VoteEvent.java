@@ -25,7 +25,7 @@ public class VoteEvent implements Event {
 
     @Override
     public String getType() {
-        return "Games.loup.VoteEvent";
+        return "Loup.VoteEvent";
     }
 
     @Override

@@ -21,7 +21,7 @@ public class WinnerEvent implements Event {
 
     @Override
     public String getType() {
-        return "Games.loup.WinnerEvent";
+        return "Loup.WinnerEvent";
     }
 
     @Override

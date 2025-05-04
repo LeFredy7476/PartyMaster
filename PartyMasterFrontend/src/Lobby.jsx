@@ -9,6 +9,7 @@ import { useEffect } from 'react'
 import useGames from './games/useGames'
 import LobbyHome from './games/LobbyHome'
 import Uno from './games/Uno'
+import Loup from './games/Loup'
 
 function Lobby({ connected, setconnected }) {
 
@@ -129,6 +130,8 @@ function Lobby({ connected, setconnected }) {
                 game = new LobbyHome(app, event.game);
             } else if (event.game.type == "Uno") {
                 game = new Uno(app, event.game);
+            } else if (event.game.type == "Loup") {
+                game = new Loup(app, event.game);
             } else {
                 game = new LobbyHome(app, event.game);
             }
@@ -136,7 +139,7 @@ function Lobby({ connected, setconnected }) {
                 console.log(game);
                 console.log("game updated");
                 data.game = game;
-                data.gameData = event.game;
+                data.gameData = game.data;
             });
             game.init();
         },
@@ -156,10 +159,17 @@ function Lobby({ connected, setconnected }) {
             
         },
 
+        Loup_StateEvent(event) {
+            console.log("the game has entered a new state: " + event);
+            app.updateData((data) => {
+                data.gameData.state = event.state;
+            });
+        }
+
 
     }
 
-    useEffect(function(){
+    useEffect(function() {
         if (app.data.gameData == null) {
             axios.get(
                 app.host + ":8080/" + room + "/state?uuid=" + sessionStorage.getItem("uuid")
@@ -173,7 +183,7 @@ function Lobby({ connected, setconnected }) {
                 updateData((data) => {
                     data.chat = response.data.chat;
                     data.game = _game;
-                    data.gameData = response.data.game;
+                    data.gameData = _game.data;
                     data.lobby_master = response.data.lobby_master;
                     data.players = response.data.players;
                     data.room = response.data.room;

@@ -39,7 +39,7 @@ public class RevelationEvent implements Event {
 
     @Override
     public String getType() {
-        return "Games.loup.RevelationEvent";
+        return "Loup.RevelationEvent";
     }
 
     @Override

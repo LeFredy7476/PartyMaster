@@ -21,7 +21,7 @@ public class DeathEvent implements Event {
 
     @Override
     public String getType() {
-        return "Games.loup.DeathEvent";
+        return "Loup.DeathEvent";
     }
 
     @Override

@@ -24,7 +24,7 @@ class PlayEvent implements Event {
     }
 
     @Override
-    public String getType() { return "Games.uno.PlayEvent"; }
+    public String getType() { return "Uno.PlayEvent"; }
 
     @Override
     public JSONObject toJson() {

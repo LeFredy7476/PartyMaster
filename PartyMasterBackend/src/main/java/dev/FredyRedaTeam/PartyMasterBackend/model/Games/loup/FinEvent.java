@@ -36,7 +36,7 @@ public class FinEvent implements Event {
 
     @Override
     public String getType() {
-        return "Games.loup.FinEvent";
+        return "Loup.FinEvent";
     }
 
     @Override

@@ -69,14 +69,15 @@ class ExpFollower {
         this.trueOpacity = this.expFollow( deltaTime, this.trueOpacity, this.targetOpacity );
     }
 
-    transform ( func, canvasHandler ) {
+    transform ( func, canvasHandler, rotate = true ) {
         // setup transform
         canvasHandler.ctx.save();
         canvasHandler.ctx.translate( this.trueX, this.trueY );
-        canvasHandler.ctx.rotate( this.trueRotation );
+        if (rotate) canvasHandler.ctx.rotate( this.trueRotation );
         canvasHandler.octx.save();
         canvasHandler.octx.translate( this.trueX, this.trueY );
-        canvasHandler.octx.rotate( this.trueRotation );
+        // do not rotate the hitbox
+        if (rotate) canvasHandler.octx.rotate( this.trueRotation );
 
         // execute tasks
         func( canvasHandler );
@@ -90,17 +91,12 @@ class ExpFollower {
 
 
 class Joueur {
-    constructor ( uuid, name, images, icon, role, amour, vivant, known ) {
+    constructor ( uuid, hitboxColor ) {
         this.uuid = uuid;
-        this.name = name;
-        this.expFollower = new ExpFollower(0, 0, 0, 1, 0);
-        this.icon = icon;
-        this.role = role;
-        this.amour = amour;
-        this.vivant = vivant;
-        this.images = images;
+        this.expFollower = new ExpFollower(0, 0, 0, 0.1, 0);
+        this.expFollower.size = 1;
         this._hover = false;
-        this._known = known;
+        this.hitboxColor = hitboxColor;
     }
 
     get hover() {
@@ -112,38 +108,90 @@ class Joueur {
         this._hover = value;
     }
 
-    get known() {
-        return this._hover;
-    }
-
-    set known(value) {
-        this.expFollower.size = value ? Math.PI * 2 : 0;
-        this._known = value;
-    }
-
-    place(x, y) {
+    place(x, y, teleport = false) {
         this.expFollower.x = x;
         this.expFollower.y = y;
+        if (teleport) {
+            this.expFollower.trueX = x;
+            this.expFollower.trueY = y;
+        }
     }
 
-    draw() {
+    draw( game ) {
         let self = this;
         this.expFollower.transform((canvasHandler) => {
-            // let ctx = canvasHandler.ctx;
-            let ctx = document.createElement("canvas").getContext("2d");
-            ctx.drawImage(self.images);
-        })
-
+            let myRole = game.data.joueurs[self.uuid].role;
+            let myIcon = game.app.data.players[self.uuid].icon;
+            let ctx = canvasHandler.ctx;
+            // let ctx = document.createElement("canvas").getContext("2d");
+            ctx.save();
+            if (myIcon != null) {
+                ctx.globalAlpha = 1.0;
+                let myIconAsset = game.images.players[myIcon];
+                ctx.beginPath();
+                ctx.arc(0, 0, myIconAsset.r * 2, 0, Math.PI * 2);
+                ctx.clip();
+                if (myIconAsset.image.complete) {
+                    ctx.drawImage(myIconAsset.image, -myIconAsset.cx * 2, -myIconAsset.cy * 2, myIconAsset.w * 2, myIconAsset.h * 2);
+                }
+                // ctx.beginPath();
+                // ctx.arc(0, 0, myIconAsset.r * 2, 0, Math.PI * 2);
+                ctx.lineWidth = 8;
+                ctx.stroke()
+            }
+            ctx.restore();
+            if (myRole != null) {
+                ctx.globalAlpha = self.expFollower.trueRotation / (Math.PI * 2);
+                let myRoleAsset = game.images.roles[myRole.toLowerCase()];
+                if (myRoleAsset.image.complete) {
+                    ctx.drawImage(myRoleAsset.image, -myRoleAsset.cx * 2, -myRoleAsset.cy * 2, myRoleAsset.w * 2, myRoleAsset.h * 2);
+                }
+            }
+        }, game);
+        this.expFollower.transform((canvasHandler) => {
+            let myName = game.app.data.players[self.uuid].name;
+            let ctx = canvasHandler.ctx;
+            // let ctx = document.createElement("canvas").getContext("2d");
+            let octx = canvasHandler.octx;
+            octx.fillStyle = canvasHandler.toRGB(self.hitboxColor);
+            octx.fillRect(-100, -100, 200, 200);
+            ctx.textAlign = "center";
+            ctx.font = "24px Lexend";
+            ctx.fillStyle = canvasHandler.toRGB(0, 0, 0);
+            ctx.fillText(myName, 0, 100);
+        }, game, false);
     }
 
-    update(deltaTime) {
+    update(deltaTime, game) {
+        this.expFollower.rotation = (game.data.joueurs[this.uuid].role != null) ? Math.PI * 2 : 0;
         this.expFollower.update(deltaTime);
     }
 }
 
 export default class Loup extends CanvasHandler {
     constructor ( app, data ) {
+
         super( app, data );
+        let myUuid = sessionStorage.getItem("uuid");
+        let myData = this.data.joueurs[myUuid];
+        let amour = myData.amour;
+        let iAmLoup = myData.role == "LOUPBLANC" || myData.role == "LOUP";
+
+        for (let uuid in this.data.joueurs) {
+            if (Object.prototype.hasOwnProperty.call(this.data.joueurs, uuid)) {
+                const player = this.data.joueurs[uuid];
+                if (uuid != amour && uuid != myUuid) {
+                    if (!(iAmLoup && (player.role == "LOUPBLANC" || player.role == "LOUP"))) {
+                        this.data.joueurs[uuid].role = null;
+                    } else if (player.role == "LOUPBLANC") {
+                        this.data.joueurs[uuid].role = "LOUP"
+                    }
+                    if (myData.role != "CUPIDON") {
+                        this.data.joueurs[uuid].amour = null;
+                    }
+                }
+            }
+        }
 
         this.images = {
             players: [],
@@ -161,7 +209,7 @@ export default class Loup extends CanvasHandler {
             });
         }
 
-        for (const key in assets.loupgaroux) {
+        for (let key in assets.loupgaroux) {
             if (Object.prototype.hasOwnProperty.call(assets.loupgaroux, key)) {
                 let role = assets.loupgaroux[key];
                 let img = new Image();
@@ -173,32 +221,63 @@ export default class Loup extends CanvasHandler {
             }
         }
 
+        let i = 0;
         for (const uuid in this.app.data.players) {
             if (Object.prototype.hasOwnProperty.call(this.app.data.players, uuid)) {
                 let player = this.app.data.players[uuid];
                 let joueur = this.data.joueurs[uuid];
                 this.joueurs[uuid] = new Joueur(
-                    uuid, 
-                    player.name, 
-                    this.images, 
-                    player.icon, 
-                    joueur.role, 
-                    joueur.amour, 
-                    joueur.vivant, 
-                    uuid == sessionStorage.getItem("uuid")
+                    uuid,
+                    [ i * 5, 0, 0 ]
                 );
+                i++;
             }
         }
 
-
+        this.app.packAction("game:ready", {}).then((response) => {
+            if (response.data.code != 0) {
+                ErrorHandler(response.data);
+            }
+        }).catch(ErrorHandler);
     }
 
+    loop ( time ) {
+        super.loop( time );
 
+        this.gridcalculator();
+        this.placePlayers();
 
-    gridcalculator() {
-        this.columns = Math.min(Math.max(3, Math.floor(this.width % 100)), 7);
-        this.rows = Math.ceil(this.players / this.columns);
+        for (const uuid in this.joueurs) {
+            if (Object.prototype.hasOwnProperty.call(this.joueurs, uuid)) {
+                this.joueurs[uuid].update(this.deltaTime, this);
+                this.joueurs[uuid].draw(this);
+            }
+        }
+
+        this.ctx.textAlign = "left"
+        this.ctx.font = "50px sans-serif";
+        this.ctx.fillStyle = this.toRGB(127, 127, 127);
+        this.ctx.fillText( Math.round( 10000 / this.deltaTime ) / 10 + " fps", 50, 80 );
+        this.ctx.fillText( this.hover[0] + ", " + this.hover[1] + ", " + this.hover[2], 50, 160 );
+        this.ctx.fillText( this.mouse.x + ", " + this.mouse.y, 50, 240 );
+        
+        if ( sessionStorage.getItem( "debug" ) == "true" ) this.debugDraw();
     }
 
+    placePlayers () {
+        let x = Math.round((this.width - (this.columns * 200)) / 2) + 100;
+        let y = Math.round((this.height - (this.rows * 240)) / 2) + 100;
+        let i = 0;
+        for (const uuid in this.joueurs) {
+            if (Object.prototype.hasOwnProperty.call(this.joueurs, uuid)) {
+                this.joueurs[uuid].place(x + (i % this.columns) * 200, y + Math.trunc(i / this.columns) * 240);
+                i++;
+            }
+        }
+    }
 
+    gridcalculator () {
+        this.columns = Math.min(Math.max(3, Math.floor(this.width % 200)), 7, Object.keys(this.joueurs).length);
+        this.rows = Math.ceil(Object.keys(this.joueurs).length / this.columns);
+    }
 }
