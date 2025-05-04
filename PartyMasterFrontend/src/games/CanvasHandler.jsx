@@ -1,5 +1,4 @@
 
-
 export default class CanvasHandler {
     
     constructor ( app, data ) {
@@ -72,7 +71,8 @@ export default class CanvasHandler {
         this.octx.fillStyle = "#ffffff";
         this.octx.fillRect( 0, 0, this.offscreenCanvas.width, this.offscreenCanvas.height );
     }
-
+    
+//quand tu sors d'une certaine limite le carrer dans lequel le jeux est afficher va se retrecir 
     resizeCanvas () {
         // https://stackoverflow.com/questions/4288253/html5-canvas-100-width-height-of-viewport
         let parent = this.parentDiv;
@@ -122,6 +122,8 @@ export default class CanvasHandler {
         } );
     }
 
+//la couleur est en rgb et la souris detecte la couleur du background invisible, il faut pour les boutons creer des carree invisible de couleur differente comme 
+//sa si la couleur est cliquer et differente sa fait comme si un bouton avait ete cliquer
     getMousePointerHover() {
         if (this.canvas.matches("#mainCanvas:hover")) {
             let imageData = this.octx.getImageData( this.mouse.x, this.mouse.y, 1, 1 );

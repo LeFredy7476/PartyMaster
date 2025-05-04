@@ -17,21 +17,23 @@ function JoinLobby({ connected, setconnected }) {
     const [lobbyStatus, setLobbyStatus] = useState(false);
     const [lobbyIcon, setLobbyIcon] = useState("sync");
     const [lobbyMessage, setLobbyMessage] = useState("recherche...");
-
+//ce useEffect appelle le backend a chaque seconde pour verifier que le groupe existe encore et ou est encore disponible 
     useEffect(() => {
         let interval = setInterval(() => {
             axios.get(
                 "http://" + window.location.hostname + ":8080/" + room + "/ping"
             ).then((response) => {
                 setLobbyStatus(true);
+                //set les icônes des messages
                 setLobbyIcon(response.data.exist ? (response.data.open ? "check_circle" : "lock") : "warning");
+                //groupe fermer sa veut dire que une game est en cours, inexistant sa veut dire que'elle existe pas
                 setLobbyMessage(response.data.exist ? (response.data.open ? "Groupe disponible" : "Groupe fermé") : "Groupe inexistant");
             }).catch((error) => {
                 setLobbyStatus(true);
                 setLobbyIcon("signal_wifi_bad");
                 setLobbyMessage("Serveur inatteignable");
             })
-        }, 2000);
+        }, 1000);
         return () => {
             clearInterval(interval);
         }

@@ -11,6 +11,7 @@ import LobbyHome from './games/LobbyHome'
 import Uno from './games/Uno'
 import Loup from './games/Loup'
 
+//heriter de routeur, cela verifie avec ton browser si tu es deja dans un groupe , si ce n'est pas le cas, sa te retourne a la page de connexion du groupe
 function Lobby({ connected, setconnected }) {
 
     const games = useGames();
@@ -18,14 +19,14 @@ function Lobby({ connected, setconnected }) {
     const navigate = useNavigate();
 
     const [data, updateData] = useImmer({
-        "room": room,
+        "room": room, // les infos de la room
         "timestamp": 0,
-        "lobby_master": null,
-        "players": {},
-        "game": null,
-        "gameData": null,
-        "chat": [],
-        "msg": ""
+        "lobby_master": null,// leader de la room
+        "players": {}, // uuid des joueurs
+        "game": null, // le jeux en cours
+        "gameData": null, // les données du jeux
+        "chat": [], // l'historique des messages
+        "msg": "" // le message ecris en temps reel 
     });
 
     const app = {
@@ -36,6 +37,7 @@ function Lobby({ connected, setconnected }) {
             return sessionStorage.getItem("uuid") == app.data.lobby_master;
         },
         receiveEvent: function(event) {
+            // quand un event est recu, sa passe par cette fonction qui va appeler la fonction correspondante comme un guide
             console.log(event); // TODO: retirer apres debug
             if      (event.type == "ChatEvent") app.ChatEvent(event)
             else if (event.type == "JoinEvent") app.JoinEvent(event)
@@ -45,6 +47,7 @@ function Lobby({ connected, setconnected }) {
             else if (event.type == "LobbyHome.SuggestEvent") app.LobbyHome_SuggestEvent(event)
             // app.updateData((data) => {});
         },
+        //pack Action sa automatise la creation de l'action au lieu de la faire manuellement
         packAction: function(target, data) {
             return axios.post(app.host + ":8080/" + room + "/send", {
                 "target": target,
@@ -75,6 +78,7 @@ function Lobby({ connected, setconnected }) {
             }
         }, 
         kickPlayer: function(uuid) {
+            //action de kick elle se fait dans le backend player:kick sa fait juste appeller dans le backend terminationEvent
             app.packAction("player:kick", {
                 "target": uuid
             }).then(()=>{
@@ -82,6 +86,7 @@ function Lobby({ connected, setconnected }) {
             }).catch(() => {console.error("axios post error")});
         },
         quit: function() {
+            //pareil mais sans le backend tu fait juste revenir a l'ecran d'acceuil
             app.packAction("player:quit", {}).then(()=>{
                 console.log("quit");
             }).catch(() => {console.error("axios post error")});
@@ -118,10 +123,16 @@ function Lobby({ connected, setconnected }) {
                 });
             }
         },
+        //celui qui est appeler quand ont change de jeux 
         GameChangeEvent(event) {
+            // methode critique, petit changement = peut tout briser
+
             console.log("A new game has began: " + event.game.type);
             // let gameType = games[event.game.type];
             console.log(app);
+            //arrete le jeux si tes deja en game, stop le et update le car quand sa change sa prend des chemins different que celui donner parce que 
+            //c'est dans une boucle while qui s'appelle de memeoire ce qui creer des fuites de memoires donc update fait en sorte que sa lui redonne les bonnes 
+            //references et le remet dans le droit chemin 
             if (app.data.game) app.data.game.stop();
             if (app.data.game) app.data.game.update( app, app.data.gameData );
             console.log("game updating");
@@ -135,6 +146,8 @@ function Lobby({ connected, setconnected }) {
             } else {
                 game = new LobbyHome(app, event.game);
             }
+            //updateGame est la pour etre sure que game est implementer et que certaine donner reste cacher par exemple qui est loup comme sa les autres ne le savent
+            //pas
             app.updateData((data) => {
                 console.log(game);
                 console.log("game updated");
@@ -168,7 +181,9 @@ function Lobby({ connected, setconnected }) {
 
 
     }
-
+    //il est appeler a chaque fois que data se fait changer car il est dans ses dependencies car il est celui qui se charge de update le jeux et aussi
+    //quand tu rentre dans la room il est appeler en verifiant si un jeux est deja lancer et si c'est le cas sa update, aussi quand la room est creer,
+    //sa appelle la methode toJson dans le backend pour recuperer le json contenant toute les infos 
     useEffect(function() {
         if (app.data.gameData == null) {
             axios.get(
@@ -179,6 +194,7 @@ function Lobby({ connected, setconnected }) {
                     // window.location.reload();
                 }
                 if (app.data.game) app.data.game.stop();
+                //il fait en sorte que la room commence en lobbyHomme et set les premieres datas
                 let _game = new games.LobbyHome( app, response.data.game );
                 updateData((data) => {
                     data.chat = response.data.chat;
@@ -200,14 +216,17 @@ function Lobby({ connected, setconnected }) {
         }
     }, [app.data]);
 
+    //fait en sorte que toute les .02 secondes sa verifie les events et sa appelle fetch event dans le backend et les donnes au joueurs 
+    //tick c'est dans le backend et il peut signaler le joueur est encore present, il prend les events arriver pendant la partie, et signale que le groupe est encore
+    //actif et la verification d'activite se fait lorsque la page est ferme c'est pour donner une chance de se reconnecter 
     useEffect(function(){
         let attempt = 0;
-        let interval = setInterval(()=>{
+        let interval = setInterval(() => {
             axios.get(
                 app.host + ":8080/" + room + "/tick?uuid=" + sessionStorage.getItem("uuid")
             ).then((response) => {
                 // console.log(response.data.length);
-                // console.log(response.data)
+                // console.log(response.data);
                 response.data.forEach(app.receiveEvent);
                 attempt = 0;
             }).catch((error) => {
