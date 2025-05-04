@@ -64,7 +64,7 @@ public class QuestionGame implements Game  {
                 case "questionSpe":
                     switch (action.getTarget(2)){
                         case "receiveResponse":
-                            return recevoirquestionspe(action);
+                            return recevoirReponseSpe(action);
                     }
 //            case "special":
 //                switch (action.getTarget(2)){
@@ -220,7 +220,7 @@ public class QuestionGame implements Game  {
                 reponserecu.put(uuid, target);
             }
             if (contenders.size()==reponserecu.size()){
-                BonneReponse(action,currentQuestion);
+                br();
             }else {
                 Response r = new Response(3, new JSONObject());
                 r.getData().put("r", "NotEveryoneResponded");
@@ -235,7 +235,7 @@ public class QuestionGame implements Game  {
         return new Response();
     }
 
-    public Response recevoirquestionspe(Action action) throws Exception{
+    public Response recevoirReponseSpe(Action action) throws Exception{
         long now = System.currentTimeMillis();
         UUID uuid = action.getUuid();
         //reponseJoueur est la reponse en json et target la transforme en String
@@ -253,7 +253,7 @@ public class QuestionGame implements Game  {
 
             }
             if (contenders.size()==reponserecu.size()){
-                BonneReponseSpe(action,currentQuestionSpe);
+               brSpe();
             }else {
                 Response r = new Response(3, new JSONObject());
                 r.getData().put("r", "NotEveryoneResponded");
@@ -270,120 +270,97 @@ public class QuestionGame implements Game  {
 
         return new Response();
     }
-
-    // verifie que c'est la bonne reponse
-    public Response BonneReponse(Action action, Question question) throws Exception {
-        long now = System.currentTimeMillis();
-        UUID uuid = action.getUuid();
-        // reponseJoueur est la reponse en json et target la transforme en String
-        JSONObject reponseJoueur = action.getData();
-        String target = reponseJoueur.getString("target");
-
-
-        if (verifIci(uuid)) {
-            if (reponserecu.containsKey(uuid)) {
-                Response r = new Response(3, new JSONObject());
-                r.getData().put("r", "AlreadyAnswered");
-                return r; // REFUSED
+    public ArrayList<UUID> verifReponse(){
+        ArrayList <UUID>bonneReponse=null;
+        for (Map.Entry<UUID,String> reponseMec:reponserecu.entrySet()){
+            if (reponseMec.getValue().equals(currentQuestion.getBonneReponse())){
+                 bonneReponse.add(reponseMec.getKey());
             }
-            tempsrecu.put(uuid, now);
-            reponserecu.put(uuid, target);
+            else {
+                System.out.println("mauvaise reponse de : "+reponseMec.getKey());
 
-            if (target.equals(question.getBonneReponse())) {
-                if (this.gagnant != null) {
-                    return new Response();
-                } else {
-                    this.gagnant = uuid;
-                    // methode pour boucler avec for trouver sur internet
-                    for (Map.Entry<UUID,String> item : reponserecu.entrySet()) {
-                        UUID challenger = item.getKey();
-                        // get la reponse en json et la prochaine c'est comme en haut qui transforme en string
+            }
+        }
+        return bonneReponse;
+    }
+    public ArrayList<UUID>verifReponseSpe(){
+        ArrayList<UUID>bonneReponse=null;
+        for (Map.Entry<UUID,String> reponseMec:reponserecu.entrySet()){
+            if (reponseMec.getValue().equals(currentQuestion.getBonneReponse())){
+                bonneReponse.add(reponseMec.getKey());
+            }
+            else {
+                if (reponseMec.getValue()!=null) {
+                    Joueur joueur = getJoueur(reponseMec.getKey());
+                    joueur.removePoint(currentQuestionSpe.getNiveauQuestion());
 
-                        // verifie que sa challenge pas contre lui meme
-                        if (!challenger.equals(uuid)&&item.getValue().equals(question.getBonneReponse())) {
-                            if (tempsrecu.get(challenger) < tempsrecu.get(uuid)) {
-                                this.gagnant = challenger;
-                            }
-                        }
-                    }
-                    if (uuid.equals(gagnant)) {
-                        Joueur joueur=getJoueur(uuid);
-                        joueur.addPoint(1);
-                        lobby.queueEventForAllPlayer(new StateEvent(GameStateJ.REVELATIONBM));
-                        lobby.queueEventForAllPlayer(new QuestionResultatEvent(question.getId(),question.getBonneReponse()));
-                    }
+                }else{
+                    System.out.println("joueur n'a pas repondu ");
                 }
             }
-            this.gagnant = null;
-            tempsrecu.clear();
-            reponserecu.clear();
-            return new Response();
-        } else {
+        }
+        return bonneReponse;
+    }
+    public Response br(){
+        ArrayList<UUID> gagnantPotentiel=verifReponse();
+        Question question=currentQuestion;
+        UUID premier=null;
+        int compteur=0;
+        if (gagnantPotentiel.isEmpty()){
             Response r = new Response(3, new JSONObject());
-            r.getData().put("r", "UnknownPlayer");
+            r.getData().put("r", "NoWinner");
             return r; // REFUSED
         }
-    }
-
-
-    public Response BonneReponseSpe(Action action,QuestionSpe question) throws Exception{
-
-        UUID uuid = action.getUuid();
-        //reponseJoueur est la reponse en json et target la transforme en String
-        JSONObject reponseJoueur=action.getData();
-        String target =reponseJoueur.getString("target");
-
-        if (verifIci(uuid)){
-            if(reponserecu.containsKey(uuid)){
-                return new Response();
-            }
-
-            reponserecu.put(uuid,target);
-
-            if (target.equals(question.getReponse1())){
-                if (this.gagnant != null) {
-                    return new Response();
-                } else {
-                    this.gagnant = uuid;
-                    //methode pour boucler avec for trouver sur internet
-                    for (Map.Entry<UUID, String> truc : reponserecu.entrySet()) {
-                        UUID challenger = truc.getKey();
-                        //get la reponse en json et la prochaine c'est comme en haut qui transforme en string
-
-                        //verifie que sa challenge pas contre lui meme
-                        if (!challenger.equals(uuid) && truc.getValue().equals(question.getReponse1())) {
-                            if (tempsrecu.get(challenger) < tempsrecu.get(uuid)){
-                                this.gagnant = challenger;
-                            }
-                        }
-                    }
-                    if (uuid.equals( this.gagnant)){
-                        Joueur joueur=getJoueur(uuid);
-                        joueur.addPoint(question.getNiveauQuestion());
-                        lobby.queueEventForAllPlayer(new StateEvent(GameStateJ.REVELATIONQSBM));
-                    } else {
-                        for (Map.Entry<UUID,String> truc : reponserecu.entrySet()) {
-
-                            UUID challenger = truc.getKey();
-                            if (!challenger.equals(this.gagnant) && truc.getValue() != null) {
-                                Joueur joueur = getJoueur(challenger);
-                                joueur.removePoint(question.getNiveauQuestion());
-                                lobby.queueEventForAllPlayer(new StateEvent(GameStateJ.REVELATIONQSBM));
-                                lobby.queueEventForAllPlayer(new QuestionResultatEvent(question.getId(),question.getReponse1()));
-                            }
-                        }
-                    }
-                }
-            } else {
-                System.out.println("mauvaise reponse");
-            }
-            return new Response();
+        for(Map.Entry<UUID,Long> mec:tempsrecu.entrySet()){
+           if (mec.getKey()==gagnantPotentiel.get(compteur)){
+               premier=mec.getKey();
+               Joueur joueur=getJoueur(premier);
+               joueur.addPoint(1);
+               lobby.queueEventForAllPlayer(new StateEvent(GameStateJ.REVELATIONBM));
+               lobby.queueEventForAllPlayer(new QuestionResultatEvent(question.getId(),question.getBonneReponse()));
+               tempsrecu.clear();
+               reponserecu.clear();
+               return new Response();
+           }else{
+               compteur++;
+           }
         }
-        this.gagnant = null;
-        tempsrecu.clear();
-        reponserecu.clear();
+
+        System.out.println("gagnant "+premier);
+
         return new Response();
     }
+    public Response brSpe(){
+        ArrayList<UUID> gagnantPotentiel=verifReponseSpe();
+        QuestionSpe question=currentQuestionSpe;
+        UUID premier=null;
+        int compteur=0;
+        if (gagnantPotentiel.isEmpty()){
+            Response r = new Response(3, new JSONObject());
+            r.getData().put("r", "NoWinner");
+            return r; // REFUSED
+        }
+        for(Map.Entry<UUID,Long> mec:tempsrecu.entrySet()){
+           if (mec.getKey()==gagnantPotentiel.get(compteur)){
+               premier=mec.getKey();
+               Joueur joueur=getJoueur(premier);
+               joueur.addPoint(question.getNiveauQuestion());
+               lobby.queueEventForAllPlayer(new StateEvent(GameStateJ.REVELATIONBM));
+               lobby.queueEventForAllPlayer(new QuestionResultatEvent(question.getId(),question.getReponse1()));
+               tempsrecu.clear();
+               reponserecu.clear();
+               return new Response();
+           }else{
+               compteur++;
+           }
+        }
+
+        System.out.println("gagnant "+premier);
+
+        return new Response();
+    }
+
+ //  sa doit envoyer le state du jeux au joueur mais que le joueur ne puisse pas le voir avec wire shark pour tricher 
 public JSONObject toJsonMasked(Joueur joueur) {
         JSONObject out = new JSONObject();
         out.put("gameStateJ", this.gameStateJ);

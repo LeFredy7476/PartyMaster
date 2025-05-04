@@ -18,7 +18,7 @@ public class QuestionResultatEvent implements Event {
     public String getBonneReponse(){return bonneReponse;}
 
     @Override
-    public String getType() {return "Games.JeuxQuestion.QuestionResultatEvent";}
+    public String getType() {return "JeuxQuestion.QuestionResultatEvent";}
 
     @Override
     public JSONObject toJson() {
