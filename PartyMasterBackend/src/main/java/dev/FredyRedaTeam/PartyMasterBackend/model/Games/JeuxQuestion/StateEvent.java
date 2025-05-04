@@ -28,13 +28,14 @@ public class StateEvent implements Event {
 
     @Override
     public String getType() {
-        return "Games.JeuxQuestion.StateEvent";
+        return "JeuxQuestion.StateEvent";
     }
 
     @Override
     public JSONObject toJson() {
         JSONObject obj = new JSONObject();
         obj.put("type", getType());
+        obj.put("state",gameStateJ.toString());
         return obj;
     }
 }

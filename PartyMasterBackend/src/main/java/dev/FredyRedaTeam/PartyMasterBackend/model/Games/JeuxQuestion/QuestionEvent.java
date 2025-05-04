@@ -44,7 +44,7 @@ public class QuestionEvent implements Event {
 
     @Override
     public String getType() {
-        return "Games.JeuxQuestion.QuestionEvent";
+        return "JeuxQuestion.QuestionEvent";
     }
 
     @Override

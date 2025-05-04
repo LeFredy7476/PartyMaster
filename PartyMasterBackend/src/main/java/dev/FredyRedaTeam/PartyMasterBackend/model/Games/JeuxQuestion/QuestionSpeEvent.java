@@ -25,7 +25,7 @@ public class QuestionSpeEvent implements Event {
 
     @Override
     public String getType() {
-        return "Games.JeuxQuestion.QuestionSpeEvent";
+        return "JeuxQuestion.QuestionSpeEvent";
     }
 
     @Override

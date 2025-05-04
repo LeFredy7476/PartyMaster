@@ -29,7 +29,7 @@ public class ScoreEvent implements Event {
 
     @Override
     public String getType() {
-        return "Games.JeuxQuestion.ScoreEvent";
+        return "JeuxQuestion.ScoreEvent";
     }
 
     @Override
