@@ -9,6 +9,21 @@ function getRandomInt(max) {
 
 const assets = useAssets();
 
+const statesNames = {
+    DISTRIBUTION_ROLE: "",
+    CUPIDON_CHOIX: "CUPIDON_CHOIX",
+    AMOUREUX_REVELATION: "AMOUREUX_REVELATION",
+    GUARDIEN_CHOIX: "GUARDIEN_CHOIX",
+    VOYANTE_CHOIX: "VOYANTE_CHOIX",
+    VOYANTE_REVELATION: "VOYANTE_REVELATION",
+    LOUP_CHOIX: "LOUP_CHOIX",
+    TRAITRE_CHOIX: "TRAITRE_CHOIX",
+    TRAITRE_REVELATION: "TRAITRE_REVELATION",
+    VILLAGE_EXECUTION: "VILLAGE_EXECUTION",
+    CHASSEUR_CHOIX: "CHASSEUR_CHOIX",
+    RESULTAT: "RESULTAT",
+}
+
 class ExpFollower {
     constructor ( x, y, rot, size, opacity ) {
         this.trueX = x;

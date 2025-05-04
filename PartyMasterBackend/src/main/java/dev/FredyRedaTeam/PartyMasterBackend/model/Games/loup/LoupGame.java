@@ -94,9 +94,9 @@ public class LoupGame implements Game {
                         this.nextGameState = GameState.VOYANTE_REVELATION;
                     } else if (isGuardianAlive()) {
                         this.gameState = GameState.GUARDIEN_CHOIX;
-                        this.nextGameState = GameState.LOUPGAROUX_CHOIX;
+                        this.nextGameState = GameState.LOUP_CHOIX;
                     } else {
-                        this.gameState = GameState.LOUPGAROUX_CHOIX;
+                        this.gameState = GameState.LOUP_CHOIX;
                         if (isTraitreAlive()) { this.nextGameState = GameState.TRAITRE_CHOIX; }
                         else { this.nextGameState = GameState.VILLAGE_EXECUTION; }
                     }
@@ -138,12 +138,12 @@ public class LoupGame implements Game {
                             this.connaisseur = null;
                             if (isGuardianAlive()) {
                                 this.gameState = GameState.GUARDIEN_CHOIX;
-                                this.nextGameState = GameState.LOUPGAROUX_CHOIX;
+                                this.nextGameState = GameState.LOUP_CHOIX;
                             } else if (isTraitreAlive()) {
-                                this.gameState = GameState.LOUPGAROUX_CHOIX;
+                                this.gameState = GameState.LOUP_CHOIX;
                                 this.nextGameState = GameState.TRAITRE_CHOIX;
                             } else {
-                                this.gameState = GameState.LOUPGAROUX_CHOIX;
+                                this.gameState = GameState.LOUP_CHOIX;
                                 this.nextGameState = GameState.VILLAGE_EXECUTION;
                             }
                             lobby.queueEventForAllPlayer(new StateEvent(gameState));
@@ -169,7 +169,7 @@ public class LoupGame implements Game {
                             } else if (isGuardianAlive()) {
                                 this.nextGameState = GameState.GUARDIEN_CHOIX;
                             } else {
-                                this.nextGameState = GameState.LOUPGAROUX_CHOIX;
+                                this.nextGameState = GameState.LOUP_CHOIX;
                             }
                             lobby.queueEventForAllPlayer(new StateEvent(gameState));
                             return new Response();
@@ -245,7 +245,7 @@ public class LoupGame implements Game {
             if (this.isVoyanteAlive()) { this.nextGameState = GameState.VOYANTE_CHOIX; }
             else {
                 if (this.isGuardianAlive()) { this.nextGameState = GameState.GUARDIEN_CHOIX; }
-                else { this.nextGameState = GameState.LOUPGAROUX_CHOIX; }
+                else { this.nextGameState = GameState.LOUP_CHOIX; }
             }
         }
     }
@@ -283,7 +283,7 @@ public class LoupGame implements Game {
                                 } else if (isGuardianAlive()) {
                                     this.nextGameState = GameState.GUARDIEN_CHOIX;
                                 } else {
-                                    this.nextGameState = GameState.LOUPGAROUX_CHOIX;
+                                    this.nextGameState = GameState.LOUP_CHOIX;
                                 }
                             }
                             lobby.queueEventForAllPlayer(new StateEvent(gameState));
@@ -317,7 +317,7 @@ public class LoupGame implements Game {
                     this.gameState = GameState.GUARDIEN_CHOIX;
                 }
                 if (this.gameState.equals(GameState.GUARDIEN_CHOIX) && !isGuardianAlive()) {
-                    this.gameState = GameState.LOUPGAROUX_CHOIX;
+                    this.gameState = GameState.LOUP_CHOIX;
                 }
                 if (this.gameState.equals(GameState.TRAITRE_CHOIX) && !isTraitreAlive()) {
                     this.gameState = GameState.VILLAGE_EXECUTION;
@@ -381,9 +381,9 @@ public class LoupGame implements Game {
                             } else {
                                 if (isGuardianAlive()) {
                                     this.gameState = GameState.GUARDIEN_CHOIX;
-                                    this.nextGameState = GameState.LOUPGAROUX_CHOIX;
+                                    this.nextGameState = GameState.LOUP_CHOIX;
                                 } else {
-                                    this.gameState = GameState.LOUPGAROUX_CHOIX;
+                                    this.gameState = GameState.LOUP_CHOIX;
                                     if (isTraitreAlive()) { this.nextGameState = GameState.TRAITRE_CHOIX; }
                                     else { this.nextGameState = GameState.VILLAGE_EXECUTION; }
                                 }
@@ -431,7 +431,7 @@ public class LoupGame implements Game {
         if (joueurs.get(uuid).getRole().equals(Role.GUARDIEN) && joueurs.get(uuid).isVivant()) {
             if (joueurs.get(target).isVivant() && !this.protege.equals(target)) {
                 this.protege = target;
-                this.gameState = GameState.LOUPGAROUX_CHOIX;
+                this.gameState = GameState.LOUP_CHOIX;
                 if (isTraitreAlive()) { this.nextGameState = GameState.TRAITRE_CHOIX; }
                 else { this.nextGameState = GameState.VILLAGE_EXECUTION; }
                 lobby.queueEventForAllPlayer(new StateEvent(gameState));
@@ -456,7 +456,7 @@ public class LoupGame implements Game {
             this.lobby.queueEvent(uuid, new RevelationEvent(target, joueurs.get(target).getRole(), "voyante"));
             this.gameState = GameState.VOYANTE_REVELATION;
             if (isGuardianAlive()) { this.nextGameState = GameState.GUARDIEN_CHOIX; }
-            else { this.nextGameState = GameState.LOUPGAROUX_CHOIX; }
+            else { this.nextGameState = GameState.LOUP_CHOIX; }
             lobby.queueEventForAllPlayer(new StateEvent(gameState));
             return new Response();
         } else {
