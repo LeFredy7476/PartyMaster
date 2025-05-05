@@ -1,6 +1,6 @@
-DROP DATABASE if EXISTS JeuxSociete;
-CREATE DATABASE JeuxSociete;
-USE JeuxSociete;
+DROP DATABASE if EXISTS jeuxsociete;
+CREATE DATABASE jeuxsociete;
+USE jeuxsociete;
 DROP TABLE IF EXISTS roles;
 CREATE TABLE roles (
 id INT AUTO_INCREMENT PRIMARY KEY,

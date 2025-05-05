@@ -5,6 +5,6 @@ export default function ShareButton() {
             if (typeof window !== "undefined") {
                 navigator.clipboard.writeText(window.location.href);
             }
-        }}>link</button>
+        }}>help</button>
     )
 }
