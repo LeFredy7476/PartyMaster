@@ -45,6 +45,7 @@ function Lobby({ connected, setconnected }) {
             else if (event.type == "GameChangeEvent") app.GameChangeEvent(event)
             else if (event.type == "LobbyHome.HighlightEvent") app.LobbyHome_HighlightEvent(event)
             else if (event.type == "LobbyHome.SuggestEvent") app.LobbyHome_SuggestEvent(event)
+            else if (event.type == "Loup.StateEvent") app.Loup_StateEvent(event)
             // app.updateData((data) => {});
         },
         //pack Action sa automatise la creation de l'action au lieu de la faire manuellement

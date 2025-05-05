@@ -132,8 +132,12 @@ const statesNames = {
     }
 }
 
+const topPadding = 150;
+const topTitleY = 100;
+const topSubtitleY = 140;
+
 class ExpFollower {
-    constructor ( x, y, rot, size, opacity ) {
+    constructor ( x, y, rot, size, opacity, voteBubble ) {
         this.trueX = x;
         this.targetX = x;
         this.trueY = y;
@@ -144,6 +148,8 @@ class ExpFollower {
         this.targetSize = size;
         this.trueOpacity = opacity;
         this.targetOpacity = opacity;
+        this.trueVoteBubble = voteBubble;
+        this.targetVoteBubble = voteBubble;
         this.ratio = 0.001;
     }
 
@@ -177,6 +183,12 @@ class ExpFollower {
     set opacity( value ) {
         this.targetOpacity = value;
     }
+    get voteBubble() {
+        return this.trueVoteBubble;
+    }
+    set voteBubble( value ) {
+        this.targetVoteBubble = value;
+    }
 
     expFollow( deltaTime, current, target ) {
         let diff = target - current;
@@ -190,6 +202,7 @@ class ExpFollower {
         this.trueRotation = this.expFollow( deltaTime, this.trueRotation, this.targetRotation );
         this.trueSize = this.expFollow( deltaTime, this.trueSize, this.targetSize );
         this.trueOpacity = this.expFollow( deltaTime, this.trueOpacity, this.targetOpacity );
+        this.trueVoteBubble = this.expFollow( deltaTime, this.trueVoteBubble, this.targetVoteBubble );
     }
 
     transform ( func, canvasHandler, rotate = true ) {
@@ -214,12 +227,13 @@ class ExpFollower {
 
 
 class Joueur {
-    constructor ( uuid, hitboxColor ) {
+    constructor ( uuid, hitboxColor, voteCount = 0 ) {
         this.uuid = uuid;
-        this.expFollower = new ExpFollower(0, 0, 0, 0.1, 0);
+        this.expFollower = new ExpFollower(0, 0, 0, 0.1, 0, 0);
         this.expFollower.size = 1;
         this._hover = false;
         this.hitboxColor = hitboxColor;
+        this._voteCount = voteCount;
     }
 
     get hover() {
@@ -229,6 +243,15 @@ class Joueur {
     set hover(value) {
         this.expFollower.size = value ? 1.25 : 1;
         this._hover = value;
+    }
+
+    get voteCount() {
+        return this._voteCount;
+    }
+
+    set voteCount(value) {
+        this.expFollower.voteBubble = value > 0 ? 1 : 0
+        this._voteCount = value;
     }
 
     place(x, y, teleport = false) {
@@ -282,11 +305,30 @@ class Joueur {
             ctx.font = "24px Lexend";
             ctx.fillStyle = canvasHandler.toRGB(0, 0, 0);
             ctx.fillText(myName, 0, 100);
+
+            if (this.expFollower.voteBubble > 0.005) {
+                ctx.save();
+                ctx.fillStyle = "#ffffff";
+                ctx.strokeStyle = "#000000";
+                ctx.lineWidth = 8;
+                ctx.beginPath();
+                ctx.arc(0, 0, (48 + 2) * this.expFollower.voteBubble, 0, Math.PI * 2);
+                ctx.clip();
+                ctx.fill();
+                ctx.stroke();
+                ctx.font = "900 48px Lexend";
+                ctx.fillStyle = "#000000";
+                ctx.textBaseline = "middle";
+                ctx.fillText(this.voteCount, 0, 0);
+                ctx.textBaseline = "alphabetic";
+                ctx.restore();
+            }
         }, game, false);
     }
 
     update(deltaTime, game) {
         this.expFollower.rotation = (game.data.joueurs[this.uuid].role != null) ? Math.PI * 2 : 0;
+        this.voteCount = 2;
         this.expFollower.update(deltaTime);
     }
 }
@@ -351,24 +393,33 @@ export default class Loup extends CanvasHandler {
                 let joueur = this.data.joueurs[uuid];
                 this.joueurs[uuid] = new Joueur(
                     uuid,
-                    [ i * 5, 0, 0 ]
+                    [ i * 5, 0, 0 ],
+                    2
                 );
                 i++;
             }
         }
 
         this.app.packAction("game:ready", {}).then((response) => {
+            console.log(response);
             if (response.data.code != 0) {
                 ErrorHandler(response.data);
             }
         }).catch(ErrorHandler);
+
+        
+        this.gridcalculator();
+        this.placePlayers( true );
     }
 
     loop ( time ) {
         super.loop( time );
 
+        let halfWidth = Math.round(this.width / 2);
+
         this.gridcalculator();
         this.placePlayers();
+        let mydata = this.data.joueurs[sessionStorage.getItem("uuid")]
 
         for (const uuid in this.joueurs) {
             if (Object.prototype.hasOwnProperty.call(this.joueurs, uuid)) {
@@ -377,7 +428,19 @@ export default class Loup extends CanvasHandler {
             }
         }
 
-        this.ctx.textAlign = "left"
+        let naming = statesNames[this.data.state];
+
+        this.ctx.fillStyle = "#000000";
+        this.ctx.textAlign = "center";
+        this.ctx.font = "64px Lexend";
+        this.ctx.fillText(naming.titre, halfWidth, topTitleY);
+        this.ctx.font = "24px Lexend";
+        if (naming.concerned.includes(mydata.role)) {
+            this.ctx.fillText(naming.instruction, halfWidth, topSubtitleY);
+        } else {
+            this.ctx.fillText(naming.description, halfWidth, topSubtitleY);
+        }
+        this.ctx.textAlign = "left";
         this.ctx.font = "50px sans-serif";
         this.ctx.fillStyle = this.toRGB(127, 127, 127);
         this.ctx.fillText( Math.round( 10000 / this.deltaTime ) / 10 + " fps", 50, 80 );
@@ -387,13 +450,13 @@ export default class Loup extends CanvasHandler {
         if ( sessionStorage.getItem( "debug" ) == "true" ) this.debugDraw();
     }
 
-    placePlayers () {
+    placePlayers ( force = false ) {
         let x = Math.round((this.width - (this.columns * 200)) / 2) + 100;
         let y = Math.round((this.height - (this.rows * 240)) / 2) + 100;
         let i = 0;
         for (const uuid in this.joueurs) {
             if (Object.prototype.hasOwnProperty.call(this.joueurs, uuid)) {
-                this.joueurs[uuid].place(x + (i % this.columns) * 200, y + Math.trunc(i / this.columns) * 240);
+                this.joueurs[uuid].place(x + (i % this.columns) * 200, y + Math.trunc(i / this.columns) * 240, force);
                 i++;
             }
         }

@@ -144,6 +144,7 @@ public class Lobby {
     }
 
     public void queueEventForAllPlayer(Event event) {
+        System.out.println(event.toJson().toString());
         for (LinkedList<Event> eventQueue : eventQueues.values()) {
             eventQueue.add(event);
         }

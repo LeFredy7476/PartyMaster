@@ -23,7 +23,6 @@ public class LoupGame implements Game {
     private int confirmAmoureux = 0;
     private UUID protege = null;
     private UUID connaisseur = null;
-    private int nbJoueurs;
 
     private boolean isVoyanteAlive() {
         for (UUID uuid : vivants) {
@@ -79,46 +78,53 @@ public class LoupGame implements Game {
      */
     @Override
     public Response receiveAction(Action action) {
-        switch (action.getTarget()[1]) {
+        switch (action.getTarget(1)) {
             case "state":
                 // probably unused
                 return new Response(0, this.toJsonMasked(joueurs.get(action.getUuid())));
             case "ready":
-                this.readyCheck.add(action.getUuid());
-                if (readyCheck.size() == nbJoueurs) {
-                    if (isCupidonAlive()) {
-                        this.gameState = GameState.CUPIDON_CHOIX;
-                        this.nextGameState = GameState.AMOUREUX_REVELATION;
-                    } else if (isVoyanteAlive()) {
-                        this.gameState = GameState.VOYANTE_CHOIX;
-                        this.nextGameState = GameState.VOYANTE_REVELATION;
-                    } else if (isGuardianAlive()) {
-                        this.gameState = GameState.GUARDIEN_CHOIX;
-                        this.nextGameState = GameState.LOUP_CHOIX;
-                    } else {
-                        this.gameState = GameState.LOUP_CHOIX;
-                        if (isTraitreAlive()) { this.nextGameState = GameState.TRAITRE_CHOIX; }
-                        else { this.nextGameState = GameState.VILLAGE_EXECUTION; }
+                if (gameState.equals(GameState.DISTRIBUTION_ROLE)) {
+                    this.readyCheck.add(action.getUuid());
+                    // System.out.println("ready check needed : " + readyCheck.size() + "  needed : " + this.joueurs.size());
+                    if (readyCheck.size() == this.joueurs.size()) {
+                        if (isCupidonAlive()) {
+                            this.gameState = GameState.CUPIDON_CHOIX;
+                            this.nextGameState = GameState.AMOUREUX_REVELATION;
+                        } else if (isVoyanteAlive()) {
+                            this.gameState = GameState.VOYANTE_CHOIX;
+                            this.nextGameState = GameState.VOYANTE_REVELATION;
+                        } else if (isGuardianAlive()) {
+                            this.gameState = GameState.GUARDIEN_CHOIX;
+                            this.nextGameState = GameState.LOUP_CHOIX;
+                        } else {
+                            this.gameState = GameState.LOUP_CHOIX;
+                            if (isTraitreAlive()) {
+                                this.nextGameState = GameState.TRAITRE_CHOIX;
+                            } else {
+                                this.nextGameState = GameState.VILLAGE_EXECUTION;
+                            }
+                        }
+                        this.lobby.queueEventForAllPlayer(new StateEvent(this.gameState));
                     }
-                    lobby.queueEventForAllPlayer(new StateEvent(gameState));
                 }
+                return new Response();
             case "loupgaroux":
-                switch (action.getTarget()[2]) {
+                switch (action.getTarget(2)) {
                     case "vote":
                         return loupVote(action);
                 }
             case "chasseur":
-                switch (action.getTarget()[2]) {
+                switch (action.getTarget(2)) {
                     case "choose":
                         return chasseurVote(action);
                 }
             case "cupidon":
-                switch (action.getTarget()[2]) {
+                switch (action.getTarget(2)) {
                     case "choose":
                         return cupidonChoix(action);
                 }
             case "amoureux":
-                switch (action.getTarget()[2]) {
+                switch (action.getTarget(2)) {
                     case "confirm":
                         if (joueurs.get(action.getUuid()).getAmour() != null) {
                             this.confirmAmoureux += 1;
@@ -130,7 +136,7 @@ public class LoupGame implements Game {
                         }
                 }
             case "voyante":
-                switch (action.getTarget()[2]) {
+                switch (action.getTarget(2)) {
                     case "choose":
                         return voyante(action);
                     case "confirm":
@@ -151,13 +157,13 @@ public class LoupGame implements Game {
                         }
                 }
             case "guardian":
-                switch (action.getTarget()[2]) {
+                switch (action.getTarget(2)) {
                     case "choose":
                         return gardien(action);
 
                 }
             case "traitre":
-                switch (action.getTarget()[2]) {
+                switch (action.getTarget(2)) {
                     case "choose":
                         return traitre(action);
                     case "confirm":
@@ -209,7 +215,7 @@ public class LoupGame implements Game {
     public void init(Lobby lobby) {
         this.lobby = lobby;
         ArrayList<Role> roles = new ArrayList<>();
-        this.nbJoueurs = lobby.getPlayers().size();
+        int nbJoueurs = lobby.getPlayers().size();
         int nbLoups = Math.min(Math.max((int) Math.round((double) nbJoueurs / 4.0), 1), 4);
 
         while (nbLoups != 0) {
@@ -593,6 +599,7 @@ public class LoupGame implements Game {
         return object;
     }
 
+    // DEPRECTED: should be removed safely one day, do not use
     public JSONObject toJsonMasked( Joueur joueur ) {
         JSONObject out = new JSONObject();
         out.put("state", this.gameState);

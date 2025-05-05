@@ -16,9 +16,9 @@ public class Action {
         if (uuid != null) {
             struuid = uuid.toString();
         }
-        System.out.println("\u001b[34mReceived Action " + target + " from player " + struuid + "\u001b[0m");
         this.target = target.split(":", 5);
         this.data = data;
+        System.out.println("\u001b[34mReceived Action " + target + " from player " + struuid + "\u001b[0m");
     }
 
     public UUID getUuid() {
