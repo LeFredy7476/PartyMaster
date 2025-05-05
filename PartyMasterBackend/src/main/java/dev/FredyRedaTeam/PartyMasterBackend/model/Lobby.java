@@ -159,6 +159,7 @@ public class Lobby {
     }
 
     public void queueEvent(UUID uuid, Event event) {
+        System.out.println("sent to " + uuid.toString() + " : " + event.toJson().toString());
         this.eventQueues.get(uuid).add(event);
     }
 

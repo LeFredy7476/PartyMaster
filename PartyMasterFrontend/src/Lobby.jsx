@@ -47,6 +47,9 @@ function Lobby({ connected, setconnected }) {
             else if (event.type == "LobbyHome.SuggestEvent") app.LobbyHome_SuggestEvent(event)
             else if (event.type == "Loup.StateEvent") app.Loup_StateEvent(event)
             else if (event.type == "Loup.DeathEvent") app.Loup_DeathEvent(event)
+            else if (event.type == "Loup.RevelationEvent") app.Loup_RevelationEvent(event)
+            else if (event.type == "Loup.VoteEvent") app.Loup_VoteEvent(event)
+            else if (event.type == "Loup.WinnerEvent") app.Loup_WinnerEvent(event)
             // app.updateData((data) => {});
         },
         //pack Action sa automatise la creation de l'action au lieu de la faire manuellement
@@ -202,6 +205,7 @@ function Lobby({ connected, setconnected }) {
             let role = event.role;
             let sender = event.sender;
             app.updateData((data) => {
+                data.gameData.joueurs[uuid].role = role;
                 data.gameData.hadRevelation = true;
                 data.gameData["revelation"] = {
                     "sender": sender,

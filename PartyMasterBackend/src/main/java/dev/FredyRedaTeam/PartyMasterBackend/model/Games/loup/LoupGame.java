@@ -263,7 +263,12 @@ public class LoupGame implements Game {
         Joueur joueur = joueurs.get(uuid);
         if (loups.contains(uuid) && joueur.isVivant()) {
             if (joueurs.get(target).isVivant()) {
+
                 votes.put(uuid, target);
+                for (int i = 0; i < this.loups.size(); i++) {
+                    this.lobby.queueEvent(this.loups.get(i), new VoteEvent(uuid, target));
+                }
+
                 boolean endVoteVerif = true;
                 for (UUID loup : loups) {
                     if (joueurs.get(loup).isVivant()) {
@@ -274,8 +279,7 @@ public class LoupGame implements Game {
                 if (endVoteVerif) {
                     UUID chosenOne = resolveVote();
                     if (chosenOne != null) {
-                        this.lobby.queueEvent(connaisseur, new RevelationEvent(target, joueurs.get(target).getRole(), "traitre"));
-
+                       
                         // TODO: faire en sorte que la mise à mort se fasse au lever du jour
 
                         if (killJoueur(chosenOne)) {
@@ -372,6 +376,9 @@ public class LoupGame implements Game {
         if(joueurs.get(uuid).isVivant()) {
             if (joueurs.get(target).isVivant()) {
                 votes.put(uuid, target);
+                for (int i = 0; i < this.loups.size(); i++) {
+                    this.lobby.queueEvent(this.loups.get(i), new VoteEvent(uuid, target));
+                }
                 boolean endVoteVerif = true;
 
                 for (UUID joueur : joueurs.keySet()) {

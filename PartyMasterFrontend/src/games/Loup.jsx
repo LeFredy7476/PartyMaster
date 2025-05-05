@@ -94,7 +94,7 @@ const statesNames = {
         titre: "Traitre",
         description: "Le bénificiaire prend connaissance de l'identité du joueur trahi.",
         instruction: "On vous à anonymement révélé le rôle d'un joueur.",
-        concerned: ["beneficiaire"],
+        concerned: ["traitre"],
         selection: 0,
         confirm: true,
         confirmText: "J'ai compris",
@@ -269,6 +269,14 @@ class Joueur {
             let myRole = game.data.joueurs[self.uuid].role;
             let myIcon = game.app.data.players[self.uuid].icon;
             let ctx = canvasHandler.ctx;
+
+            if (game.selected.includes(self.uuid)) {
+                ctx.beginPath();
+                ctx.lineWidth = 4;
+                ctx.strokeStyle = "#000000";
+                ctx.arc(0, 0, myIconAsset.r * 2 + 6, 0, Math.PI * 2);
+                ctx.stroke();
+            }
             // let ctx = document.createElement("canvas").getContext("2d");
             ctx.save();
             if (myIcon != null) {
@@ -328,7 +336,15 @@ class Joueur {
 
     update(deltaTime, game) {
         this.expFollower.rotation = (game.data.joueurs[this.uuid].role != null) ? Math.PI * 2 : 0;
-        this.voteCount = 2;
+        this.voteCount = 0;
+        for (let voters in game.data.voters) {
+            if (Object.prototype.hasOwnProperty.call(game.data.voters, voters)) {
+                if (game.data.voters[voters] == this.uuid) {
+                    this.voteCount = this.voteCount + 1;
+                } 
+            }
+        }
+        // this.voteCount = 2;
         this.expFollower.update(deltaTime);
     }
 }
@@ -341,6 +357,7 @@ export default class Loup extends CanvasHandler {
         let myData = this.data.joueurs[myUuid];
         let amour = myData.amour;
         let iAmLoup = myData.role == "LOUPBLANC" || myData.role == "LOUP";
+        this.selected = [];
 
         for (let uuid in this.data.joueurs) {
             if (Object.prototype.hasOwnProperty.call(this.data.joueurs, uuid)) {
@@ -422,11 +439,27 @@ export default class Loup extends CanvasHandler {
     loop ( time ) {
         super.loop( time );
 
+
         let halfWidth = Math.round(this.width / 2);
 
         this.gridcalculator();
         this.placePlayers();
-        let mydata = this.data.joueurs[sessionStorage.getItem("uuid")]
+
+        let myData = this.data.joueurs[sessionStorage.getItem("uuid")];
+        let naming = statesNames[this.data.state];
+        let concerned = this.amIConcerned(naming, myData);
+
+        while (this.selected.length > naming.selection) {
+            this.selected.shift();
+        }
+
+        for (const uuid in this.joueurs) {
+            if (Object.prototype.hasOwnProperty.call(this.joueurs, uuid)) {
+                let joueur = this.joueurs[uuid];
+                let hovered = this.isHovered(joueur.hitboxColor);
+                joueur.hover = hovered;
+            }
+        }
 
         for (const uuid in this.joueurs) {
             if (Object.prototype.hasOwnProperty.call(this.joueurs, uuid)) {
@@ -435,18 +468,43 @@ export default class Loup extends CanvasHandler {
             }
         }
 
-        let naming = statesNames[this.data.state];
 
         this.ctx.fillStyle = "#000000";
         this.ctx.textAlign = "center";
         this.ctx.font = "64px Lexend";
         this.ctx.fillText(naming.titre, halfWidth, topTitleY);
         this.ctx.font = "24px Lexend";
-        if (naming.concerned.includes(mydata.role)) {
+        if (concerned) {
             this.ctx.fillText(naming.instruction, halfWidth, topSubtitleY);
         } else {
             this.ctx.fillText(naming.description, halfWidth, topSubtitleY);
         }
+
+
+        if (concerned) {
+
+            if (naming.confirm) {
+                this.ctx.textAlign = "right";
+                this.ctx.font = "48px Lexend";
+                let jouerMesure = this.ctx.measureText(naming.confirmText);
+                this.ctx.fillStyle = this.isHovered([0,0,255]) ? "#fc4c4c" : this.toRGB(255, 198, 57);
+                this.ctx.lineJoin = "round";
+                this.ctx.lineWidth = 8;
+                this.ctx.strokeStyle = this.isHovered([0,0,255]) ? "#fc4c4c" : this.toRGB(255, 198, 57);
+                this.ctx.fillRect(this.width - 12, this.height - 12, -jouerMesure.width - 32, -68);
+                this.ctx.strokeRect(this.width - 12, this.height - 12, -jouerMesure.width - 32, -68);
+                this.octx.lineJoin = "round";
+                this.octx.lineWidth = 8;
+                this.octx.fillStyle = this.toRGB(0, 0, 255);
+                this.octx.strokeStyle = this.toRGB(0, 0, 255);
+                this.octx.fillRect(this.width - 12, this.height - 12, -jouerMesure.width - 32, -68);
+                this.octx.strokeRect(this.width - 12, this.height - 12, -jouerMesure.width - 32, -68);
+                this.ctx.fillStyle = this.toRGB(0, 0, 0);
+                this.ctx.fillText(naming.confirmText, this.width - 28, this.height - 28);
+            }
+        }
+
+
         this.ctx.textAlign = "left";
         this.ctx.font = "50px sans-serif";
         this.ctx.fillStyle = this.toRGB(127, 127, 127);
@@ -457,8 +515,56 @@ export default class Loup extends CanvasHandler {
         if ( sessionStorage.getItem( "debug" ) == "true" ) this.debugDraw();
     }
 
+    amIConcerned(naming, myData) {
+        return naming.concerned.includes(myData.role) || this.data.hadRevelation;
+    }
+
     onclick( event ) {
-        
+        let myData = this.data.joueurs[sessionStorage.getItem("uuid")];
+        let naming = statesNames[this.data.state];
+        let concerned = this.amIConcerned(naming, myData);
+        for (let uuid in this.joueurs) {
+            if (Object.prototype.hasOwnProperty.call(this.joueurs, uuid)) {
+                let joueur = this.joueurs[uuid];
+                if (joueur.hover && this.data.joueurs[uuid].vivant && uuid != sessionStorage.getItem("uuid")) {
+                    if (concerned) {
+                        if (naming.confirm) {
+                            this.selected.push(uuid);
+                        } else {
+                            // if (this.data.state === "CUPIDON_CHOIX") {
+                            //     this.app.packAction("game:cupidon:choose", {targetA})
+                            // }
+                            if (this.data.state === "GUARDIEN_CHOIX") {
+                                this.app.packAction("game:guardien:choose", {target: uuid});
+                            } else if (this.data.state === "VOYANTE_CHOIX") {
+                                this.app.packAction("game:voyante:choose", {target: uuid});
+                            } else if (this.data.state === "LOUP_CHOIX") {
+                                this.app.packAction("game:loupgaroux:vote", {target: uuid});
+                            } else if (this.data.state === "TRAITRE_CHOIX") {
+                                this.app.packAction("game:traitre:choose", {target: uuid});
+                            } else if (this.data.state === "VILLAGE_EXECUTION") {
+                                this.app.packAction("game:execution:vote", {target: uuid});
+                            } else if (this.data.state === "CHASSEUR_CHOIX") {
+                                this.app.packAction("game:chasseur:choose", {target: uuid});
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (this.isHovered([0, 0, 255])) {
+            if (concerned) {
+                if (this.data.state === "CUPIDON_CHOIX" && this.selected.length == naming.selection) {
+                    this.app.packAction("game:cupidon:choose", {targetA: this.selected[0], targetB: this.selected[1]})
+                } else if (this.data.state === "AMOUREUX_REVELATION") {
+                    this.app.packAction("game:amoureux:confirm", {});
+                } else if (this.data.state === "VOYANTE_REVELATION") {
+                    this.app.packAction("game:voyante:confirm", {});
+                } else if (this.data.state === "TRAITRE_REVELATION") {
+                    this.app.packAction("game:traitre:confirm", {});
+                }
+            }
+        }
     }
 
     placePlayers ( force = false ) {

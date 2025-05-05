@@ -33,6 +33,7 @@ public class VoteEvent implements Event {
         JSONObject json = new JSONObject();
         json.put("uuid", uuid.toString());
         json.put("target", target.toString());
+        json.put("type", getType());
         return json;
     }
 }
