@@ -7,16 +7,16 @@ import java.util.UUID;
 
 public class DeathEvent implements Event {
     private final UUID defunt;
-    private final long timestamp;
+    private final Joueur joueur;
 
-    public DeathEvent(UUID defunt,long timestamp){
-        this.defunt=defunt;
-        this.timestamp=System.currentTimeMillis();
+    public DeathEvent(UUID defunt, Joueur joueur){
+        this.defunt = defunt;
+        this.joueur = joueur;
     }
     public UUID getDefunt(){return defunt;}
 
-    public long getTimestamp() {
-        return timestamp;
+    public Joueur getJoueur() {
+        return joueur;
     }
 
     @Override
@@ -28,7 +28,7 @@ public class DeathEvent implements Event {
     public JSONObject toJson() {
         JSONObject obj = new JSONObject();
         obj.put("defunt",this.defunt);
-        obj.put("timestamp",this.timestamp);
+        obj.put("joueur",this.joueur.toJson());
         obj.put("type", getType());
         return obj;
     }

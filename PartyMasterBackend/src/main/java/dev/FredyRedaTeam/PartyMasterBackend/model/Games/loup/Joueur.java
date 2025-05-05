@@ -1,6 +1,5 @@
 package dev.FredyRedaTeam.PartyMasterBackend.model.Games.loup;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.UUID;

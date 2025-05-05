@@ -46,6 +46,7 @@ function Lobby({ connected, setconnected }) {
             else if (event.type == "LobbyHome.HighlightEvent") app.LobbyHome_HighlightEvent(event)
             else if (event.type == "LobbyHome.SuggestEvent") app.LobbyHome_SuggestEvent(event)
             else if (event.type == "Loup.StateEvent") app.Loup_StateEvent(event)
+            else if (event.type == "Loup.DeathEvent") app.Loup_DeathEvent(event)
             // app.updateData((data) => {});
         },
         //pack Action sa automatise la creation de l'action au lieu de la faire manuellement
@@ -173,15 +174,51 @@ function Lobby({ connected, setconnected }) {
             
         },
 
+
+
         Loup_StateEvent(event) {
             console.log("the game has entered a new state: " + event);
             app.updateData((data) => {
                 data.gameData.state = event.state;
+                if (event.state != "VOYANTE_REVELATION" && event.state != "TRAITRE_REVELATION" && event.state != "AMOUREUX_REVELATION") {
+                    data.gameData.hadRevelation = false;
+                }
+                data.gameData.votes = {};
+            });
+        },
+        Loup_DeathEvent(event) {
+            let uuid = event.uuid;
+            let joueur = event.joueur;
+            app.updateData((data) => {
+                data.gameData.joueurs[uuid] = joueur;
+            });
+        },
+        Loup_WinnerEvent(event) {
+            let winner = event.winner;
+            alert("Les " + winner + " ont gagné!");
+        },
+        Loup_RevelationEvent(event) {
+            let uuid = event.uuid;
+            let role = event.role;
+            let sender = event.sender;
+            app.updateData((data) => {
+                data.gameData.hadRevelation = true;
+                data.gameData["revelation"] = {
+                    "sender": sender,
+                    "uuid": uuid,
+                    "role": role,
+                };
+            });
+        },
+        Loup_VoteEvent(event) {
+            let uuid = event.uuid;
+            let target = event.target;
+            app.updateData((data) => {
+                data.gameData.votes[uuid] = target;
             });
         }
-
-
     }
+
     //il est appeler a chaque fois que data se fait changer car il est dans ses dependencies car il est celui qui se charge de update le jeux et aussi
     //quand tu rentre dans la room il est appeler en verifiant si un jeux est deja lancer et si c'est le cas sa update, aussi quand la room est creer,
     //sa appelle la methode toJson dans le backend pour recuperer le json contenant toute les infos 

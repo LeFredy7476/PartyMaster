@@ -358,6 +358,13 @@ export default class Loup extends CanvasHandler {
             }
         }
 
+        this.hadRevelation = false;
+        this.data["revelation"] = {
+            "sender": null,
+            "uuid": null,
+            "role": null,
+        }
+
         this.images = {
             players: [],
             roles: {}
@@ -450,6 +457,10 @@ export default class Loup extends CanvasHandler {
         if ( sessionStorage.getItem( "debug" ) == "true" ) this.debugDraw();
     }
 
+    onclick( event ) {
+        
+    }
+
     placePlayers ( force = false ) {
         let x = Math.round((this.width - (this.columns * 200)) / 2) + 100;
         let y = Math.round((this.height - (this.rows * 240)) / 2) + 100;
@@ -463,7 +474,7 @@ export default class Loup extends CanvasHandler {
     }
 
     gridcalculator () {
-        this.columns = Math.min(Math.max(3, Math.floor(this.width % 200)), 7, Object.keys(this.joueurs).length);
+        this.columns = Math.min(Math.max(3, Math.trunc(this.width / 200)), 7, Object.keys(this.joueurs).length);
         this.rows = Math.ceil(Object.keys(this.joueurs).length / this.columns);
     }
 }

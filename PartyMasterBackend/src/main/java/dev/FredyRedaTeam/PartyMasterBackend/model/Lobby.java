@@ -13,8 +13,8 @@ import java.util.regex.Pattern;
 public class Lobby {
     public static final int MAX_PLAYER_BY_LOBBY = 20;
     public static final int MAX_CHAT_HISTORY = 50;
-    public static final long ROOM_SHUTDOWN_CHRONO = 60000;
-    public static final long PLAYER_SHUTDOWN_CHRONO = 15000;
+    public static final long ROOM_SHUTDOWN_CHRONO = 600000;
+    public static final long PLAYER_SHUTDOWN_CHRONO = 150000;
     private static final HashMap<String, Lobby> lobbies = new HashMap<>();
     public static final Random random = new Random();
 
@@ -177,6 +177,7 @@ public class Lobby {
                     this.players.remove(uuid);
                     this.eventQueues.remove(uuid);
                     this.queueEventForAllPlayer(new TerminationEvent(uuid));
+                    exitGame();
                 }
             }
         }
@@ -314,6 +315,7 @@ public class Lobby {
                     this.players.remove(kickTarget);
                     this.eventQueues.remove(kickTarget);
                     this.queueEventForAllPlayer(new TerminationEvent(kickTarget));
+                    exitGame();
                     System.out.println("\u001b[36mplayer " + kickTarget.toString() + " was kicked from room " + this.room + "\u001b[0m");
                     return new Response(); // OK
                 } else {
@@ -353,6 +355,7 @@ public class Lobby {
             } else {
                 // signal player departure
                 this.queueEventForAllPlayer(new TerminationEvent(action.getUuid()));
+                exitGame();
             }
             return new Response(0); // OK
         } else {

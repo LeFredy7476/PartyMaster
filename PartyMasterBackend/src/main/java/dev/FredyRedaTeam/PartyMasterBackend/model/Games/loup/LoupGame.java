@@ -130,9 +130,9 @@ public class LoupGame implements Game {
                             this.confirmAmoureux += 1;
                         }
                         if (confirmAmoureux == 2) {
-                            this.gameState = nextGameState;
+                            this.gameState = GameState.VOYANTE_CHOIX;
                             lobby.queueEventForAllPlayer(new StateEvent(gameState));
-                            this.nextGameState = GameState.VOYANTE_CHOIX;
+                            this.nextGameState = GameState.VOYANTE_REVELATION;
                         }
                 }
             case "voyante":
@@ -349,9 +349,12 @@ public class LoupGame implements Game {
             UUID targetB = UUID.fromString(action.getData().getString("targetB"));
             joueurs.get(targetA).setAmour(targetB);
             joueurs.get(targetB).setAmour(targetA);
+
+            lobby.queueEvent(targetA, new RevelationEvent(targetB, joueurs.get(targetB).getRole(), "amoureux"));
+            lobby.queueEvent(targetB, new RevelationEvent(targetA, joueurs.get(targetA).getRole(), "amoureux"));
             
-            this.gameState = GameState.VOYANTE_CHOIX;
-            this.nextGameState = GameState.VOYANTE_REVELATION;
+            this.gameState = GameState.AMOUREUX_REVELATION;
+            this.nextGameState = GameState.VOYANTE_CHOIX;
            
             lobby.queueEventForAllPlayer(new StateEvent(gameState));
             return new Response();
@@ -476,7 +479,7 @@ public class LoupGame implements Game {
 
         joueurs.get(uuid).setVivant(false);
         vivants.remove(uuid);
-        this.lobby.queueEventForAllPlayer( new DeathEvent(uuid,System.currentTimeMillis()));
+        this.lobby.queueEventForAllPlayer( new DeathEvent(uuid,joueurs.get(uuid)));
         boolean _continue = true;
 
         DecideWinner();
@@ -497,7 +500,7 @@ public class LoupGame implements Game {
 
             DecideWinner();
 
-            this.lobby.queueEventForAllPlayer(new DeathEvent(uuid2,System.currentTimeMillis()));
+            this.lobby.queueEventForAllPlayer(new DeathEvent(uuid2,joueurs.get(uuid2)));
 
             if (joueurs.get(uuid2).getRole().equals(Role.CHASSEUR)) {
                 this.gameState = GameState.CHASSEUR_CHOIX;
