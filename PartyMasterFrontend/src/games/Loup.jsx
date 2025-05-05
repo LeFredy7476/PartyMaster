@@ -229,11 +229,12 @@ class ExpFollower {
 class Joueur {
     constructor ( uuid, hitboxColor, voteCount = 0 ) {
         this.uuid = uuid;
-        this.expFollower = new ExpFollower(0, 0, 0, 0.1, 0, 0);
+        this.expFollower = new ExpFollower(0, 0, 0, 0.1, 1, 0);
         this.expFollower.size = 1;
         this._hover = false;
         this.hitboxColor = hitboxColor;
         this._voteCount = voteCount;
+        this._vivant = true;
     }
 
     get hover() {
@@ -243,6 +244,15 @@ class Joueur {
     set hover(value) {
         this.expFollower.size = value ? 1.25 : 1;
         this._hover = value;
+    }
+
+    get vivant() {
+        return this._vivant;
+    }
+
+    set vivant(value) {
+        this._vivant = value;
+        this.expFollower.opacity = value ? 1 : 0.4;
     }
 
     get voteCount() {
@@ -265,6 +275,7 @@ class Joueur {
 
     draw( game ) {
         let self = this;
+        game.ctx.globalAlpha = this.expFollower.opacity;
         this.expFollower.transform((canvasHandler) => {
             let myRole = game.data.joueurs[self.uuid].role;
             let myIcon = game.app.data.players[self.uuid].icon;
@@ -277,10 +288,11 @@ class Joueur {
                 ctx.arc(0, 0, myIconAsset.r * 2 + 6, 0, Math.PI * 2);
                 ctx.stroke();
             }
-            // let ctx = document.createElement("canvas").getContext("2d");
+            // let actx = document.createElement("canvas").getContext("2d");
+            
             ctx.save();
             if (myIcon != null) {
-                ctx.globalAlpha = 1.0;
+                ctx.globalAlpha = 1.0 * self.expFollower.opacity;
                 let myIconAsset = game.images.players[myIcon];
                 ctx.beginPath();
                 ctx.arc(0, 0, myIconAsset.r * 2, 0, Math.PI * 2);
@@ -295,7 +307,7 @@ class Joueur {
             }
             ctx.restore();
             if (myRole != null) {
-                ctx.globalAlpha = self.expFollower.trueRotation / (Math.PI * 2);
+                ctx.globalAlpha = self.expFollower.trueRotation / (Math.PI * 2) * self.expFollower.opacity;
                 let myRoleAsset = game.images.roles[myRole.toLowerCase()];
                 if (myRoleAsset.image.complete) {
                     ctx.drawImage(myRoleAsset.image, -myRoleAsset.cx * 2, -myRoleAsset.cy * 2, myRoleAsset.w * 2, myRoleAsset.h * 2);
@@ -310,7 +322,7 @@ class Joueur {
             octx.fillStyle = canvasHandler.toRGB(self.hitboxColor);
             octx.fillRect(-100, -100, 200, 200);
             ctx.textAlign = "center";
-            ctx.font = "24px Lexend";
+            ctx.font = self.uuid == sessionStorage.getItem("uuid") ? "900 24px Lexend" : "400 24px Lexend";
             ctx.fillStyle = canvasHandler.toRGB(0, 0, 0);
             ctx.fillText(myName, 0, 100);
 
@@ -332,14 +344,16 @@ class Joueur {
                 ctx.restore();
             }
         }, game, false);
+        game.ctx.globalAlpha = 1;
     }
 
     update(deltaTime, game) {
         this.expFollower.rotation = (game.data.joueurs[this.uuid].role != null) ? Math.PI * 2 : 0;
+        this.vivant = game.data.joueurs[this.uuid].vivant;
         this.voteCount = 0;
-        for (let voters in game.data.voters) {
-            if (Object.prototype.hasOwnProperty.call(game.data.voters, voters)) {
-                if (game.data.voters[voters] == this.uuid) {
+        for (let voters in game.data.votes) {
+            if (Object.prototype.hasOwnProperty.call(game.data.votes, voters)) {
+                if (game.data.votes[voters] == this.uuid) {
                     this.voteCount = this.voteCount + 1;
                 } 
             }
@@ -535,7 +549,7 @@ export default class Loup extends CanvasHandler {
                             //     this.app.packAction("game:cupidon:choose", {targetA})
                             // }
                             if (this.data.state === "GUARDIEN_CHOIX") {
-                                this.app.packAction("game:guardien:choose", {target: uuid});
+                                this.app.packAction("game:gardien:choose", {target: uuid});
                             } else if (this.data.state === "VOYANTE_CHOIX") {
                                 this.app.packAction("game:voyante:choose", {target: uuid});
                             } else if (this.data.state === "LOUP_CHOIX") {

@@ -3,8 +3,6 @@ package dev.FredyRedaTeam.PartyMasterBackend.model.Games.loup;
 import dev.FredyRedaTeam.PartyMasterBackend.model.Event;
 import org.json.JSONObject;
 
-import java.util.UUID;
-
 public class WinnerEvent implements Event {
     private final String winner;
     private final long timestamp;

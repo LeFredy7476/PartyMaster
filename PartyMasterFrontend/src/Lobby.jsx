@@ -190,7 +190,7 @@ function Lobby({ connected, setconnected }) {
             });
         },
         Loup_DeathEvent(event) {
-            let uuid = event.uuid;
+            let uuid = event.defunt;
             let joueur = event.joueur;
             app.updateData((data) => {
                 data.gameData.joueurs[uuid] = joueur;
