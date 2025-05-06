@@ -54,18 +54,18 @@ public class QuestionGame implements Game  {
             switch (action.getTarget()[1]) {
                 case "state":
                     return new Response(0, this.toJsonMasked(pointEnter.get(action.getUuid())));
+
                 case "question":
                     switch (action.getTarget(2)) {
                         case "receiveResponse":
-                            return recevoirReponse(action);
-
+                            if (nbrQuestion<5) {
+                                return recevoirReponse(action);
+                            }else{
+                                return recevoirReponseSpe(action);
+                            }
 
                     }
-                case "questionSpe":
-                    switch (action.getTarget(2)){
-                        case "receiveResponse":
-                            return recevoirReponseSpe(action);
-                    }
+
 //            case "special":
 //                switch (action.getTarget(2)){
 //                    case "receiveResponseSpe":
@@ -212,7 +212,7 @@ public class QuestionGame implements Game  {
         return true;
     }
 
-    public Response recevoirReponse(Action action) throws Exception {
+    public Response recevoirReponse(Action action)  {
 
         long now = System.currentTimeMillis();
         UUID uuid = action.getUuid();
