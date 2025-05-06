@@ -3,7 +3,7 @@ package dev.FredyRedaTeam.PartyMasterBackend.model.Games.JeuxQuestion;
 import dev.FredyRedaTeam.PartyMasterBackend.model.Event;
 import org.json.JSONObject;
 
-import java.util.UUID;
+
 
 public class QuestionSpeEvent implements Event {
     private final int  id;
