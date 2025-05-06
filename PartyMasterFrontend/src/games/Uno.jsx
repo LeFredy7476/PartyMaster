@@ -191,7 +191,14 @@ export default class Uno extends CanvasHandler {
             ));
         }
 
+        this.ownCardDrawOrder = [];
+        this.resetOwnCardDrawOrder();
+    }
 
+    resetOwnCardDrawOrder() {
+        if (this.ownCardDrawOrder.length != this.data.players[sessionStorage.getItem("uuid")].length) {
+            this.ownCardDrawOrder = this.data.players[sessionStorage.getItem("uuid")].slice();
+        }
     }
 
     getType() {
@@ -205,37 +212,94 @@ export default class Uno extends CanvasHandler {
     loop ( time ) {
         super.loop(time);
 
-        // console.log("Uno loop");
+        this.resetOwnCardDrawOrder();
+        this.placeOwnCards();
+        this.placeTableCenter();
 
-        for (let id = 0; id < this.allCards.length; id++) {
-            let card = this.allCards[id];
-            card.update(this.deltaTime);
-            // card.draw(this);
-            card.transform( ( self ) => {
-                card.draw( self );
-                // console.log("drawn: " + card.id);
-            }, this );
-        }
-
-        // console.log(this.app)
-        // this.ctx.fillText(this.app.data.msg, 50, 50);
         // show debug information
+        if ( sessionStorage.getItem( "debug" ) == "true" ) this.debugDraw();
         this.ctx.textAlign = "left"
         this.ctx.font = "50px serif";
         this.ctx.fillStyle = this.toRGB(127, 127, 127);
         this.ctx.fillText( Math.round( 10000 / this.deltaTime ) / 10 + " fps", 50, 80 );
         this.ctx.fillText( this.hover[0] + ", " + this.hover[1] + ", " + this.hover[2], 50, 160 );
         this.ctx.fillText( this.mouse.x + ", " + this.mouse.y, 50, 240 );
-        
-        if ( sessionStorage.getItem( "debug" ) == "true" ) this.debugDraw();
+    }
+
+    getCard(index) {
+        return this.allCards[index];
+    }
+
+    placeTableCenter() {
+        let halfWidth = Math.round(this.width / 2);
+        let halfHeight = Math.round(this.height / 2);
+        for (let index = this.data.deck.length - 1; index >= 0; index--) {
+            let cardId = this.data.deck[index];
+            let card = this.getCard(cardId);
+            card.flip = -1;
+            card.x = halfWidth - 60;
+            card.y = halfHeight;
+            card.size = 1;
+            card.update(this.deltaTime);
+            card.transform( ( self ) => {
+                card.draw( self );
+            }, this );
+        }
+        for (let index = this.data.flush.length - 1; index >= 0; index--) {
+            let cardId = this.data.flush[index];
+            let card = this.getCard(cardId);
+            card.flip = 1;
+            card.x = halfWidth + 60;
+            card.y = halfHeight;
+            card.size = 1;
+            card.update(this.deltaTime);
+            card.transform( ( self ) => {
+                card.draw( self );
+            }, this );
+        }
     }
 
 
     placeOwnCards() {
-        let amount = this.data.players[sessionStorage.getItem("uuid")].length
+        // let halfWidth = Math.round(this.width / 2);
+        let amount = this.data.players[sessionStorage.getItem("uuid")].length;
+        let y = this.height - 100;
+        let widthSpan = Math.min(this.width - 200, 80 * (amount - 1));
+        let left = Math.round((this.width - widthSpan) / 2);
+        let spacing = 0;
+        if (amount > 1) {
+            spacing = widthSpan / (amount - 1);
+        }
+        let topped = false;
+        let drawOrder = [];
         for (let index = 0; index < amount; index++) {
             let cardId = this.data.players[sessionStorage.getItem("uuid")][index];
-            let card = this.allCards[cardId];
+            let card = this.getCard(cardId);
+            if (topped) {
+                drawOrder.push(cardId);
+            } else {
+                drawOrder.unshift(cardId);
+            }
+            card.flip = 1;
+            card.x = left + spacing * index;
+            card.y = y;
+            card.size = 1;
+            if (this.isHovered(card.hitbox)) {
+                topped = true;
+                card.y = y - 15;
+                card.size = 1.2;
+            }
+            card.update(this.deltaTime);
+        }
+        if (topped) {
+            drawOrder.reverse();
+            this.ownCardDrawOrder = drawOrder;
+        }
+        for (let index = 0; index < this.ownCardDrawOrder.length; index++) {
+            let card = this.getCard(this.ownCardDrawOrder[index]);
+            card.transform( ( self ) => {
+                card.draw( self );
+            }, this );
         }
     }
 }

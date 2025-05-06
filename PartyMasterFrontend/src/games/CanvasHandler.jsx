@@ -9,6 +9,7 @@ export default class CanvasHandler {
 
         this.ctx = this.canvas.getContext( "2d" );
         this.octx = this.offscreenCanvas.getContext( "2d", { willReadFrequently: true } );
+        this.octx.imageSmoothingEnabled = false;
 
         this.lastTime;
         this.deltaTime;
@@ -88,25 +89,24 @@ export default class CanvasHandler {
         // console.log(this.getType());
         // console.log(this.app.data);
 
-        if (true || this.getType() == this.app.data.gameData.type) {
-
-            this.hover = this.getMousePointerHover();
-            this.resizeCanvas();
-            // console.log("loop");
-            // console.log(this);
-            if (this.lastTime === undefined) {
-                this.lastTime = time - 10;
-            }
-            this.deltaTime = time - this.lastTime;
-
-            // clear canvas (remove last frame from display)
-            this.clearCanvas();
-
-            this.animationFrame = window.requestAnimationFrame( function ( t ) {
-                self.loop( t );
-            } );
-            this.lastTime = time;
+        this.hover = this.getMousePointerHover();
+        this.resizeCanvas();
+        // console.log("loop");
+        // console.log(this);
+        if (this.lastTime === undefined) {
+            this.lastTime = time - 10;
         }
+        this.deltaTime = time - this.lastTime;
+
+        // clear canvas (remove last frame from display)
+        this.clearCanvas();
+        this.octx.imageSmoothingEnabled = false;
+
+        this.animationFrame = window.requestAnimationFrame( function ( t ) {
+            self.loop( t );
+        } );
+        this.lastTime = time;
+        
     }
 
     stop () {
