@@ -126,7 +126,9 @@ public class QuestionGame implements Game  {
     public Response envoyerQuestion()throws Exception {
         if(!(nbrQuestion>=5)) {
             ArrayList<Question> qstListe = Sql.DonnerQuestion();
-
+            if(QuestionUsed.size()==qstListe.size()){
+                QuestionUsed.clear();
+            }
             if (!qstListe.isEmpty()) {
                 int indexQuestion = Lobby.random.nextInt(qstListe.size());
                 if (verifQuestionUsed(indexQuestion)) {
@@ -154,6 +156,10 @@ public class QuestionGame implements Game  {
 
 
                 }
+            }else{
+                Response r = new Response(3, new JSONObject());
+                r.getData().put("r", "ListQuestionEmpty");
+                return r; // REFUSED
             }
         }else {
             envoyerQuestionSpe();
@@ -164,6 +170,9 @@ public class QuestionGame implements Game  {
     public Response envoyerQuestionSpe()throws Exception{
         int ptint = Lobby.random.nextInt(3);
         ArrayList<QuestionSpe> qstListe = Sql.DonnerQuestionSpe(ptint);
+        if(QuestionSpeUsed.size()==qstListe.size()){
+            QuestionSpeUsed.clear();
+        }
         int indexQuestion = Lobby.random.nextInt(qstListe.size());
 
             if (verifQuestionSpeUsed(indexQuestion)) {

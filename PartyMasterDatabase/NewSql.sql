@@ -1,5 +1,5 @@
-CREATE DATABASE  if not exists  JeuxSociete;
-USE JeuxSociete;
+CREATE DATABASE  if not exists  Jeuxsociete;
+USE Jeuxsociete;
  
  
 CREATE TABLE if not exists question (
