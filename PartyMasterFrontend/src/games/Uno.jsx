@@ -140,6 +140,22 @@ class Card extends ExpFollower {
     }
 }
 
+class Spinner extends ExpFollower {
+    constructor(x, y, asset) {
+        super(x, y, 1, 0, 1);
+        this.image = new Image();
+        this.asset = asset;
+        this.image.src = this.asset.src;
+    }
+
+    draw ( canvasHandler ) {
+        if (this.image.complete) {
+            canvasHandler.ctx.translate( -this.asset.cx, -this.asset.cy );
+            canvasHandler.ctx.drawImage( this.image, 0, 0, this.asset.w, this.asset.h );
+        }
+    }
+}
+
 export default class Uno extends CanvasHandler {
     constructor ( app, data ) {
         super( app, data );
@@ -193,6 +209,44 @@ export default class Uno extends CanvasHandler {
 
         this.ownCardDrawOrder = [];
         this.resetOwnCardDrawOrder();
+
+        let selfIndex = this.data.table.indexOf(sessionStorage.getItem("uuid"));
+        let tableBefor = this.data.table.slice(0, selfIndex);
+        let tableAfter = this.data.table.slice(selfIndex + 1);
+        this.customTable = tableAfter + tableBefor;
+
+        this.players = {};
+        this.placePlayers();
+
+        this.spinner = new Spinner(halfWidth, halfHeight, assets.unospinner);
+    }
+
+    placePlayers() {
+        let topspan = this.width - 240;
+        let sidespan = Math.round((this.height - 240) * 0.75);
+        let totalspan = sidespan * 2 + topspan;
+        let playernb = this.customTable.length;
+        let playerspan = totalspan / playernb;
+        let halfplayerspan = playerspan / 2;
+        for (let i = 0; i < this.customTable.length; i++) {
+            let uuid = this.data.table[i];
+            let pos = Math.round(i * playerspan + halfplayerspan);
+            let x = 0;
+            let y = 0;
+            if (sidespan + topspan < pos) {
+                // right side
+                y = pos - (sidespan + topspan) + 120;
+                x = this.width - 120;
+            } else if (sidespan < pos) {
+                // top side
+                y = 120;
+                x = pos - sidespan + 120;
+            } else {
+                x = 120;
+                y = 120 + sidespan - pos;
+            }
+            this.players[uuid] = {x:x,y:y}
+        }
     }
 
     resetOwnCardDrawOrder() {
@@ -212,6 +266,8 @@ export default class Uno extends CanvasHandler {
     loop ( time ) {
         super.loop(time);
 
+        this.placePlayers();
+        this.drawSpinner();
         this.resetOwnCardDrawOrder();
         this.placeOwnCards();
         this.placeTableCenter();
@@ -228,6 +284,22 @@ export default class Uno extends CanvasHandler {
 
     getCard(index) {
         return this.allCards[index];
+    }
+
+    drawSpinner() {
+        let halfWidth = Math.round(this.width / 2);
+        let halfHeight = Math.round(this.height / 2);
+        let angle = 0;
+        if (this.data.currentPlayer != sessionStorage.getItem("uuid")) {
+            let pos = this.players[this.data.currentPlayer];
+            angle = Math.atan2(pos.x - halfWidth, pos.y - halfHeight);
+        }
+        this.spinner.rotation = angle;
+        this.spinner.x = halfWidth;
+        this.spinner.y = halfHeight;
+        this.spinner.transform((self) => {
+            self.spinner.draw(self)
+        }, this);
     }
 
     placeTableCenter() {
@@ -256,6 +328,14 @@ export default class Uno extends CanvasHandler {
             card.transform( ( self ) => {
                 card.draw( self );
             }, this );
+        }
+    }
+
+    placeAllPlayersCards() {
+        for (let playerIndex = 0; playerIndex < this.customTable.length; playerIndex++) {
+            let uuid = this.customTable[playerIndex];
+
+            
         }
     }
 

@@ -92,10 +92,13 @@ const loupgaroux = {
     "chasseur": {src: url("/loupgarou/chasseur.svg"), w: 100, h: 100, cx: 50, cy: 50, r: 32, sw: 2},
 }
 
+const unospinner = {src: url("/uno_spinner.svg"), w: 400, h: 400, cx: 200, cy: 200, r: 160, sw: 4};
+
 export default function useAssets() {
     return {
         loupgaroux: loupgaroux,
         unocards: unocards,
-        players: players
+        players: players,
+        unospinner: unospinner,
     }
 }
