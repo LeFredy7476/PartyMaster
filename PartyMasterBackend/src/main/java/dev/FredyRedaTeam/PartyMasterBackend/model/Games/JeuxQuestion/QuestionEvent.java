@@ -2,9 +2,7 @@ package dev.FredyRedaTeam.PartyMasterBackend.model.Games.JeuxQuestion;
 
 import dev.FredyRedaTeam.PartyMasterBackend.model.Event;
 import org.json.JSONObject;
-import dev.FredyRedaTeam.PartyMasterBackend.model.Games.JeuxQuestion.Question;
 
-import java.util.UUID;
 
 public class QuestionEvent implements Event {
 
@@ -15,6 +13,7 @@ public class QuestionEvent implements Event {
     private  final String reponse3;
     private  final String reponse4;
     private  final String typeQuestion;
+    
 
 
 
@@ -27,6 +26,7 @@ public class QuestionEvent implements Event {
         this.reponse3=reponse3;
         this.reponse4=reponse4;
         this.typeQuestion=typeQuestion;
+     
 
     }
     public int getId(){return id;}
@@ -36,6 +36,7 @@ public class QuestionEvent implements Event {
     public String getReponse3(){return reponse3;}
     public String getReponse4(){return reponse4;}
     public String getTypeQuestion(){return typeQuestion ;}
+    
 
 
 

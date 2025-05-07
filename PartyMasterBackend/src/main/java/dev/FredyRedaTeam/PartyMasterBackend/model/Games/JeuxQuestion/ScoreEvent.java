@@ -4,8 +4,7 @@ import dev.FredyRedaTeam.PartyMasterBackend.model.Event;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.UUID;
+
 
 public class ScoreEvent implements Event {
 

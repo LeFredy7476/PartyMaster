@@ -45,6 +45,10 @@ public class QuestionGame implements Game  {
         obj.put("currentQuestionSpe", this.currentQuestionSpe);
 
         obj.put("gagnant", this.gagnant);
+
+        
+
+        obj.put("state", this.gameStateJ);
         return obj;
     }
 
@@ -58,14 +62,22 @@ public class QuestionGame implements Game  {
                 case "question":
                     switch (action.getTarget(2)) {
                         case "receiveResponse":
-                            if (nbrQuestion<5) {
+                            
                                 return recevoirReponse(action);
-                            }else{
-                                nbrQuestion=0;
-                                return recevoirReponseSpe(action);
-                            }
+                            
+                                
+                            
 
                     }
+                case "questionSpecial":
+                    switch (action.getTarget(2)) {
+                        case "receiveResponseSpe":
+                            
+        
+                            return recevoirReponseSpe(action);
+                       
+                    }
+                    
 
 //            case "special":
 //                switch (action.getTarget(2)){
@@ -163,9 +175,9 @@ public class QuestionGame implements Game  {
                 return r; // REFUSED
             }
         }else {
-            envoyerQuestionSpe();
+            return new Response();
         }
-        return new Response();
+        
     }
 
     public Response envoyerQuestionSpe()throws Exception{
@@ -178,12 +190,13 @@ public class QuestionGame implements Game  {
 
             if (verifQuestionSpeUsed(indexQuestion)) {
                 QuestionSpe kassos = qstListe.get(indexQuestion);
+                this.nbrQuestion=0;
                 this.lobby.queueEventForAllPlayer(new QuestionSpeEvent(kassos.getId(), kassos.getQuestion(), kassos.getNiveauQuestion()));
                 this.currentQuestionSpe = kassos;
 
                 this.lobby.queueEventForAllPlayer(new StateEvent(GameStateJ.QUESTION_SPECIAL));
                 QuestionSpeUsed.add(currentQuestionSpe);
-                this.nbrQuestion = 0;
+               
                 return new Response();
             } else {
                 return envoyerQuestionSpe();
@@ -213,7 +226,7 @@ public class QuestionGame implements Game  {
         return true;
     }
 
-    public Response recevoirReponse(Action action)  {
+    public Response recevoirReponse(Action action)throws Exception  {
 
         long now = System.currentTimeMillis();
         UUID uuid = action.getUuid();
@@ -312,7 +325,7 @@ public class QuestionGame implements Game  {
         }
         return bonneReponse;
     }
-    public Response br(){
+    public Response br()throws Exception{
         ArrayList<UUID> gagnantPotentiel=verifReponse();
         Question question=currentQuestion;
         UUID premier=null;
@@ -331,6 +344,7 @@ public class QuestionGame implements Game  {
                lobby.queueEventForAllPlayer(new QuestionResultatEvent(question.getId(),question.getBonneReponse()));
                tempsrecu.clear();
                reponserecu.clear();
+                nextQuestion();
                return new Response();
            }else{
                compteur++;
@@ -341,7 +355,7 @@ public class QuestionGame implements Game  {
 
         return new Response();
     }
-    public Response brSpe(){
+    public Response brSpe()throws Exception{
         ArrayList<UUID> gagnantPotentiel=verifReponseSpe();
         QuestionSpe question=currentQuestionSpe;
         UUID premier=null;
@@ -360,6 +374,7 @@ public class QuestionGame implements Game  {
                lobby.queueEventForAllPlayer(new QuestionResultatEvent(question.getId(),question.getReponse1()));
                tempsrecu.clear();
                reponserecu.clear();
+               nextQuestion();
                return new Response();
            }else{
                compteur++;
@@ -370,6 +385,15 @@ public class QuestionGame implements Game  {
 
         return new Response();
     }
+    public Response nextQuestion()throws Exception{
+        if (nbrQuestion>5){
+            envoyerQuestion();
+        }
+        else{
+            envoyerQuestionSpe();
+        }
+        return new Response();
+    }
 
  //  sa doit envoyer le state du jeux au joueur mais que le joueur ne puisse pas le voir avec wire shark pour tricher 
 public JSONObject toJsonMasked(Joueur joueur) {
@@ -378,6 +402,7 @@ public JSONObject toJsonMasked(Joueur joueur) {
         out.put("point", joueur.getPoint());
         out.put("question", currentQuestion);
         out.put("questionSpeciale", currentQuestionSpe);
+        
         return out;
 }
 

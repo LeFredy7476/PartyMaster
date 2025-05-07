@@ -64,48 +64,72 @@ const statesNames = {
     },
 
 }
-export default class LobbyHome extends CanvasHandler {
+export default class Question extends CanvasHandler {
 
     constructor ( app, data ) {
         super( app, data );
-        this.games = [
-            new Button("choix1", 0, [150, 0, 0], "Reponse1", false),
-            new Button("choix2", 1, [150, 0, 0], "Reponse2", false),
-            new Button("choix3", 2, [150, 0, 0], "Reponse3", false),
-            new Button("choix4", 2, [150, 0, 0], "Reponse4", false)
+       let reponse1= this.data.reponse1
+       let reponse2= this.data.reponse2
+       let reponse3= this.data.reponse3
+       let reponse4= this.data.reponse4
+        this.options = [
+            new Button("choix1", 0, [150, 0, 0], reponse1, false),
+            new Button("choix2", 1, [150, 0, 0],reponse2, false),
+            new Button("choix3", 2, [150, 0, 0], reponse3, false),
+            new Button("choix4", 2, [150, 0, 0], reponse4, false)
         ];
+        //pour ecrire un texte
+        //this.ctx.fillStyle = this.toRGB(127, 127, 127);
+       // this.ctx.fillText( Math.round( 10000 / this.deltaTime ) / 10 + " fps", 50, 80 );
+       
     }
 
     getType() {
         return "Question"
     }
+
     
-    onclick ( event ) {
-        for (let i = 0; i < this.games.length; i++) {
-            let game = this.games[i];
-            if (game.hovered) {
-                console.log(game.value);
-                this.app.packAction(
-                    "game:select",
-                    {"game": game.index}
-                ).then((response) => {
-                    if (response.data.code != 0) {
-                        ErrorHandler(response);
-                    }
-                }).catch(ErrorHandler);
-                break;
+    
+    onclick( event ) {
+        let myData = this.data.joueurs[sessionStorage.getItem("uuid")];
+        let naming = statesNames[this.data.state];
+        let concerned = this.amIConcerned(naming, myData);
+        for (let uuid in this.joueurs) {
+            if (Object.prototype.hasOwnProperty.call(this.joueurs, uuid)) {
+                let joueur = this.joueurs[uuid];
+                if (joueur.hover && this.data.joueurs[uuid].vivant && uuid != sessionStorage.getItem("uuid")) {
+                        if (naming.confirm) {
+                            this.selected.push(uuid);
+                        } else {
+                            // if (this.data.state === "CUPIDON_CHOIX") {
+                            //     this.app.packAction("game:cupidon:choose", {targetA})
+                            // }
+                            if (this.data.state === "QUESTION") {
+                                this.app.packAction("game:question:receiveResponse", {target: uuid});
+                            } else if (this.data.state === "REVELATIONBM") {
+                                this.app.packAction("game:voyante:choose", {target: uuid});
+                            } else if (this.data.state === "QUESTION_SPECIAL") {
+                                this.app.packAction("game:loupgaroux:vote", {target: uuid});
+                            } else if (this.data.state === "TRAITRE_CHOIX") {
+                                this.app.packAction("game:traitre:choose", {target: uuid});
+                            } 
+                        }
+                    
+                }
             }
         }
-
-        if (this.isHovered([ 0, 0, 255 ])) {
-            this.app.packAction(
-                "game:apply",
-                {}
-            ).then((response) => {
-                if (response.data.code != 0) {
-                    ErrorHandler(response);
+        if (this.isHovered([0, 0, 255])) {
+            if (concerned) {
+                if (this.data.state === "CUPIDON_CHOIX" && this.selected.length == naming.selection) {
+                    this.app.packAction("game:cupidon:choose", {targetA: this.selected[0], targetB: this.selected[1]})
+                } else if (this.data.state === "AMOUREUX_REVELATION") {
+                    this.app.packAction("game:amoureux:confirm", {});
+                } else if (this.data.state === "VOYANTE_REVELATION") {
+                    this.app.packAction("game:voyante:confirm", {});
+                } else if (this.data.state === "TRAITRE_REVELATION") {
+                    this.app.packAction("game:traitre:confirm", {});
                 }
-            }).catch(ErrorHandler);
+            }
         }
     }
 

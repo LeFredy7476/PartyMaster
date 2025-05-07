@@ -3,7 +3,7 @@ package dev.FredyRedaTeam.PartyMasterBackend.model.Games.JeuxQuestion;
 import dev.FredyRedaTeam.PartyMasterBackend.model.Event;
 import org.json.JSONObject;
 
-import java.util.UUID;
+
 
 public class QuestionResultatEvent implements Event {
 
@@ -15,6 +15,7 @@ public class QuestionResultatEvent implements Event {
         this.bonneReponse=bonneReponse;
     }
     public int getId(){return  id;}
+    
     public String getBonneReponse(){return bonneReponse;}
 
     @Override

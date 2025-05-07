@@ -1,10 +1,9 @@
 package dev.FredyRedaTeam.PartyMasterBackend.model.Games.JeuxQuestion;
 
 import dev.FredyRedaTeam.PartyMasterBackend.model.Event;
-import dev.FredyRedaTeam.PartyMasterBackend.model.Games.loup.GameState;
 import org.json.JSONObject;
 
-import java.util.UUID;
+
 
 public class StateEvent implements Event {
 
