@@ -2,7 +2,7 @@
 CREATE DATABASE IF NOT EXISTS Jeuxsociete;
 USE Jeuxsociete;
 
-
+DROP table if EXISTS question;
 CREATE TABLE IF NOT EXISTS question (
     id INT AUTO_INCREMENT PRIMARY KEY,
     question VARCHAR(100) NOT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS question (
     typeQuestion VARCHAR(100) NOT NULL
 );
 
-
+DROP table if EXISTS questionSpecial;
 CREATE TABLE IF NOT EXISTS questionSpecial (
     id INT AUTO_INCREMENT PRIMARY KEY,
     question VARCHAR(100) NOT NULL,
@@ -173,7 +173,3 @@ INSERT INTO questionSpecial (question, reponse, NiveauReponse) VALUES
 ('Quel est le nom du plus grand asteroide connu ?', 'Ceres', 3),
 ('Quel est le nom du plus ancien texte litteraire ?', 'Epopee de Gilgamesh', 3);
 
-CREATE TABLE if NOT exists historiqueGame(
-id VARCHAR(8)NOT NULL,
-creation LONG NOT NULL
-);

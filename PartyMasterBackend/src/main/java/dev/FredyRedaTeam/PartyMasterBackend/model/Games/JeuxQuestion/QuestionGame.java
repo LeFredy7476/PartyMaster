@@ -61,6 +61,7 @@ public class QuestionGame implements Game  {
                             if (nbrQuestion<5) {
                                 return recevoirReponse(action);
                             }else{
+                                nbrQuestion=0;
                                 return recevoirReponseSpe(action);
                             }
 
@@ -230,6 +231,7 @@ public class QuestionGame implements Game  {
             }
             if (contenders.size()==reponserecu.size()){
                 br();
+                nbrQuestion++;
             }else {
                 Response r = new Response(3, new JSONObject());
                 r.getData().put("r", "NotEveryoneResponded");
@@ -354,7 +356,7 @@ public class QuestionGame implements Game  {
                premier=mec.getKey();
                Joueur joueur=getJoueur(premier);
                joueur.addPoint(question.getNiveauQuestion());
-               lobby.queueEventForAllPlayer(new StateEvent(GameStateJ.REVELATIONBM));
+               lobby.queueEventForAllPlayer(new StateEvent(GameStateJ.REVELATIONQSBM));
                lobby.queueEventForAllPlayer(new QuestionResultatEvent(question.getId(),question.getReponse1()));
                tempsrecu.clear();
                reponserecu.clear();
