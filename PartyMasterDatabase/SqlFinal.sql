@@ -1,6 +1,6 @@
 
-CREATE DATABASE IF NOT EXISTS Jeuxsociete;
-USE Jeuxsociete;
+CREATE DATABASE IF NOT EXISTS jeuxsociete;
+USE jeuxsociete;
 
 DROP table if EXISTS question;
 CREATE TABLE IF NOT EXISTS question (
@@ -14,23 +14,23 @@ CREATE TABLE IF NOT EXISTS question (
     typeQuestion VARCHAR(100) NOT NULL
 );
 
-DROP table if EXISTS questionSpecial;
-CREATE TABLE IF NOT EXISTS questionSpecial (
+DROP table if EXISTS questionspecial;
+CREATE TABLE IF NOT EXISTS questionspecial (
     id INT AUTO_INCREMENT PRIMARY KEY,
     question VARCHAR(100) NOT NULL,
     reponse VARCHAR(100) NOT NULL,
     NiveauReponse INT NOT NULL
 );
 
-
-CREATE TABLE IF NOT EXISTS historiqueGame (
+DROP TABLE IF EXISTS historiquegame;
+CREATE TABLE IF NOT EXISTS historiquegame (
     id VARCHAR(8) NOT NULL,
     creation LONG NOT NULL
 );
 
 
 DELETE FROM question;
-DELETE FROM questionSpecial;
+DELETE FROM questionspecial;
 
 
 INSERT INTO question (question, reponse1, reponse2, reponse3, reponse4, bonneReponse, typeQuestion) VALUES
@@ -141,7 +141,7 @@ INSERT INTO question (question, reponse1, reponse2, reponse3, reponse4, bonneRep
 ('Quel langage est utilise pour les applications Angular ?', 'JavaScript', 'Python', 'Java', 'C#', 'JavaScript', 'Programmation');
 
 
-INSERT INTO questionSpecial (question, reponse, NiveauReponse) VALUES
+INSERT INTO questionspecial (question, reponse, NiveauReponse) VALUES
 
 ('Quelle est la capitale de la France ?', 'Paris', 1),
 ('Quel est le plus grand ocean du monde ?', 'Pacifique', 1),

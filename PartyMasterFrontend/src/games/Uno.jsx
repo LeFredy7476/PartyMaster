@@ -353,7 +353,7 @@ export default class Uno extends CanvasHandler {
         let angle = 0;
         if (this.data.currentPlayer != sessionStorage.getItem("uuid")) {
             let pos = this.players[this.data.currentPlayer];
-            angle = Math.atan2(pos.x - halfWidth, pos.y - halfHeight);
+            angle = -Math.atan2(pos.x - halfWidth, pos.y - halfHeight);
         }
         this.spinner.rotation = angle;
         this.spinner.x = halfWidth;

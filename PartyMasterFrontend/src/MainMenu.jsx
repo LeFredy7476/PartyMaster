@@ -32,9 +32,15 @@ function MainMenu({ connected, setconnected }) {
                 <label htmlFor="lobbyCode">Rejoindre un groupe</label>
                 <input type="text" name="lobbyCode" id="lobbyCode" placeholder="Code" className='form' autoComplete="off" value={room} onChange={function(e) {
                     setRoom(e.target.value);
+                }} onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        let send = document.querySelector("#lobbyJoin");
+                        send.click();
+                    }
                 }}/>
                 <button id="lobbyJoin" className="form-button" onClick={()=>{
-                    if (room.length == 8) {
+                    if (room.length == 4) {
                         navigate("/" + room.toLowerCase());
                     }
                 }}>Rejoindre</button>

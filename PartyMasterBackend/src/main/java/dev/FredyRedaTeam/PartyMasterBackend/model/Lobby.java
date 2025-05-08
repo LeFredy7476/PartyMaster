@@ -3,6 +3,7 @@ package dev.FredyRedaTeam.PartyMasterBackend.model;
 import java.util.*;
 
 import dev.FredyRedaTeam.PartyMasterBackend.model.Games.utils.Sql;
+import dev.FredyRedaTeam.PartyMasterBackend.model.Games.JeuxQuestion.QuestionGame;
 import dev.FredyRedaTeam.PartyMasterBackend.model.Games.loup.LoupGame;
 import dev.FredyRedaTeam.PartyMasterBackend.model.Games.uno.UnoGame;
 import org.json.*;
@@ -39,7 +40,7 @@ public class Lobby {
         String out = "";
         do {
             out = "";
-            for (int i = 0; i < 8; i++) {
+            for (int i = 0; i < 4; i++) {
                 out = out + String.valueOf(characters.charAt(random.nextInt(36)));
             }
         } while (isInstance(out));
@@ -378,7 +379,7 @@ public class Lobby {
         this.game = switch (gameName) {
             case "Uno" -> new UnoGame();
             case "Loup" -> new LoupGame();
-            case "Question" -> new LobbyHome(); // TODO: merge le jeu de Reda
+            case "Question" -> new QuestionGame(); // TODO: merge le jeu de Reda
             case null, default -> new LobbyHome(); // fallback
         };
         this.game.init(this);

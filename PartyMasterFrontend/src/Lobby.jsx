@@ -56,6 +56,7 @@ function Lobby({ connected, setconnected }) {
             else if (event.type == "Uno.PlayEvent") app.Uno_PlayEvent(event)
             else if (event.type == "Uno.SkipEvent") app.Uno_SkipEvent(event)
             else if (event.type == "Uno.WinEvent") app.Uno_WinEvent(event)
+            else if (event.type == "Uno.StateEvent") app.Uno_StateEvent(event)
 
             // app.updateData((data) => {});
         },
@@ -155,10 +156,9 @@ function Lobby({ connected, setconnected }) {
                 game = new Uno(app, event.game);
             } else if (event.game.type == "Loup") {
                 game = new Loup(app, event.game);
-            }else if (event.game.type =="Question"){
-                game = new Question(app ,event.game)
-            }
-                 else {
+            } else if (event.game.type =="Question") {
+                game = new Question(app, event.game);
+            } else {
                 game = new LobbyHome(app, event.game);
             }
             //updateGame est la pour etre sure que game est implementer et que certaine donner reste cacher par exemple qui est loup comme sa les autres ne le savent
@@ -263,6 +263,12 @@ function Lobby({ connected, setconnected }) {
         },
         Uno_WinEvent(event) {
             alert(app.data.players[event.player].name + " a gagné!");
+        },
+        Uno_StateEvent(event) {
+            app.updateData((data) => {
+                data.gameData = event;
+                data.gameData.type = "Uno";
+            });
         },
     }
 

@@ -34,51 +34,39 @@ public class QuestionGame implements Game  {
 
     @Override
     public JSONObject toJson() {
-        JSONObject obj=new JSONObject();
+        JSONObject obj = new JSONObject();
 
-        JSONObject point=new JSONObject();
-        this.pointEnter.forEach((uuid, joueur) -> { point.put(uuid.toString(),joueur.toJson()); });
+        JSONObject point = new JSONObject();
+        this.pointEnter.forEach((uuid, joueur) -> { 
+            point.put(uuid.toString(),joueur.toJson()); 
+        });
         obj.put("point", point);
 
-        obj.put("currentQuestion", this.currentQuestion);
-
-        obj.put("currentQuestionSpe", this.currentQuestionSpe);
-
+        obj.put("currentQuestion", this.currentQuestion.toJson());
+        obj.put("currentQuestionSpe", this.currentQuestionSpe.toJson());
         obj.put("gagnant", this.gagnant);
-
-        
-
         obj.put("state", this.gameStateJ);
+        obj.put("type", getType());
         return obj;
     }
 
     @Override
     public Response receiveAction(Action action) {
         try {
-            switch (action.getTarget()[1]) {
+            switch (action.getTarget(1)) {
                 case "state":
                     return new Response(0, this.toJsonMasked(pointEnter.get(action.getUuid())));
 
                 case "question":
                     switch (action.getTarget(2)) {
                         case "receiveResponse":
-                            
                                 return recevoirReponse(action);
-                            
-                                
-                            
-
                     }
                 case "questionSpecial":
                     switch (action.getTarget(2)) {
                         case "receiveResponseSpe":
-                            
-        
                             return recevoirReponseSpe(action);
-                       
                     }
-                    
-
 //            case "special":
 //                switch (action.getTarget(2)){
 //                    case "receiveResponseSpe":
@@ -86,7 +74,7 @@ public class QuestionGame implements Game  {
 //
 //                }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
 
@@ -109,6 +97,7 @@ public class QuestionGame implements Game  {
 
     @Override
     public void init(Lobby lobby) {
+        this.lobby = lobby;
         setListPlayer();
         try {
             ArrayList<Question> qstListe = Sql.DonnerQuestion();
@@ -117,7 +106,7 @@ public class QuestionGame implements Game  {
             QuestionUsed.add(currentQuestion);
 
             ArrayList<QuestionSpe> qstSpeListe = Sql.DonnerQuestionSpeInit();
-            int indexQuestion2 = lobby.random.nextInt(qstSpeListe.size());
+            int indexQuestion2 = Lobby.random.nextInt(qstSpeListe.size());
             this.currentQuestionSpe = qstSpeListe.get(indexQuestion2);
             QuestionSpeUsed.add(currentQuestionSpe);
         } catch (Exception e) {
@@ -294,102 +283,98 @@ public class QuestionGame implements Game  {
 
         return new Response();
     }
-    public ArrayList<UUID> verifReponse(){
-        ArrayList <UUID>bonneReponse=null;
-        for (Map.Entry<UUID,String> reponseMec:reponserecu.entrySet()){
-            if (reponseMec.getValue().equals(currentQuestion.getBonneReponse())){
-                 bonneReponse.add(reponseMec.getKey());
-            }
-            else {
-                System.out.println("mauvaise reponse de : "+reponseMec.getKey());
-
+    public ArrayList<UUID> verifReponse() {
+        ArrayList<UUID> bonneReponse = new ArrayList<>();
+        for (Map.Entry<UUID,String> reponseMec : reponserecu.entrySet()){
+            if (reponseMec.getValue().equals(currentQuestion.getBonneReponse())) {
+                bonneReponse.add(reponseMec.getKey());
+            } else {
+                System.out.println("mauvaise reponse de : " + reponseMec.getKey());
             }
         }
         return bonneReponse;
     }
-    public ArrayList<UUID>verifReponseSpe(){
-        ArrayList<UUID>bonneReponse=null;
-        for (Map.Entry<UUID,String> reponseMec:reponserecu.entrySet()){
-            if (reponseMec.getValue().equals(currentQuestion.getBonneReponse())){
+    public ArrayList<UUID> verifReponseSpe() {
+        ArrayList<UUID> bonneReponse = new ArrayList<>();
+        for (Map.Entry<UUID,String> reponseMec : reponserecu.entrySet()) {
+            if (reponseMec.getValue().equals(currentQuestion.getBonneReponse())) {
                 bonneReponse.add(reponseMec.getKey());
-            }
-            else {
+            } else {
                 if (reponseMec.getValue()!=null) {
                     Joueur joueur = getJoueur(reponseMec.getKey());
                     joueur.removePoint(currentQuestionSpe.getNiveauQuestion());
 
-                }else{
+                } else {
                     System.out.println("joueur n'a pas repondu ");
                 }
             }
         }
         return bonneReponse;
     }
-    public Response br()throws Exception{
+    public Response br() throws Exception {
         ArrayList<UUID> gagnantPotentiel=verifReponse();
         Question question=currentQuestion;
         UUID premier=null;
         int compteur=0;
-        if (gagnantPotentiel.isEmpty()){
+        if (gagnantPotentiel.isEmpty()) {
             Response r = new Response(3, new JSONObject());
             r.getData().put("r", "NoWinner");
             return r; // REFUSED
         }
-        for(Map.Entry<UUID,Long> mec:tempsrecu.entrySet()){
-           if (mec.getKey()==gagnantPotentiel.get(compteur)){
-               premier=mec.getKey();
-               Joueur joueur=getJoueur(premier);
-               joueur.addPoint(1);
-               lobby.queueEventForAllPlayer(new StateEvent(GameStateJ.REVELATIONBM));
-               lobby.queueEventForAllPlayer(new QuestionResultatEvent(question.getId(),question.getBonneReponse()));
-               tempsrecu.clear();
-               reponserecu.clear();
+        for (Map.Entry<UUID,Long> mec : tempsrecu.entrySet()) {
+            if (mec.getKey() == gagnantPotentiel.get(compteur)) {
+                premier = mec.getKey();
+                Joueur joueur = getJoueur(premier);
+                joueur.addPoint(1);
+                lobby.queueEventForAllPlayer(new StateEvent(GameStateJ.REVELATIONBM));
+                lobby.queueEventForAllPlayer(new QuestionResultatEvent(question.getId(), question.getBonneReponse()));
+                tempsrecu.clear();
+                reponserecu.clear();
                 nextQuestion();
-               return new Response();
-           }else{
-               compteur++;
-           }
+                return new Response();
+            } else {
+                compteur++;
+            }
         }
 
         System.out.println("gagnant "+premier);
 
         return new Response();
     }
-    public Response brSpe()throws Exception{
-        ArrayList<UUID> gagnantPotentiel=verifReponseSpe();
-        QuestionSpe question=currentQuestionSpe;
-        UUID premier=null;
-        int compteur=0;
-        if (gagnantPotentiel.isEmpty()){
+    public Response brSpe() throws Exception {
+        ArrayList<UUID> gagnantPotentiel = verifReponseSpe();
+        QuestionSpe question = currentQuestionSpe;
+        UUID premier = null;
+        int compteur = 0;
+        if (gagnantPotentiel.isEmpty()) {
             Response r = new Response(3, new JSONObject());
             r.getData().put("r", "NoWinner");
             return r; // REFUSED
         }
-        for(Map.Entry<UUID,Long> mec:tempsrecu.entrySet()){
-           if (mec.getKey()==gagnantPotentiel.get(compteur)){
-               premier=mec.getKey();
-               Joueur joueur=getJoueur(premier);
-               joueur.addPoint(question.getNiveauQuestion());
-               lobby.queueEventForAllPlayer(new StateEvent(GameStateJ.REVELATIONQSBM));
-               lobby.queueEventForAllPlayer(new QuestionResultatEvent(question.getId(),question.getReponse1()));
-               tempsrecu.clear();
-               reponserecu.clear();
-               nextQuestion();
-               return new Response();
-           }else{
-               compteur++;
-           }
+        for (Map.Entry<UUID,Long> mec : tempsrecu.entrySet()) {
+            if (mec.getKey() == gagnantPotentiel.get(compteur)) {
+                premier = mec.getKey();
+                Joueur joueur = getJoueur(premier);
+                joueur.addPoint(question.getNiveauQuestion());
+                lobby.queueEventForAllPlayer(new StateEvent(GameStateJ.REVELATIONQSBM));
+                lobby.queueEventForAllPlayer(new QuestionResultatEvent(question.getId(), question.getReponse1()));
+                tempsrecu.clear();
+                reponserecu.clear();
+                nextQuestion();
+                return new Response();
+            } else {
+                compteur++;
+            }
         }
 
         System.out.println("gagnant "+premier);
 
         return new Response();
     }
-    public Response nextQuestion()throws Exception{
-        if (nbrQuestion>5){
+    public Response nextQuestion() throws Exception{
+        if (nbrQuestion>5) {
             envoyerQuestion();
-        }
-        else{
+        } else {
             envoyerQuestionSpe();
         }
         return new Response();

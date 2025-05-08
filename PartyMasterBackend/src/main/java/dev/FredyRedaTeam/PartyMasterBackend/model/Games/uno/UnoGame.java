@@ -56,6 +56,9 @@ public class UnoGame implements Game {
                 player.addCard(card);
                 drawn.put(card.id);
             }
+            if (this.deck.size() == 0) {
+                reshuffle();
+            }
             this.lobby.queueEventForAllPlayer(new DrawEvent(player.uuid, drawn));
         }
     }
@@ -82,6 +85,9 @@ public class UnoGame implements Game {
         if (card.shouldSkip()) {
             this.lobby.queueEventForAllPlayer(new SkipEvent(currentPlayer));
             applyRotation();
+        }
+        if (this.deck.size() == 0) {
+            reshuffle();
         }
         this.lobby.queueEventForAllPlayer(new TurnEvent(currentPlayer, direction, currentColor, currentCard.id));
     }
@@ -218,6 +224,9 @@ public class UnoGame implements Game {
         }
 
         Collections.shuffle(deck);
+        Collections.shuffle(deck); // just in case
+        Collections.shuffle(deck); // not 2 without 3
+
         for (int i = 0; i < 7; i++) {
             for (UUID uuid : table) {
                 getPlayer(uuid).addCard(deck.pollFirst());

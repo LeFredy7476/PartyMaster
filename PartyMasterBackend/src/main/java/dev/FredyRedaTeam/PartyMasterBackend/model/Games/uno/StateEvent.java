@@ -1,7 +1,6 @@
 package dev.FredyRedaTeam.PartyMasterBackend.model.Games.uno;
 
 import dev.FredyRedaTeam.PartyMasterBackend.model.Event;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 class StateEvent implements Event {

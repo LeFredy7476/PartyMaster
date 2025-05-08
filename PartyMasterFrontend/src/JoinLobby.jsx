@@ -62,6 +62,12 @@ function JoinLobby({ connected, setconnected }) {
             
             <input type="text" name="name" id="name" className='form' placeholder="Nom" value={name} autoComplete="off" onChange={(e)=>{
                 setName(e.target.value);
+            }} onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    let send = document.querySelector("#join");
+                    send.click();
+                }
             }}/>
             <button className="form-button" id="join" onClick={function() {
                 if (name != "") {
