@@ -1,13 +1,14 @@
 package dev.FredyRedaTeam.PartyMasterBackend.model.Games.loup;
 
+import org.json.JSONObject;
+
 import java.util.UUID;
 
 public class Joueur {
-
     private final UUID uuid;
     private Role role;
     private boolean vivant;
-    // private boolean chef;
+
     private UUID amour;
 
     public Joueur(UUID uuid, Role role) {
@@ -43,5 +44,19 @@ public class Joueur {
 
     public void setAmour(UUID amour) {
         this.amour = amour;
+    }
+
+
+
+    public JSONObject toJson(){
+        JSONObject obj = new JSONObject();
+        obj.put("role", this.role.toString());
+        obj.put("vivant", this.vivant);
+        if (this.amour == null) {
+            obj.put("amour", JSONObject.NULL);
+        } else {
+            obj.put("amour", this.amour.toString());
+        }
+        return obj;
     }
 }

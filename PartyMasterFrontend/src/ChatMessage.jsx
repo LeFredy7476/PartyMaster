@@ -1,13 +1,23 @@
-import get_player_icon from "./playerutils.jsx";
+import useAssets from "./useAssets.jsx";
+import empty from '/players/empty.svg'
 
-export default function ChatMessage({app, uuid, content}) {
+export default function ChatMessage({app, uuid, content, shrink}) {
+
+    const assets = useAssets();
+
+    let name = "Utilisateur Inconnu";
+    let icon = empty;
+    if (app.data.players[uuid]) {
+        name = app.data.players[uuid].name;
+        icon = assets.players[app.data.players[uuid].icon].src;
+    }
 
     return (
-        <div className="message-box">
+        <div className={shrink ? "message-box shrink" : "message-box"}>
             <div className="message">
-                <img src={get_player_icon(app.data.players[uuid].icon)} alt={"icon#" + get_player_icon(app.data.players[uuid].icon)} className="message-icon" />
+                <img src={icon} alt={"icon#" + icon} className="message-icon" draggable="false" />
                 <div className="message-separator"></div>
-                <div className="message-name">{app.data.players[uuid].name}</div>
+                <div className="message-name">{name}</div>
                 <div className="message-content">{content}</div>
             </div>
         </div>

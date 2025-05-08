@@ -1,6 +1,6 @@
-DROP DATABASE if EXISTS JeuxSociete;
-CREATE DATABASE JeuxSociete;
-USE JeuxSociete;
+DROP DATABASE if EXISTS jeuxsociete;
+CREATE DATABASE jeuxsociete;
+USE jeuxsociete;
 DROP TABLE IF EXISTS roles;
 CREATE TABLE roles (
 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -10,7 +10,7 @@ INSERT INTO roles (nom) VALUES
    ('Voyante'),
    ('Sorcière'),
    ('Chasseur'),
-   ('Cupidon'),                                                                                      
+   ('Cupidon'),
 	('Gardien'),
    ('Capitaine'),
      ('loup blanc'),
@@ -31,6 +31,6 @@ INSERT INTO question(question,reponse1,reponse2,reponse3,reponse4,typeQuestion)V
 ('Nommer moi le créateur de harry potter','J.K Rowling','Ghandi','Maurice Leblanc','phillipe','Générale'),
 ('La taille de la tour effeil','300M','100cm','100Km','1mm','Générale'),
 ('Lequel de ses pays ne se situe pas en afrique?','Canada','Algérie','Cameroun','Togo','Géographie'),
-('Le pays dans lequel se situe la tour de pise','Italie','Japon','Corée Du Nord','Maroc','Géographie');
-('Dans quel language l\'indentation est importante ?','Python','Java','JavaScript','Programmation'),
-('Quel Language est utilisé pour les developpement d\application android?','Kotlin','Angular','python','React','Programmation');
+('Le pays dans lequel se situe la tour de pise','Italie','Japon','Corée Du Nord','Maroc','Géographie'),
+('Dans quel language l\'indentation est importante ?','Python','Java','JavaScript','C','Programmation'),
+('Quel Language est utilisé pour les developpement d\'application android?','Kotlin','Angular','python','React','Programmation');

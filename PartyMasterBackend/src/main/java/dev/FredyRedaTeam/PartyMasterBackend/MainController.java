@@ -3,6 +3,7 @@ package dev.FredyRedaTeam.PartyMasterBackend;
 import dev.FredyRedaTeam.PartyMasterBackend.model.Event;
 import dev.FredyRedaTeam.PartyMasterBackend.model.Lobby;
 import dev.FredyRedaTeam.PartyMasterBackend.model.Response;
+import dev.FredyRedaTeam.PartyMasterBackend.model.TerminationEvent;
 import jakarta.servlet.http.HttpServletRequest;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,6 +28,7 @@ public class MainController {
 
     @GetMapping(value = "/{room}/state", produces = MediaType.APPLICATION_JSON_VALUE)
     public String state(@PathVariable String room, @ModelAttribute("uuid") String uuid, HttpServletRequest request) {
+        Lobby.checkRooms();
         if (Lobby.isInstance(room)) {
             Lobby lobby = Lobby.getInstance(room);
             UUID _uuid = parseUUID(uuid);
@@ -42,6 +44,7 @@ public class MainController {
 
     @GetMapping(value = "/{room}/ping", produces = MediaType.APPLICATION_JSON_VALUE)
     public String ping(@PathVariable String room, HttpServletRequest request) {
+        Lobby.checkRooms();
         boolean doesExist = Lobby.isInstance(room);
         JSONObject out = new JSONObject();
         out.put("exist", doesExist);
@@ -55,32 +58,36 @@ public class MainController {
 
     @GetMapping(value = "/{room}/tick", produces = MediaType.APPLICATION_JSON_VALUE)
     public String tick(@PathVariable String room, @ModelAttribute("uuid") String uuid, HttpServletRequest request) {
+        UUID _uuid = parseUUID(uuid);
         if (Lobby.isInstance(room)) {
             Lobby lobby = Lobby.getInstance(room);
-            UUID _uuid = parseUUID(uuid);
             LinkedList<Event> list = lobby.fetchEvents(_uuid);
             JSONArray array = new JSONArray();
             for (Event event : list) {
-                array.put(event.toJson(_uuid));
+                array.put(event.toJson());
             }
             return array.toString();
         } else {
-            return "[]";
+            JSONArray array = new JSONArray();
+            TerminationEvent evt = new TerminationEvent(_uuid);
+            array.put(evt.toJson());
+            return array.toString();
         }
     }
 
     @PostMapping(value = "/createlobby")
-    public String createLobby(HttpServletRequest request) {
+    public String createLobby(HttpServletRequest request) throws Exception {
+        Lobby.checkRooms();
         Lobby lobby = new Lobby();
         JSONObject data = new JSONObject();
         data.put("lobby", lobby.getRoom());
         Response out = new Response(0, data);
-        System.out.println("new room created : " + lobby.getRoom());
         return out.toJson().toString();
     }
 
     @PostMapping(value = "/{room}/send")
     public String send(@PathVariable String room, @RequestBody String input, HttpServletRequest request) {
+        Lobby.checkRooms();
         if (Lobby.isInstance(room)) {
             JSONObject inputdata = new JSONObject(input);
             String uuid;

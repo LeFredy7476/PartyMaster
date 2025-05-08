@@ -8,11 +8,13 @@ public class Player {
     private UUID uuid;
     private String name;
     private int icon;
+    public long lastTick;
 
     public Player(UUID uuid, String name, int icon) {
         this.uuid = uuid;
         this.name = name;
         this.icon = icon;
+        this.lastTick = System.currentTimeMillis();
     }
 
     public UUID getUuid() {

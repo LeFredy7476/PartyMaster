@@ -12,9 +12,13 @@ public class Action {
     public Action(UUID uuid, String target, JSONObject data) {
         this.uuid = uuid;
         this.timestamp = System.currentTimeMillis();
+        String struuid = "<unknown>";
+        if (uuid != null) {
+            struuid = uuid.toString();
+        }
         this.target = target.split(":", 5);
         this.data = data;
-        System.out.println(this.getTarget()[0]);
+        System.out.println("\u001b[34mReceived Action " + target + " from player " + struuid + "\u001b[0m");
     }
 
     public UUID getUuid() {

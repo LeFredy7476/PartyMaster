@@ -3,8 +3,6 @@ package dev.FredyRedaTeam.PartyMasterBackend.model.Games.loup;
 import dev.FredyRedaTeam.PartyMasterBackend.model.Event;
 import org.json.JSONObject;
 
-import java.util.UUID;
-
 public class StateEvent implements Event {
 
     private final long timestamp;
@@ -27,13 +25,14 @@ public class StateEvent implements Event {
 
     @Override
     public String getType() {
-        return "Games.loup.StateEvent";
+        return "Loup.StateEvent";
     }
 
     @Override
-    public JSONObject toJson(UUID uuid) {
+    public JSONObject toJson() {
         JSONObject obj = new JSONObject();
         obj.put("type", getType());
+        obj.put("state", gameState.toString());
         return obj;
     }
 }

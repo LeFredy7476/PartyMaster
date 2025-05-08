@@ -36,10 +36,9 @@ public class TerminationEvent implements Event {
     }
 
     @Override
-    public JSONObject toJson(UUID uuid) {
+    public JSONObject toJson() {
         JSONObject out = new JSONObject();
         out.put("type", getType());
-        out.put("uuid", uuid);
         out.put("target", this.target);
         out.put("timestamp", this.timestamp);
         return out;

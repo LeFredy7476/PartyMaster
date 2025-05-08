@@ -36,11 +36,11 @@ public class FinEvent implements Event {
 
     @Override
     public String getType() {
-        return "Games.loup.FinEvent";
+        return "Loup.FinEvent";
     }
 
     @Override
-    public JSONObject toJson(UUID uuid) {
+    public JSONObject toJson() {
         JSONObject obj = new JSONObject();
         obj.put("type", getType());
         return obj;
