@@ -10,6 +10,7 @@ import useGames from './games/useGames'
 import LobbyHome from './games/LobbyHome'
 import Uno from './games/Uno'
 import Loup from './games/Loup'
+import Question from './games/Question'
 
 //heriter de routeur, cela verifie avec ton browser si tu es deja dans un groupe , si ce n'est pas le cas, sa te retourne a la page de connexion du groupe
 function Lobby({ connected, setconnected }) {
@@ -154,7 +155,10 @@ function Lobby({ connected, setconnected }) {
                 game = new Uno(app, event.game);
             } else if (event.game.type == "Loup") {
                 game = new Loup(app, event.game);
-            } else {
+            }else if (event.game.type =="Question"){
+                game = new Question(app ,event.game)
+            }
+                 else {
                 game = new LobbyHome(app, event.game);
             }
             //updateGame est la pour etre sure que game est implementer et que certaine donner reste cacher par exemple qui est loup comme sa les autres ne le savent
