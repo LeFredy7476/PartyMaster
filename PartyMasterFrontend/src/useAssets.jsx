@@ -93,6 +93,7 @@ const loupgaroux = {
 }
 
 const unospinner = {src: url("/uno_spinner.svg"), w: 400, h: 400, cx: 200, cy: 200, r: 160, sw: 4};
+const unoswitch = {src: url("/unoswitch.svg"), w: 100, h: 150, cx: 50, cy: 75, r: 50, sw: 6};
 
 export default function useAssets() {
     return {
@@ -100,5 +101,6 @@ export default function useAssets() {
         unocards: unocards,
         players: players,
         unospinner: unospinner,
+        unoswitch: unoswitch
     }
 }

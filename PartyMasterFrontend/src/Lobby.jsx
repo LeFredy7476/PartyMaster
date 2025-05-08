@@ -50,6 +50,12 @@ function Lobby({ connected, setconnected }) {
             else if (event.type == "Loup.RevelationEvent") app.Loup_RevelationEvent(event)
             else if (event.type == "Loup.VoteEvent") app.Loup_VoteEvent(event)
             else if (event.type == "Loup.WinnerEvent") app.Loup_WinnerEvent(event)
+            else if (event.type == "Uno.TurnEvent") app.Uno_TurnEvent(event)
+            else if (event.type == "Uno.DrawEvent") app.Uno_DrawEvent(event)
+            else if (event.type == "Uno.PlayEvent") app.Uno_PlayEvent(event)
+            else if (event.type == "Uno.SkipEvent") app.Uno_SkipEvent(event)
+            else if (event.type == "Uno.WinEvent") app.Uno_WinEvent(event)
+
             // app.updateData((data) => {});
         },
         //pack Action sa automatise la creation de l'action au lieu de la faire manuellement
@@ -220,7 +226,40 @@ function Lobby({ connected, setconnected }) {
             app.updateData((data) => {
                 data.gameData.votes[uuid] = target;
             });
-        }
+        },
+
+
+
+        Uno_TurnEvent(event) {
+            app.updateData((data) => {
+                data.gameData.currentPlayer = event.currentPlayer;
+                data.gameData.direction = event.direction;
+                data.gameData.currentColor = event.currentColor;
+                data.gameData.currentCard = event.currentCard;
+            });
+        },
+        Uno_DrawEvent(event) {
+            app.updateData((data) => {
+                for (let card of event.cards) {
+                    let index = data.gameData.deck.indexOf(card);
+                    if (index > -1) data.gameData.deck.splice(index, 1);
+                    data.gameData.players[event.target].push(card);
+                }
+            });
+        },
+        Uno_PlayEvent(event) {
+            app.updateData((data) => {
+                let index = data.gameData.players[event.player].indexOf(event.card);
+                if (index > -1) data.gameData.players[event.player].splice(index, 1);
+                data.gameData.flush.unshift(event.card);
+            });
+        },
+        Uno_SkipEvent(event) {
+            // do nothing
+        },
+        Uno_WinEvent(event) {
+            alert(app.data.players[event.player].name + " a gagné!");
+        },
     }
 
     //il est appeler a chaque fois que data se fait changer car il est dans ses dependencies car il est celui qui se charge de update le jeux et aussi

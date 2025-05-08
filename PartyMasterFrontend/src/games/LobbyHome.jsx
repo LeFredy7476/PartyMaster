@@ -106,14 +106,14 @@ export default class LobbyHome extends CanvasHandler {
         // console.log(this.app)
         // this.ctx.fillText(this.app.data.msg, 50, 50);
         // show debug information
-        this.ctx.textAlign = "left"
-        this.ctx.font = "50px serif";
-        this.ctx.fillStyle = this.toRGB(127, 127, 127);
-        this.ctx.fillText( Math.round( 10000 / this.deltaTime ) / 10 + " FPS", 50, 80 );
-        this.ctx.fillText( this.hover[0] + ", " + this.hover[1] + ", " + this.hover[2], 50, 160 );
-        this.ctx.fillText( this.mouse.x + ", " + this.mouse.y, 50, 240 );
+        // this.ctx.textAlign = "left"
+        // this.ctx.font = "50px serif";
+        // this.ctx.fillStyle = this.toRGB(127, 127, 127);
+        // this.ctx.fillText( Math.round( 10000 / this.deltaTime ) / 10 + " FPS", 50, 80 );
+        // this.ctx.fillText( this.hover[0] + ", " + this.hover[1] + ", " + this.hover[2], 50, 160 );
+        // this.ctx.fillText( this.mouse.x + ", " + this.mouse.y, 50, 240 );
         
-        if ( sessionStorage.getItem( "debug" ) == "true" ) this.debugDraw();
+        // if ( sessionStorage.getItem( "debug" ) == "true" ) this.debugDraw();
     }
 
     drawTitles(pos, hovered, hitbox_color, text, selected) {

@@ -70,7 +70,9 @@ public class UnoGame implements Game {
         player.removeCard(card);
         this.flush.addFirst(card);
         this.currentCard = card;
-        this.currentColor = card.getColor();
+        if (!card.getColor().equals(Color.MULTI)) {
+            this.currentColor = card.getColor();
+        }
         this.lobby.queueEventForAllPlayer(new PlayEvent(card.id, player.uuid));
         if (card.shouldFlip()) {
             this.direction = -direction;
@@ -81,12 +83,12 @@ public class UnoGame implements Game {
             this.lobby.queueEventForAllPlayer(new SkipEvent(currentPlayer));
             applyRotation();
         }
-        this.lobby.queueEventForAllPlayer(new TurnEvent(currentPlayer, direction));
+        this.lobby.queueEventForAllPlayer(new TurnEvent(currentPlayer, direction, currentColor, currentCard.id));
     }
 
     private void play(UnoPlayer player, Card card, Color color) {
-        play(player, card);
         this.currentColor = color;
+        play(player, card);
     }
 
     private void winner(UnoPlayer player) {
@@ -102,11 +104,11 @@ public class UnoGame implements Game {
         // data: {
         //    "card": <int>
         // }
-        assert action.getUuid().equals(currentPlayer);
+        if (!action.getUuid().equals(currentPlayer)) throw new AssertionError();
         UnoPlayer player = getPlayer(action.getUuid());
         Card card = Card.get(action.getData().getInt("card"));
-        assert player.hasCard(card);
-        assert card.canBePlayed(currentCard, currentColor);
+        if (!player.hasCard(card)) throw new AssertionError();
+        if (!card.canBePlayed(currentCard, currentColor)) throw new AssertionError();
 
         play(player, card);
 
@@ -121,13 +123,13 @@ public class UnoGame implements Game {
         //    "card": <int>,
         //    "color": <String>
         // }
-        assert action.getUuid().equals(currentPlayer);
+        if (!action.getUuid().equals(currentPlayer)) throw new AssertionError();
         UnoPlayer player = getPlayer(action.getUuid());
         Card card = Card.get(action.getData().getInt("card"));
         Color color = Color.valueOf(action.getData().getString("color").toUpperCase());
-        assert player.hasCard(card);
-        assert card.canBePlayed(currentCard, currentColor);
-        assert !color.equals(Color.MULTI);
+        if (!player.hasCard(card)) throw new AssertionError();
+        if (!card.canBePlayed(currentCard, currentColor)) throw new AssertionError();
+        if (color.equals(Color.MULTI)) throw new AssertionError();
 
         play(player, card, color);
 
@@ -139,13 +141,13 @@ public class UnoGame implements Game {
 
     public Response actionDraw(Action action) {
         // data: {}
-        assert action.getUuid().equals(currentPlayer);
+        if (!action.getUuid().equals(currentPlayer)) throw new AssertionError();
         UnoPlayer player = getPlayer(action.getUuid());
 
         draw(player, 1);
         applyRotation();
 
-        this.lobby.queueEventForAllPlayer(new TurnEvent(currentPlayer, direction));
+        this.lobby.queueEventForAllPlayer(new TurnEvent(currentPlayer, direction, currentColor, currentCard.id));
 
         return new Response();
     }
@@ -159,9 +161,6 @@ public class UnoGame implements Game {
      * game:play:normal
      * game:play:color
      * game:state
-     *
-     * @param action
-     * @return
      */
     @Override
     public Response receiveAction(Action action) {

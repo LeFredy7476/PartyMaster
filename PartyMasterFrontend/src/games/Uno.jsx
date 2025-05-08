@@ -21,7 +21,7 @@ export class ExpFollower {
         this.targetRotation = rot;
         this.trueSize = size;
         this.targetSize = size;
-        this.ratio = 0.001;
+        this.ratio = 0.0001;
     }
 
     get x() {
@@ -120,17 +120,32 @@ class Card extends ExpFollower {
 
     }
 
-    draw ( canvasHandler ) {
+    draw ( canvasHandler, owned = false ) {
         canvasHandler.octx.scale( this.size, this.size );
         canvasHandler.octx.translate( -this.backfaceImage.asset.cx, -this.backfaceImage.asset.cy );
-        canvasHandler.octx.fillStyle = `rgb( ${ this.hitbox[0] }, ${ this.hitbox[1] }, ${ this.hitbox[2] } )`;
+        let switchOpacity = 5 * (this.size - 1.0);
+        
+        canvasHandler.octx.fillStyle = `rgb( ${ this.hitbox[0] }, ${ 0 }, ${ 0 } )`;
         canvasHandler.octx.fillRect( 0, 0, this.backfaceImage.asset.w, this.backfaceImage.asset.h );
-
+        if (owned && this.color == "MULTI") {
+            canvasHandler.octx.fillStyle = `rgb( ${ this.hitbox[0] }, ${ 64 }, ${ 0 } )`;
+            canvasHandler.octx.fillRect( 50, 0, this.backfaceImage.asset.w - 50, this.backfaceImage.asset.h );
+            canvasHandler.octx.fillStyle = `rgb( ${ this.hitbox[0] }, ${ 128 }, ${ 0 } )`;
+            canvasHandler.octx.fillRect( 0, 75, this.backfaceImage.asset.w, this.backfaceImage.asset.h - 75 );
+            canvasHandler.octx.fillStyle = `rgb( ${ this.hitbox[0] }, ${ 192 }, ${ 0 } )`;
+            canvasHandler.octx.fillRect( 50, 75, this.backfaceImage.asset.w - 50, this.backfaceImage.asset.h - 75 );
+        }
         if ( this.image.complete && this.backfaceImage.image.complete ) {
             canvasHandler.ctx.scale( this.size, this.size );
             if ( this.flip > 0 ) {
                 canvasHandler.ctx.translate( -this.asset.cx, -this.asset.cy );
                 canvasHandler.ctx.drawImage( this.image, 0, 0, this.asset.w, this.asset.h );
+                if (switchOpacity > 0.05 && owned && this.color == "MULTI" && canvasHandler.switchImage.complete) {
+                    canvasHandler.ctx.globalAlpha = switchOpacity;
+                    canvasHandler.ctx.drawImage( canvasHandler.switchImage, 0, 0, this.asset.w, this.asset.h );
+                    canvasHandler.ctx.globalAlpha = 1;
+
+                }
             } else {
                 canvasHandler.ctx.translate( -this.backfaceImage.asset.cx, -this.backfaceImage.asset.cy );
                 canvasHandler.ctx.drawImage( this.backfaceImage.image, 0, 0, this.backfaceImage.asset.w, this.backfaceImage.asset.h );
@@ -164,24 +179,24 @@ export default class Uno extends CanvasHandler {
         let halfHeight = Math.round(this.height / 2);
 
         this.allCards = [];
-        let colors = ["BLUE", "GREEN", "RED", "YELLOW"];
+        this.colors = ["BLUE", "GREEN", "RED", "YELLOW"];
         let id = 0;
-        for (let color = 0; color < colors.length; color++) {
+        for (let color = 0; color < this.colors.length; color++) {
             for (let number = 0; number < 13; number++) {
                 let id1 = id++;
                 let id2 = id++;
                 this.allCards.push(new Card (
                     halfWidth, halfHeight,
                     -1, 0, 1,
-                    assets.unocards[colors[color].toLowerCase()][number],
-                    id1, colors[color], number,
+                    assets.unocards[this.colors[color].toLowerCase()][number],
+                    id1, this.colors[color], number,
                     [ id1, 0, 0 ]
                 ));
                 this.allCards.push(new Card (
                     halfWidth, halfHeight,
                     -1, 0, 1,
-                    assets.unocards[colors[color].toLowerCase()][number],
-                    id2, colors[color], number,
+                    assets.unocards[this.colors[color].toLowerCase()][number],
+                    id2, this.colors[color], number,
                     [ id2, 0, 0 ]
                 ));
             }
@@ -213,12 +228,27 @@ export default class Uno extends CanvasHandler {
         let selfIndex = this.data.table.indexOf(sessionStorage.getItem("uuid"));
         let tableBefor = this.data.table.slice(0, selfIndex);
         let tableAfter = this.data.table.slice(selfIndex + 1);
-        this.customTable = tableAfter + tableBefor;
+        console.log(this.data.table);
+        console.log(sessionStorage.getItem("uuid"));
+        console.log(tableBefor);
+        console.log(tableAfter);
+        this.customTable = [].concat(tableAfter, tableBefor);
 
         this.players = {};
         this.placePlayers();
 
         this.spinner = new Spinner(halfWidth, halfHeight, assets.unospinner);
+        console.log(this);
+
+        this.switchImage = new Image();
+        this.switchImage.src = assets.unoswitch.src;
+    }
+
+    isHoveredBeyond ( color ) {
+        let r = this.hover[0];
+        let g = this.hover[1];
+        let b = this.hover[2];
+        return [this.compareColor( color, [r, 0, b] ), Math.round(g / 64)];
     }
 
     placePlayers() {
@@ -229,7 +259,7 @@ export default class Uno extends CanvasHandler {
         let playerspan = totalspan / playernb;
         let halfplayerspan = playerspan / 2;
         for (let i = 0; i < this.customTable.length; i++) {
-            let uuid = this.data.table[i];
+            let uuid = this.customTable[i];
             let pos = Math.round(i * playerspan + halfplayerspan);
             let x = 0;
             let y = 0;
@@ -260,7 +290,37 @@ export default class Uno extends CanvasHandler {
     }
 
     onclick( event ) {
-        
+        // check if card clicked 
+        let [r, g, b] = this.hover;
+        if (r < 128) {
+            if (this.data.deck.includes(r)) {
+                // action for drawing a card
+                this.app.packAction("game:draw", {}).then((response) => {
+                    console.log(response);
+                    if (response.data.code != 0) {
+                        ErrorHandler(response.data);
+                    }
+                }).catch(ErrorHandler);
+            } else if (this.data.players[sessionStorage.getItem("uuid")].includes(r)) {
+                // action for playing a card
+                if (this.getCard(r).color == "MULTI") {
+                    let color = this.colors[Math.round(g / 64)];
+                    this.app.packAction("game:play:color", {card: r, color: color}).then((response) => {
+                        console.log(response);
+                        if (response.data.code != 0) {
+                            ErrorHandler(response.data);
+                        }
+                    }).catch(ErrorHandler);
+                } else {
+                    this.app.packAction("game:play:normal", {card: r}).then((response) => {
+                        console.log(response);
+                        if (response.data.code != 0) {
+                            ErrorHandler(response.data);
+                        }
+                    }).catch(ErrorHandler);
+                }
+            }
+        }
     }
 
     loop ( time ) {
@@ -270,16 +330,17 @@ export default class Uno extends CanvasHandler {
         this.drawSpinner();
         this.resetOwnCardDrawOrder();
         this.placeOwnCards();
+        this.placeAllPlayersCards();
         this.placeTableCenter();
 
         // show debug information
-        if ( sessionStorage.getItem( "debug" ) == "true" ) this.debugDraw();
-        this.ctx.textAlign = "left"
-        this.ctx.font = "50px serif";
-        this.ctx.fillStyle = this.toRGB(127, 127, 127);
-        this.ctx.fillText( Math.round( 10000 / this.deltaTime ) / 10 + " fps", 50, 80 );
-        this.ctx.fillText( this.hover[0] + ", " + this.hover[1] + ", " + this.hover[2], 50, 160 );
-        this.ctx.fillText( this.mouse.x + ", " + this.mouse.y, 50, 240 );
+        // if ( sessionStorage.getItem( "debug" ) == "true" ) this.debugDraw();
+        // this.ctx.textAlign = "left"
+        // this.ctx.font = "50px serif";
+        // this.ctx.fillStyle = this.toRGB(127, 127, 127);
+        // this.ctx.fillText( Math.round( 10000 / this.deltaTime ) / 10 + " fps", 50, 80 );
+        // this.ctx.fillText( this.hover[0] + ", " + this.hover[1] + ", " + this.hover[2], 50, 160 );
+        // this.ctx.fillText( this.mouse.x + ", " + this.mouse.y, 50, 240 );
     }
 
     getCard(index) {
@@ -297,8 +358,20 @@ export default class Uno extends CanvasHandler {
         this.spinner.rotation = angle;
         this.spinner.x = halfWidth;
         this.spinner.y = halfHeight;
+        this.spinner.update(this.deltaTime);
         this.spinner.transform((self) => {
-            self.spinner.draw(self)
+            self.ctx.beginPath();
+            self.ctx.arc(0, 0, assets.unospinner.r, 0, Math.PI * 2);
+            let color = {
+                BLUE: "#5050e2",
+                GREEN: "#368e36",
+                RED: "#e54545",
+                YELLOW: "#ffc639"
+            }[self.data.currentColor];
+            console.log(color);
+            self.ctx.fillStyle = color;
+            self.ctx.fill();
+            self.spinner.draw(self);
         }, this);
     }
 
@@ -312,6 +385,7 @@ export default class Uno extends CanvasHandler {
             card.x = halfWidth - 60;
             card.y = halfHeight;
             card.size = 1;
+            card.rotation = 0;
             card.update(this.deltaTime);
             card.transform( ( self ) => {
                 card.draw( self );
@@ -324,6 +398,7 @@ export default class Uno extends CanvasHandler {
             card.x = halfWidth + 60;
             card.y = halfHeight;
             card.size = 1;
+            card.rotation = 0;
             card.update(this.deltaTime);
             card.transform( ( self ) => {
                 card.draw( self );
@@ -332,10 +407,39 @@ export default class Uno extends CanvasHandler {
     }
 
     placeAllPlayersCards() {
+        // console.log(this);
         for (let playerIndex = 0; playerIndex < this.customTable.length; playerIndex++) {
             let uuid = this.customTable[playerIndex];
-
-            
+            let pos = this.players[uuid];
+            // console.log(pos);
+            let rot = 0;
+            let lastCard = pos;
+            for (let cardindex = 0; cardindex < this.data.players[uuid].length; cardindex++) {
+                let cardId = this.data.players[uuid][cardindex];
+                let card = this.getCard(cardId);
+                card.flip = -1;
+                card.size = 1;
+                card.x = pos.x;
+                card.y = pos.y;
+                card.rotation = rot;
+                rot = rot + 0.1;
+                card.update(this.deltaTime);
+                card.transform( ( self ) => {
+                    card.draw( self );
+                }, this );
+                lastCard = card;
+            }
+            let playername = this.app.data.players[uuid].name;
+            this.ctx.lineJoin = "round";
+            this.ctx.lineCap = "round";
+            this.ctx.textBaseline = "middle";
+            this.ctx.strokeStyle = "#fff";
+            this.ctx.fillStyle = "#000";
+            this.ctx.font = "600 24px Lexend";
+            this.ctx.textAlign = "center";
+            this.ctx.lineWidth = 8;
+            this.ctx.strokeText(playername, lastCard.x, lastCard.y);
+            this.ctx.fillText(playername, lastCard.x, lastCard.y);
         }
     }
 
@@ -364,7 +468,10 @@ export default class Uno extends CanvasHandler {
             card.x = left + spacing * index;
             card.y = y;
             card.size = 1;
-            if (this.isHovered(card.hitbox)) {
+            card.rotation = 0;
+            let [r,g,b] = card.hitbox;
+
+            if (this.isHoveredBeyond(card.hitbox)[0]) {
                 topped = true;
                 card.y = y - 15;
                 card.size = 1.2;
@@ -378,7 +485,7 @@ export default class Uno extends CanvasHandler {
         for (let index = 0; index < this.ownCardDrawOrder.length; index++) {
             let card = this.getCard(this.ownCardDrawOrder[index]);
             card.transform( ( self ) => {
-                card.draw( self );
+                card.draw( self, true );
             }, this );
         }
     }

@@ -324,7 +324,11 @@ class Joueur {
             ctx.textAlign = "center";
             ctx.font = self.uuid == sessionStorage.getItem("uuid") ? "900 24px Lexend" : "400 24px Lexend";
             ctx.fillStyle = canvasHandler.toRGB(0, 0, 0);
-            ctx.fillText(myName, 0, 100);
+            let suffix = "";
+            if (game.data.joueurs[self.uuid].amour != null) {
+                suffix = " ❤️";
+            }
+            ctx.fillText(myName + suffix, 0, 100);
 
             if (this.expFollower.voteBubble > 0.005) {
                 ctx.save();
@@ -519,14 +523,14 @@ export default class Loup extends CanvasHandler {
         }
 
 
-        this.ctx.textAlign = "left";
-        this.ctx.font = "50px sans-serif";
-        this.ctx.fillStyle = this.toRGB(127, 127, 127);
-        this.ctx.fillText( Math.round( 10000 / this.deltaTime ) / 10 + " fps", 50, 80 );
-        this.ctx.fillText( this.hover[0] + ", " + this.hover[1] + ", " + this.hover[2], 50, 160 );
-        this.ctx.fillText( this.mouse.x + ", " + this.mouse.y, 50, 240 );
+        // this.ctx.textAlign = "left";
+        // this.ctx.font = "50px sans-serif";
+        // this.ctx.fillStyle = this.toRGB(127, 127, 127);
+        // this.ctx.fillText( Math.round( 10000 / this.deltaTime ) / 10 + " fps", 50, 80 );
+        // this.ctx.fillText( this.hover[0] + ", " + this.hover[1] + ", " + this.hover[2], 50, 160 );
+        // this.ctx.fillText( this.mouse.x + ", " + this.mouse.y, 50, 240 );
         
-        if ( sessionStorage.getItem( "debug" ) == "true" ) this.debugDraw();
+        // if ( sessionStorage.getItem( "debug" ) == "true" ) this.debugDraw();
     }
 
     amIConcerned(naming, myData) {
