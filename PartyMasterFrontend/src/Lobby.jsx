@@ -278,20 +278,43 @@ function Lobby({ connected, setconnected }) {
         },
 
         Question_StateEvent(event){
-           app.updateData((data)=>{
-            data.gameData = event; 
-            data.gameData.type = "Question";
-           } )     
-        },
-        Question_QuestionEvent(event){
-
-        },
-        Question_QuestionSpeEvent(event){
-
-        },
-        Question_ResultatEvent(event){
-
-        }
+            app.updateData((data)=>{
+             data.gameData = event; 
+             data.gameData.type = "Question";
+            } )     
+         },
+         Question_QuestionEvent(event){
+             let question = event.question;
+             let reponse1 = event.reponse1;
+             let reponse2 = event.reponse2;
+             let reponse3 = event.reponse3;
+             let reponse4 = event.reponse4;
+             let typeQuestion = event.typeQuestion;
+             
+             app.updateData((data) =>{
+                 data.gameData = event;
+                 data.gameData.question = question;
+                 data.gameData.reponse1 = reponse1;
+                 data.gameData.reponse2 = reponse2;
+                 data.gameData.reponse3 = reponse3;
+                 data.gameData.reponse4 = reponse4;
+                 data.gameData.typeQuestion = typeQuestion;
+             })
+         },
+         Question_QuestionSpeEvent(event){
+             let question = event.question;
+             let niveauQuestion = event.niveauQuestion;
+             app.updateData(()=> {
+                 data.gameData.question = question;
+                 data.gameData.niveauQuestion = niveauQuestion;
+             } )
+         },
+         Question_ResultatEvent(event){
+             let bonneReponse = event.bonneReponse;
+             app.updateData(()=> {
+                 data.gameData.bonneReponse = bonneReponse;
+             } )
+         }
     }
 
     //il est appeler a chaque fois que data se fait changer car il est dans ses dependencies car il est celui qui se charge de update le jeux et aussi
