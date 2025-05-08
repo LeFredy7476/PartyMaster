@@ -11,7 +11,7 @@ export default function PlayerList({app}) {
                     app.quit();
                 }} >home</button>
                 <FullscreenButton />
-                <ShareButton />
+                {/* <ShareButton /> */}
                 <h1 className="currentroom">{app.data.room}</h1>
             </div>
             <div className="playerlist">

@@ -41,7 +41,7 @@ public class Sql {
         PreparedStatement prtm= null;
         ArrayList<Question> questionTout=new ArrayList<>();
 
-        props = Connexion.getProps("./PartyMasterBackend/src/main/resources/application.properties");
+        props = Connexion.getProps("src/main/resources/application.properties");
         con= DriverManager.getConnection(props.getProperty("spring.datasource.url"),
                 props.getProperty("spring.datasource.username"),
                 props.getProperty("spring.datasource.password"));
@@ -81,7 +81,7 @@ public class Sql {
         PreparedStatement prtm= null;
         ArrayList<QuestionSpe> questionTout=new ArrayList<>();
 
-        props = Connexion.getProps("./PartyMasterBackend/src/main/resources/application.properties");
+        props = Connexion.getProps("src/main/resources/application.properties");
         con= DriverManager.getConnection(props.getProperty("spring.datasource.url"),
                 props.getProperty("spring.datasource.username"),
                 props.getProperty("spring.datasource.password"));
@@ -116,7 +116,7 @@ public class Sql {
         PreparedStatement prtm= null;
         ArrayList<QuestionSpe> questionTout=new ArrayList<>();
 
-        props = Connexion.getProps("./PartyMasterBackend/src/main/resources/application.properties");
+        props = Connexion.getProps("src/main/resources/application.properties");
         con= DriverManager.getConnection(props.getProperty("spring.datasource.url"),
                 props.getProperty("spring.datasource.username"),
                 props.getProperty("spring.datasource.password"));

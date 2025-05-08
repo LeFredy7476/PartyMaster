@@ -9,9 +9,6 @@ public class App {
 
 	public static void main(String[] args)throws Exception {
 		Lobby.main(args);
-
-		new Lobby("abcde123");
-
 		SpringApplication.run(App.class, args);
 	}
 
