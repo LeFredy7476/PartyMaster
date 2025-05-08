@@ -57,7 +57,12 @@ function Lobby({ connected, setconnected }) {
             else if (event.type == "Uno.SkipEvent") app.Uno_SkipEvent(event)
             else if (event.type == "Uno.WinEvent") app.Uno_WinEvent(event)
             else if (event.type == "Uno.StateEvent") app.Uno_StateEvent(event)
-
+            else if (event.type == "JeuxQuestion.StateEvent") app.Question_StateEvent(event)
+            else if (event.type == "JeuxQuestion.QuestionEvent") app.Question_QuestionEvent(event)
+            else if (event.type == "JeuxQuestion.QuestionResultatEvent") app.Question_ResultatEvent(event)
+            else if (event.type == "JeuxQuestion.QuestionSpeEvent") app.Question_QuestionSpeEvent(event)
+              
+             
             // app.updateData((data) => {});
         },
         //pack Action sa automatise la creation de l'action au lieu de la faire manuellement
@@ -261,6 +266,7 @@ function Lobby({ connected, setconnected }) {
         Uno_SkipEvent(event) {
             // do nothing
         },
+
         Uno_WinEvent(event) {
             alert(app.data.players[event.player].name + " a gagné!");
         },
@@ -270,6 +276,22 @@ function Lobby({ connected, setconnected }) {
                 data.gameData.type = "Uno";
             });
         },
+
+        Question_StateEvent(event){
+           app.updateData((data)=>{
+            data.gameData = event; 
+            data.gameData.type = "Question";
+           } )     
+        },
+        Question_QuestionEvent(event){
+
+        },
+        Question_QuestionSpeEvent(event){
+
+        },
+        Question_ResultatEvent(event){
+
+        }
     }
 
     //il est appeler a chaque fois que data se fait changer car il est dans ses dependencies car il est celui qui se charge de update le jeux et aussi
