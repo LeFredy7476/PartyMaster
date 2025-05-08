@@ -278,6 +278,7 @@ function Lobby({ connected, setconnected }) {
         },
 
         Question_StateEvent(event){
+            console.log("event live: " ,event);
             app.updateData((data)=>{
              data.gameData = event; 
              data.gameData.type = "Question";

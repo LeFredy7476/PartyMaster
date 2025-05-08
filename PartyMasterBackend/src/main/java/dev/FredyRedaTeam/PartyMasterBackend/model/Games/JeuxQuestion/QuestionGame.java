@@ -87,6 +87,7 @@ public class QuestionGame implements Game  {
             if (System.currentTimeMillis() > (nextQuestionTimer + 5000)) {
                 try {
                     envoyerQuestion();
+                    readyNextQuestion =false;
                 }catch (Exception e) {
                     System.out.println(e.getMessage());
                 }
@@ -330,7 +331,9 @@ public class QuestionGame implements Game  {
                 lobby.queueEventForAllPlayer(new QuestionResultatEvent(question.getId(), question.getBonneReponse()));
                 tempsrecu.clear();
                 reponserecu.clear();
-                nextQuestion();
+                //idee donner par frederick
+                readyNextQuestion =true;
+                nextQuestionTimer =System.currentTimeMillis();
                 return new Response();
             } else {
                 compteur++;
@@ -372,7 +375,7 @@ public class QuestionGame implements Game  {
         return new Response();
     }
     public Response nextQuestion() throws Exception{
-        if (nbrQuestion>5) {
+        if (nbrQuestion<5) {
             envoyerQuestion();
         } else {
             envoyerQuestionSpe();
