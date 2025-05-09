@@ -226,7 +226,7 @@ public class QuestionGame implements Game  {
         }
         return true;
     }
-
+//rajouter synchronized pour pas avoir de deadlock
     public Response recevoirReponse(Action action)throws Exception  {
 
         long now = System.currentTimeMillis();
