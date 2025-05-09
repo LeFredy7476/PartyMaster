@@ -61,6 +61,7 @@ public class QuestionEvent implements Event {
         obj.put("reponse3",reponse3);
         obj.put("reponse4",reponse4);
         obj.put("typeQuestion",typeQuestion);
+        obj.put("type", getType());
         return obj;
     }
 }

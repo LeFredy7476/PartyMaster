@@ -246,12 +246,8 @@ public class QuestionGame implements Game  {
             if (contenders.size()==reponserecu.size()){
                 br();
                 nbrQuestion++;
-            }else {
-                Response r = new Response(3, new JSONObject());
-                r.getData().put("r", "NotEveryoneResponded");
-                return r; // IGNORED
             }
-            } else {
+        } else {
             Response r = new Response(3, new JSONObject());
             r.getData().put("r", "UnknownPlayer");
             return r; // IGNORED

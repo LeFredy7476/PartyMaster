@@ -26,6 +26,7 @@ public class QuestionResultatEvent implements Event {
         JSONObject object=new JSONObject();
         object.put("id",id);
         object.put("bonneReponse",bonneReponse);
+        object.put("type", getType());
         return object;
     }
 }
