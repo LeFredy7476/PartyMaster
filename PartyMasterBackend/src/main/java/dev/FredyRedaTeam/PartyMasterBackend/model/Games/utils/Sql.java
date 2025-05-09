@@ -58,8 +58,9 @@ public class Sql {
                 question.setReponse2(rs.getString(4));
                 question.setReponse3(rs.getString(5));
                 question.setReponse4(rs.getString(6));
-                question.setTypeQuestion(rs.getString(7));
-                question.setBonneReponse(rs.getString(8));
+                question.setBonneReponse(rs.getString(7));
+                question.setTypeQuestion(rs.getString(8));
+               
                 questionTout.add(question);
               //  System.out.println(question.getQuestion());
             }

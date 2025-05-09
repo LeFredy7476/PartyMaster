@@ -13,11 +13,12 @@ public class QuestionEvent implements Event {
     private  final String reponse3;
     private  final String reponse4;
     private  final String typeQuestion;
+    private final String bonneReponse;
     
 
 
 
-    public QuestionEvent(int id,String question,String reponse1,String reponse2,String reponse3,String reponse4,String typeQuestion) {
+    public QuestionEvent(int id,String question,String reponse1,String reponse2,String reponse3,String reponse4,String typeQuestion,String bonneReponse) {
 
         this.id=id;
         this.question=question;
@@ -26,6 +27,7 @@ public class QuestionEvent implements Event {
         this.reponse3=reponse3;
         this.reponse4=reponse4;
         this.typeQuestion=typeQuestion;
+        this.bonneReponse=bonneReponse;
      
 
     }
@@ -36,6 +38,7 @@ public class QuestionEvent implements Event {
     public String getReponse3(){return reponse3;}
     public String getReponse4(){return reponse4;}
     public String getTypeQuestion(){return typeQuestion ;}
+    public String getbonneReponse(){return bonneReponse;}
     
 
 

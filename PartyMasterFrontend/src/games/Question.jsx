@@ -44,7 +44,8 @@ export default class Question extends CanvasHandler {
             new Button("Option 1", 0, [0, 0, 0], this.data.currentQuestion.reponse1||this.data.reponse1),
             new Button("Option 2", 1, [10, 0, 0], this.data.currentQuestion.reponse2||this.data.reponse2),
             new Button("Option 3", 2, [20, 0, 0], this.data.currentQuestion.reponse3||this.data.reponse3),
-            new Button("Option 4", 3, [30, 0, 0], this.data.currentQuestion.reponse4||this.data.reponse4)
+            new Button("Option 4", 3, [30, 0, 0], this.data.currentQuestion.reponse4||this.data.reponse4),
+          
         ];
     }
 
@@ -87,6 +88,7 @@ export default class Question extends CanvasHandler {
     }
 
     loop(time) {
+        
         super.loop(time);
         let state = statesNames[this.data.state];
 
@@ -95,6 +97,7 @@ export default class Question extends CanvasHandler {
         this.ctx.fillStyle = "#000000";
         this.ctx.fillText(state.titre, this.width / 2, 80);
         this.ctx.font = "36px Lexend";
+        console.log(this.data.currentQuestion.question);
         this.ctx.fillText(this.data.currentQuestion.question, this.width / 2, 140);
 
         if (this.data.state === "QUESTION") {
@@ -115,6 +118,7 @@ export default class Question extends CanvasHandler {
             this.ctx.fillStyle = "#000000";
             this.ctx.fillText("Cliquez pour entrer votre reponse", this.width / 2, this.height / 2);
         }
+        
 
         // show debug information
         if ( sessionStorage.getItem( "debug" ) == "true" ) this.debugDraw();

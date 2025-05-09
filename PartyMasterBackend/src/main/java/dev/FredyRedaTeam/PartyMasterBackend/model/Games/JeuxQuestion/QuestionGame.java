@@ -85,7 +85,14 @@ public class QuestionGame implements Game  {
     @Override
     public void tick() {
         if (readyNextQuestion) {
+            System.out.println("temps activé");
+            while (System.currentTimeMillis()<(nextQuestionTimer + 7000)) {
+              
+                continue;
+            }
+            System.out.println(System.currentTimeMillis());
             if (System.currentTimeMillis() > (nextQuestionTimer + 5000)) {
+               
                 try {
                     envoyerQuestion();
                     readyNextQuestion =false;
@@ -128,6 +135,7 @@ public class QuestionGame implements Game  {
         }
     }
     public Response envoyerQuestion()throws Exception {
+        
         if(!(nbrQuestion>=5)) {
             ArrayList<Question> qstListe = Sql.DonnerQuestion();
             if(QuestionUsed.size()==qstListe.size()){
@@ -137,15 +145,17 @@ public class QuestionGame implements Game  {
                 int indexQuestion = Lobby.random.nextInt(qstListe.size());
                 if (verifQuestionUsed(indexQuestion)) {
                     Question question = qstListe.get(indexQuestion);
+                    currentQuestion = question;
                     this.lobby.queueEventForAllPlayer(
                             new QuestionEvent(
-                                    question.getId(),
-                                    question.getQuestion(),
-                                    question.getReponse1(),
-                                    question.getReponse2(),
-                                    question.getReponse3(),
-                                    question.getReponse4(),
-                                    question.getTypeQuestion()
+                                    currentQuestion.getId(),
+                                    currentQuestion.getQuestion(),
+                                    currentQuestion.getReponse1(),
+                                    currentQuestion.getReponse2(),
+                                    currentQuestion.getReponse3(),
+                                    currentQuestion.getReponse4(),
+                                    currentQuestion.getTypeQuestion(),
+                                    currentQuestion.getBonneReponse()
                             )
                     );
                     this.currentQuestion = qstListe.get(question.getId());
@@ -288,14 +298,13 @@ public class QuestionGame implements Game  {
     public ArrayList<UUID> verifReponse() {
         ArrayList<UUID> bonneReponse = new ArrayList<>();
         for (Map.Entry<UUID,String> reponseMec : reponserecu.entrySet()){
+            
             if (reponseMec.getValue().equals(currentQuestion.getBonneReponse())) {
                 bonneReponse.add(reponseMec.getKey());
             } else {
                 System.out.println("mauvaise reponse de : " + reponseMec.getKey());
-                for (Map.Entry<UUID,Joueur> afficherPoint : pointEnter.entrySet()){
-                    System.out.println(afficherPoint.getKey());
-                    System.out.println(afficherPoint.getValue());
-            }
+                
+                
             
         }
     }return bonneReponse;
@@ -305,6 +314,7 @@ public class QuestionGame implements Game  {
     public ArrayList<UUID> verifReponseSpe() {
         ArrayList<UUID> bonneReponse = new ArrayList<>();
         for (Map.Entry<UUID,String> reponseMec : reponserecu.entrySet()) {
+            
             if (reponseMec.getValue().equals(currentQuestion.getBonneReponse())) {
                 bonneReponse.add(reponseMec.getKey());
             } else {
@@ -338,9 +348,11 @@ public class QuestionGame implements Game  {
                 lobby.queueEventForAllPlayer(new QuestionResultatEvent(question.getId(), question.getBonneReponse()));
                 tempsrecu.clear();
                 reponserecu.clear();
+                
                 //idee donner par frederick
                 readyNextQuestion =true;
                 nextQuestionTimer =System.currentTimeMillis();
+                tick();
                 return new Response();
             } else {
                 compteur++;
