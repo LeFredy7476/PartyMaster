@@ -60,6 +60,7 @@ public class QuestionGame implements Game  {
                 case "question":
                     switch (action.getTarget(2)) {
                         case "receiveResponse":
+                                System.out.println("question base action appelé");
                                 return recevoirReponse(action);
                     }
                 case "questionSpecial":
@@ -291,10 +292,16 @@ public class QuestionGame implements Game  {
                 bonneReponse.add(reponseMec.getKey());
             } else {
                 System.out.println("mauvaise reponse de : " + reponseMec.getKey());
+                for (Map.Entry<UUID,Joueur> afficherPoint : pointEnter.entrySet()){
+                    System.out.println(afficherPoint.getKey());
+                    System.out.println(afficherPoint.getValue());
             }
+            
         }
-        return bonneReponse;
-    }
+    }return bonneReponse;
+}
+        
+    
     public ArrayList<UUID> verifReponseSpe() {
         ArrayList<UUID> bonneReponse = new ArrayList<>();
         for (Map.Entry<UUID,String> reponseMec : reponserecu.entrySet()) {
